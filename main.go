@@ -10,6 +10,9 @@ import (
 
 	"github.com/kssilveira/circuit-engine/bit"
 	"github.com/kssilveira/circuit-engine/component"
+	"github.com/kssilveira/circuit-engine/config"
+	"github.com/kssilveira/circuit-engine/draw"
+	"github.com/kssilveira/circuit-engine/jointwire"
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
@@ -21,72 +24,6 @@ var (
 	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
 	drawNodes       = flag.Bool("draw_nodes", true, "draw nodes")
 )
-
-func depthToString(depth int) string {
-	if *drawGraph {
-		return strings.Repeat(" ", depth)
-	}
-	return strings.Repeat("|", depth)
-}
-
-type JointWire struct {
-	Res   *wire.Wire
-	A     *wire.Wire
-	B     *wire.Wire
-	IsAnd bool
-}
-
-func (w JointWire) String(depth int) string {
-	var res []string
-	for _, wire := range []*wire.Wire{w.A, w.B, w.Res} {
-		one := fmt.Sprintf("%v", *wire)
-		if one == "" {
-			continue
-		}
-		res = append(res, one)
-	}
-	name := "OR"
-	if w.IsAnd {
-		name = "AND"
-	}
-	return fmt.Sprintf("%s%s %s", depthToString(depth), name, strings.Join(res, "    "))
-}
-
-func color(a, b *wire.Wire) string {
-	color := "blue"
-	if a.Bit.Get(nil) || b.Bit.Get(nil) {
-		color = "red"
-	}
-	return fmt.Sprintf(`[color="%s"]`, color)
-}
-
-func (w JointWire) Graph(depth int) string {
-	if !*drawNodes {
-		return ""
-	}
-	prefix := depthToString(depth)
-	var res []string
-	if *drawShapePoint {
-		res = append(res, fmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *w.Res))
-	}
-	for _, wire := range []*wire.Wire{w.A, w.B} {
-		if *drawShapePoint {
-			res = append(res, fmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *wire))
-		}
-		if *drawEdges {
-			res = append(res, fmt.Sprintf(`%s"%v" -> "%v" %s;`, prefix, *wire, *w.Res, color(wire, w.Res)))
-		}
-	}
-	return strings.Join(res, "\n")
-}
-
-func (w *JointWire) Update() {
-	if w.IsAnd {
-		w.Res.Bit.Set(w.A.Bit.Get(w) && w.B.Bit.Get(w))
-		return
-	}
-	w.Res.Bit.Set(w.A.Bit.Get(w) || w.B.Bit.Get(w))
-}
 
 type Transistor struct {
 	Base         *wire.Wire
@@ -104,14 +41,14 @@ func (t Transistor) String(depth int) string {
 		}
 		res = append(res, one)
 	}
-	return fmt.Sprintf("%s%s", depthToString(depth), strings.Join(res, "    "))
+	return fmt.Sprintf("%s%s", draw.StringPrefix(depth), strings.Join(res, "    "))
 }
 
-func (t Transistor) Graph(depth int) string {
-	if !*drawNodes {
+func (t Transistor) Graph(depth int, cfg config.Config) string {
+	if !cfg.DrawNodes {
 		return ""
 	}
-	prefix := depthToString(depth)
+	prefix := draw.GraphPrefix(depth)
 	var res []string
 	res = append(res, fmt.Sprintf(`"%p" [label="𓇲";shape=invtriangle];`, &t))
 	for _, wire := range []*wire.Wire{t.Base, t.Collector} {
@@ -119,7 +56,7 @@ func (t Transistor) Graph(depth int) string {
 			res = append(res, fmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *wire))
 		}
 		if *drawEdges {
-			res = append(res, fmt.Sprintf(`%s"%v" -> "%p" %s;`, prefix, *wire, &t, color(wire, wire)))
+			res = append(res, fmt.Sprintf(`%s"%v" -> "%p" %s;`, prefix, *wire, &t, draw.EdgeColor(wire, wire)))
 		}
 	}
 	for _, wire := range []*wire.Wire{t.Emitter, t.CollectorOut} {
@@ -130,7 +67,7 @@ func (t Transistor) Graph(depth int) string {
 			res = append(res, fmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *wire))
 		}
 		if *drawEdges {
-			res = append(res, fmt.Sprintf(`%s"%p" -> "%v" %s;`, prefix, &t, *wire, color(wire, wire)))
+			res = append(res, fmt.Sprintf(`%s"%p" -> "%v" %s;`, prefix, &t, *wire, draw.EdgeColor(wire, wire)))
 		}
 	}
 	return strings.Join(res, "\n")
@@ -174,7 +111,7 @@ func (g Group) String(depth int) string {
 	if *maxPrintDepth >= 0 && depth >= *maxPrintDepth {
 		return ""
 	}
-	prefix := depthToString(depth)
+	prefix := draw.StringPrefix(depth)
 	res := []string{
 		prefix + g.Name,
 		prefix + horizontalLine,
@@ -190,12 +127,12 @@ func (g Group) String(depth int) string {
 	return strings.Join(res, "\n")
 }
 
-func (g Group) Graph(depth int) string {
-	if *maxPrintDepth >= 0 && depth >= *maxPrintDepth {
+func (g Group) Graph(depth int, cfg config.Config) string {
+	if cfg.MaxPrintDepth >= 0 && depth >= cfg.MaxPrintDepth {
 		return ""
 	}
-	prefix := depthToString(depth)
-	nextPrefix := depthToString(depth + 1)
+	prefix := draw.GraphPrefix(depth)
+	nextPrefix := draw.GraphPrefix(depth + 1)
 	res := []string{
 		fmt.Sprintf("%ssubgraph cluster_%p {", prefix, &g),
 		fmt.Sprintf(`%slabel="%s";`, nextPrefix, g.Name),
@@ -203,7 +140,7 @@ func (g Group) Graph(depth int) string {
 		fmt.Sprintf(`%s"%p"[style=invis,shape=point];`, nextPrefix, &g),
 	}
 	for _, component := range g.Components {
-		one := component.Graph(depth + 1)
+		one := component.Graph(depth+1, cfg)
 		if one == "" {
 			continue
 		}
@@ -214,7 +151,7 @@ func (g Group) Graph(depth int) string {
 }
 
 func (g *Group) JointWire(res, a, b *wire.Wire, isAnd bool) {
-	g.Components = append(g.Components, &JointWire{Res: res, A: a, B: b, IsAnd: isAnd})
+	g.Components = append(g.Components, &jointwire.JointWire{Res: res, A: a, B: b, IsAnd: isAnd})
 }
 
 func (g *Group) AddTransistor(transistor *Transistor) {
@@ -241,6 +178,7 @@ func (g *Group) Update() {
 }
 
 type Circuit struct {
+	Config     config.Config
 	Vcc        *wire.Wire
 	Gnd        *wire.Wire
 	Unused     *wire.Wire
@@ -249,12 +187,12 @@ type Circuit struct {
 	Components []component.Component
 }
 
-func NewCircuit() *Circuit {
+func NewCircuit(config config.Config) *Circuit {
 	vcc := bit.Bit{}
 	vcc.Set(true)
 	gnd := bit.Bit{}
 	gnd.Set(true)
-	return &Circuit{Vcc: &wire.Wire{Name: "Vcc", Bit: vcc}, Gnd: &wire.Wire{Name: "Gnd", Gnd: gnd}, Unused: &wire.Wire{Name: "Unused"}}
+	return &Circuit{Config: config, Vcc: &wire.Wire{Name: "Vcc", Bit: vcc}, Gnd: &wire.Wire{Name: "Gnd", Gnd: gnd}, Unused: &wire.Wire{Name: "Unused"}}
 }
 
 func (c *Circuit) In(name string) *wire.Wire {
@@ -313,7 +251,7 @@ func (c Circuit) Graph() string {
 		res = append(res, fmt.Sprintf(` "%v"[shape=rarrow;fillcolor=black;style=filled;fontcolor=white;fontsize=30];`, *output))
 	}
 	for _, component := range c.Components {
-		res = append(res, component.Graph(1))
+		res = append(res, component.Graph(1, c.Config))
 	}
 	res = append(res, "}")
 	return strings.Join(res, "\n")
@@ -333,7 +271,7 @@ func (c *Circuit) Simulate() []string {
 func (c *Circuit) simulate(index int) []string {
 	if index >= len(c.Inputs) {
 		c.Update()
-		if *drawGraph {
+		if c.Config.DrawGraph {
 			return []string{c.Graph()}
 		}
 		return []string{c.String()}
@@ -553,10 +491,7 @@ func Alu2(parent *Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wire.Wir
 	return append(r1[:6], r2...)
 }
 
-func all() {
-	c := NewCircuit()
-	g := c.Group("")
-
+func all(c *Circuit, g *Group) {
 	c.Outs(transistor(g, c.In("base"), c.In("collector")))
 
 	c.Out(Not(g, c.In("a")))
@@ -586,7 +521,14 @@ func all() {
 
 func main() {
 	flag.Parse()
-	c := NewCircuit()
+	c := NewCircuit(config.Config{
+		MaxPrintDepth:   *maxPrintDepth,
+		DrawGraph:       *drawGraph,
+		DrawSingleGraph: *drawSingleGraph,
+		DrawShapePoint:  *drawShapePoint,
+		DrawEdges:       *drawEdges,
+		DrawNodes:       *drawNodes,
+	})
 	g := c.Group("")
 
 	c.Outs(transistorGnd(g, c.In("base"), c.In("collector")))
