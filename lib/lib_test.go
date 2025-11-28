@@ -6,13 +6,11 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/config"
-	"github.com/kssilveira/circuit-engine/wire"
 )
 
-func TestOutputs(t *testing.T) {
+func TestOutputsCombinational(t *testing.T) {
 	inputs := []struct {
 		name string
-		in   func(c *circuit.Circuit) []*wire.Wire
 		want []string
 	}{{
 		name: "TransistorEmitter",
@@ -29,13 +27,39 @@ func TestOutputs(t *testing.T) {
 	}, {
 		name: "And",
 		want: []string{"00=>0", "01=>0", "10=>0", "11=>1"},
+	}, {
+		name: "Or",
+		want: []string{"00=>0", "01=>1", "10=>1", "11=>1"},
+	}, {
+		name: "OrRes",
+		want: []string{"0=>0", "1=>1"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
 		c.Outs(Example(c, in.name))
 		got := c.Simulate()
 		if diff := cmp.Diff(in.want, got); diff != "" {
-			t.Errorf("Simulate(%q) want\n\t%#v\ngot\n\t%#v\ndiff -want +got:\n%s", in.name, in.want, got, diff)
+			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, got, diff)
+		}
+	}
+}
+
+func TestOutputsSequential(t *testing.T) {
+	inputs := []struct {
+		name string
+		inputs []string
+		want []string
+	}{{
+		name: "OrRes",
+		inputs : []string{"0", "1", "0"},
+		want: []string{"0=>0", "1=>1", "0=>1"},
+	}}
+	for _, in := range inputs {
+		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
+		c.Outs(Example(c, in.name))
+		got := c.SimulateInputs(in.inputs)
+		if diff := cmp.Diff(in.want, got); diff != "" {
+			t.Errorf("SimulateInputs(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, got, diff)
 		}
 	}
 }

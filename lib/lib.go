@@ -50,6 +50,24 @@ func And(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	return res
 }
 
+func Or(parent *group.Group, a, b *wire.Wire) *wire.Wire {
+	res := &wire.Wire{}
+	return OrRes(parent, res, a, b)
+}
+
+func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
+	group := parent.Group(fmt.Sprintf("OR(%v,%v)", a.Name, b.Name))
+	res.Name = group.Name
+	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
+	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
+	group.AddTransistors([]*transistor.Transistor{
+		{Base: a, Collector: group.Vcc, Emitter: wire1},
+		{Base: b, Collector: group.Vcc, Emitter: wire2},
+	})
+	group.JointWire(res, wire1, wire2, false /* isAnd */)
+	return res
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -82,6 +100,13 @@ var (
 		},
 		"And": func(c *circuit.Circuit) []*wire.Wire {
 			return []*wire.Wire{And(c.Group(""), c.In("a"), c.In("b"))}
+		},
+		"Or": func(c *circuit.Circuit) []*wire.Wire {
+			return []*wire.Wire{Or(c.Group(""), c.In("a"), c.In("b"))}
+		},
+		"OrRes": func(c *circuit.Circuit) []*wire.Wire {
+			bOrRes := &wire.Wire{Name: "b"}
+			return []*wire.Wire{OrRes(c.Group(""), bOrRes, c.In("a"), bOrRes)}
 		},
 	}
 )

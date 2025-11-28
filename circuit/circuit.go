@@ -115,6 +115,17 @@ func (c *Circuit) Simulate() []string {
 	return c.simulate(len(c.Inputs))
 }
 
+func (c *Circuit) SimulateInputs(allInputs []string) []string{
+	var res []string
+	for _, inputs := range allInputs {
+		for i, input := range inputs {
+			c.Inputs[i].Bit.SilentSet(input == '1')
+		}
+	  res = append(res, c.simulate(len(c.Inputs))...)
+	}
+	return res
+}
+
 func (c *Circuit) simulate(index int) []string {
 	if index >= len(c.Inputs) {
 		c.Update()
