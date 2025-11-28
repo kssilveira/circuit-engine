@@ -3,13 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"math/rand/v2"
 	"os"
 	"slices"
 	"strings"
 
-	"github.com/kssilveira/circuit-engine/bit"
-	"github.com/kssilveira/circuit-engine/component"
+	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/config"
 	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/transistor"
@@ -24,113 +22,6 @@ var (
 	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
 	drawNodes       = flag.Bool("draw_nodes", true, "draw nodes")
 )
-
-type Circuit struct {
-	Config     config.Config
-	Vcc        *wire.Wire
-	Gnd        *wire.Wire
-	Unused     *wire.Wire
-	Inputs     []*wire.Wire
-	Outputs    []*wire.Wire
-	Components []component.Component
-}
-
-func NewCircuit(config config.Config) *Circuit {
-	vcc := bit.Bit{}
-	vcc.Set(true)
-	gnd := bit.Bit{}
-	gnd.Set(true)
-	return &Circuit{Config: config, Vcc: &wire.Wire{Name: "Vcc", Bit: vcc}, Gnd: &wire.Wire{Name: "Gnd", Gnd: gnd}, Unused: &wire.Wire{Name: "Unused"}}
-}
-
-func (c *Circuit) In(name string) *wire.Wire {
-	res := &wire.Wire{Name: name}
-	c.Inputs = append(c.Inputs, res)
-	return res
-}
-
-func (c *Circuit) Group(name string) *group.Group {
-	res := &group.Group{Name: name, Vcc: c.Vcc, Gnd: c.Gnd, Unused: c.Unused}
-	c.Components = append(c.Components, res)
-	return res
-}
-
-func (c *Circuit) Out(res *wire.Wire) {
-	c.Outputs = append(c.Outputs, res)
-}
-
-func (c *Circuit) Outs(outputs []*wire.Wire) {
-	c.Outputs = append(c.Outputs, outputs...)
-}
-
-func (c *Circuit) Update() {
-	for _, component := range c.Components {
-		component.Update()
-	}
-}
-
-func (c Circuit) String() string {
-	var res []string
-	var list []string
-	for _, input := range c.Inputs {
-		list = append(list, fmt.Sprintf("  %v", *input))
-	}
-	res = append(res, fmt.Sprintf("Inputs: %s", strings.Join(list, "")))
-	res = append(res, fmt.Sprintf("Outputs:"))
-	for _, output := range c.Outputs {
-		res = append(res, fmt.Sprintf("  %v", *output))
-	}
-	res = append(res, "Components: ")
-	for _, component := range c.Components {
-		res = append(res, component.String(0, c.Config))
-	}
-	return strings.Join(res, "\n")
-}
-
-func (c Circuit) Graph() string {
-	res := []string{
-		"digraph {",
-		" rankdir=LR;",
-	}
-	for _, input := range c.Inputs {
-		res = append(res, fmt.Sprintf(` "%v"[shape=rarrow;fillcolor=black;style=filled;fontcolor=white;fontsize=30];`, *input))
-	}
-	for _, output := range c.Outputs {
-		res = append(res, fmt.Sprintf(` "%v"[shape=rarrow;fillcolor=black;style=filled;fontcolor=white;fontsize=30];`, *output))
-	}
-	for _, component := range c.Components {
-		res = append(res, component.Graph(1, c.Config))
-	}
-	res = append(res, "}")
-	return strings.Join(res, "\n")
-}
-
-func (c *Circuit) Simulate() []string {
-	if !*drawSingleGraph && len(c.Inputs) <= 9 {
-		return c.simulate(0)
-	}
-	rand := rand.New(rand.NewPCG(42, 1024))
-	for _, input := range c.Inputs {
-		input.Bit.SilentSet(rand.IntN(2) == 1)
-	}
-	return c.simulate(len(c.Inputs))
-}
-
-func (c *Circuit) simulate(index int) []string {
-	if index >= len(c.Inputs) {
-		c.Update()
-		if c.Config.DrawGraph {
-			return []string{c.Graph()}
-		}
-		return []string{c.String()}
-	}
-	var res []string
-	for _, value := range []bool{false, true} {
-		c.Inputs[index].Bit.SilentSet(value)
-		res = append(res, c.simulate(index+1)...)
-	}
-	return res
-}
 
 func transistorOne(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 	group := parent.Group("transistorOne")
@@ -339,7 +230,7 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 	return append(r1[:6], r2...)
 }
 
-func all(c *Circuit, g *group.Group) {
+func all(c *circuit.Circuit, g *group.Group) {
 	c.Outs(transistorOne(g, c.In("base"), c.In("collector")))
 
 	c.Out(Not(g, c.In("a")))
@@ -369,7 +260,7 @@ func all(c *Circuit, g *group.Group) {
 
 func main() {
 	flag.Parse()
-	c := NewCircuit(config.Config{
+	c := circuit.NewCircuit(config.Config{
 		MaxPrintDepth:   *maxPrintDepth,
 		DrawGraph:       *drawGraph,
 		DrawSingleGraph: *drawSingleGraph,
