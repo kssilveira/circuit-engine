@@ -2,9 +2,11 @@
 
 Define and simulate circuits from transistors all the way to an 8-bit computer.
 
-## Features
+## Main Features
 
 ### Simulate
+
+For example:
 
 ```console
 $ go run main.go --example_name HalfSum
@@ -50,7 +52,7 @@ Components:
 
 ### Draw
 
-Single graph:
+Single graph example:
 
 ```console
 $ go run main.go --example_name HalfSum --draw_graph --draw_single_graph | dot -Tsvg > doc/HalfSum.svg
@@ -59,12 +61,51 @@ $ google-chrome doc/HalfSum.svg
 
 ![HalfSum](doc/HalfSum.svg)
 
-Multiple graphs:
+Multiple graphs example:
 
 ```console
 $ go run main.go --example_name HalfSum --draw_graph
 $ for file in *.dot; do dot -Tsvg "${file}" > "${file}".svg; done
 $ google-chrome *.svg
+```
+
+### Example Circuits
+
+See [lib/lib.go](lib/lib.go).
+
+For example:
+
+```go
+func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
+	group := parent.Group(fmt.Sprintf("SUM(%v,%v)", a.Name, b.Name))
+	res := Xor(group, a, b)
+	res.Name = group.Name
+	carry := And(group, a, b)
+	carry.Name = fmt.Sprintf("CARRY(%v,%v)", a.Name, b.Name)
+	return []*wire.Wire{res, carry}
+}
+```
+
+```go
+		"HalfSum": func(c *circuit.Circuit) []*wire.Wire {
+			return HalfSum(c.Group(""), c.In("a"), c.In("b"))
+		},
+```
+
+### Unit Tests For Example Circuits
+
+See [lib/lib_test.go](lib/lib_test.go).
+
+For example:
+
+```go
+		name: "HalfSum",
+		// a b => s carry
+		want: []string{"00=>00", "01=>10", "10=>10", "11=>01"},
+		isValidInt: func(inputs map[string]int) []int {
+			sum := inputs["a"] + inputs["b"]
+			return []int{sum % 2, sum / 2}
+		},
 ```
 
 ## Development
