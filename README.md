@@ -4,7 +4,7 @@ Define and simulate circuits from transistors all the way to an 8-bit computer.
 
 ## Development
 
-Run unit test:
+Run unit tests:
 
 ```sh
 $ while inotifywait -r .; do clear; go test ./... | grep -v "no test files"; done
