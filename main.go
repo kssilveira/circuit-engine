@@ -225,7 +225,7 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 	return append(r1[:6], r2...)
 }
 
-func all(c *circuit.Circuit, g *group.Group) {
+func examples(c *circuit.Circuit, g *group.Group) {
 	c.Outs(transistorGnd(g, c.In("base"), c.In("collector")))
 	c.Out(Not(g, c.In("a")))
 	c.Out(And(g, c.In("a"), c.In("b")))
@@ -252,7 +252,7 @@ func all(c *circuit.Circuit, g *group.Group) {
 	c.Outs(Alu2(g, c.In("a1"), c.In("a2"), c.In("ai"), c.In("ao"), c.In("b1"), c.In("b2"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("carry")))
 }
 
-func main() {
+func all() error {
 	flag.Parse()
 	c := circuit.NewCircuit(config.Config{
 		MaxPrintDepth:   *maxPrintDepth,
@@ -264,23 +264,35 @@ func main() {
 		IsUnitTest:      *isUnitTest,
 	})
 
-	c.Outs(lib.Example(c, *exampleName))
+	outs := lib.Example(c, *exampleName)
+	if len(outs) == 0 {
+		return fmt.Errorf("invalid --example_name %q, valid names are %q", *exampleName, lib.ExampleNames())
+	}
+	c.Outs(outs)
 
 	res := c.Simulate()
 	fmt.Println(strings.Join(res, "\n"))
 	// fmt.Println(strings.Join(c.Simulate(), "\n"))
 
 	if !*drawGraph {
-		return
+		return nil
 	}
 	for i, graph := range res {
 		if i >= 4 || (*drawSingleGraph && i >= 1) {
 			break
 		}
 		if err := os.WriteFile(fmt.Sprintf("%d.dot", i), []byte(graph), 0644); err != nil {
-			panic(fmt.Errorf("WriteFile got err %v", err))
+			return fmt.Errorf("WriteFile got err %v", err)
 		}
 	}
 	// $ for file in *.dot; do dot -Tsvg "${file}" > "${file}".svg; done
 	// $ google-chrome *.svg
+	return nil
+}
+
+func main() {
+	if err := all(); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
 }

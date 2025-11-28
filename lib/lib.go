@@ -15,9 +15,25 @@ func Transistor(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 }
 
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
-	switch name {
-	case "transistor":
-		return Transistor(c.Group(""), c.In("base"), c.In("collector"))
+	res, ok := examples[name]
+	if !ok {
+		return nil
 	}
-	return nil
+	return res(c)
 }
+
+func ExampleNames() []string {
+	var res []string
+	for name := range examples {
+		res = append(res, name)
+	}
+	return res
+}
+
+var (
+	examples = map[string]func(*circuit.Circuit) []*wire.Wire{
+		"transistor": func(c *circuit.Circuit) []*wire.Wire {
+			return Transistor(c.Group(""), c.In("base"), c.In("collector"))
+		},
+	}
+)
