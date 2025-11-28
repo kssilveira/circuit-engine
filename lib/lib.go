@@ -65,7 +65,7 @@ func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 		{Base: a, Collector: group.Vcc, Emitter: wire1},
 		{Base: b, Collector: group.Vcc, Emitter: wire2},
 	})
-	group.JointWire(res, wire1, wire2, false /* isAnd */)
+	group.JointWire(res, wire1, wire2)
 	return res
 }
 
@@ -101,7 +101,7 @@ func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 		{Base: a, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire1},
 		{Base: b, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire2},
 	})
-	group.JointWire(res, wire1, wire2, true /* IsAnd */)
+	group.JointWireIsAnd(res, wire1, wire2)
 	return res
 }
 
@@ -247,11 +247,11 @@ func Bus(parent *group.Group, bus, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
 	res := &wire.Wire{Name: group.Name}
 	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
 	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
-	group.JointWire(wire1, bus, a, false /* isAnd */)
-	group.JointWire(wire2, wire1, b, false /* isAnd */)
-	group.JointWire(res, wire2, r, false /* isAnd */)
-	group.JointWire(wa, res, res, false /* isAnd */)
-	group.JointWire(wb, res, res, false /* isAnd */)
+	group.JointWire(wire1, bus, a)
+	group.JointWire(wire2, wire1, b)
+	group.JointWire(res, wire2, r)
+	group.JointWire(wa, res, res)
+	group.JointWire(wb, res, res)
 	return []*wire.Wire{res}
 }
 
@@ -420,8 +420,7 @@ var (
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("cin")
 			c.AddInputValidation(func() bool {
-				res := !(ri.Bit.Get(nil) && ro.Bit.Get(nil) && (ai.Bit.Get(nil) || bi.Bit.Get(nil)))
-				return res
+				return !(ri.Bit.Get(nil) && ro.Bit.Get(nil) && (ai.Bit.Get(nil) || bi.Bit.Get(nil)))
 			})
 			return AluWithBus(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
 		},

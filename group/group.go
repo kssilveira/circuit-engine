@@ -32,7 +32,15 @@ func (g *Group) Update() {
 	}
 }
 
-func (g *Group) JointWire(res, a, b *wire.Wire, isAnd bool) {
+func (g *Group) JointWire(res, a, b *wire.Wire) {
+	g.jointWire(res, a, b, false /* isAnd */)
+}
+
+func (g *Group) JointWireIsAnd(res, a, b *wire.Wire) {
+	g.jointWire(res, a, b, true /* isAnd */)
+}
+
+func (g *Group) jointWire(res, a, b *wire.Wire, isAnd bool) {
 	g.Components = append(g.Components, &jointwire.JointWire{Res: res, A: a, B: b, IsAnd: isAnd})
 }
 
