@@ -242,6 +242,29 @@ func Alu8(parent *group.Group, a [8]*wire.Wire, ai, ao *wire.Wire, b [8]*wire.Wi
 	return append(r1[:last], r2...)
 }
 
+func Bus(parent *group.Group, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
+	group := parent.Group(fmt.Sprintf("BUS"))
+	res := &wire.Wire{Name: group.Name}
+	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
+	group.JointWire(wire1, a, b, false /* isAnd */)
+	group.JointWire(res, wire1, r, false /* isAnd */)
+	group.JointWire(wa, res, res, false /* isAnd */)
+	group.JointWire(wb, res, res, false /* isAnd */)
+	return []*wire.Wire{res}
+}
+
+func AluWithBus(parent *group.Group, bus, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
+	group := parent.Group("ALU-BUS")
+	a := &wire.Wire{Name: fmt.Sprintf("ALU-%s-a", bus.Name)}
+	ra := Register(group, a, ai, ao)
+	b := &wire.Wire{Name: fmt.Sprintf("ALU-%s-b", bus.Name)}
+	rb := Register(group, b, bi, bo)
+	rs := Sum(group, ra[0], rb[0], cin)
+	rr := Register(group, rs[0], ri, ro)
+	rbus := Bus(group, ra[1], rb[1], rr[1], a, b)
+	return slices.Concat(rbus, ra, rb, rr, []*wire.Wire{rs[1]})
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -384,6 +407,11 @@ var (
 				}, c.In("bi"), c.In("bo"),
 				c.In("ri"), c.In("ro"),
 				c.In("cin"))
+		},
+		"Bus": func(c *circuit.Circuit) []*wire.Wire {
+			wa := &wire.Wire{Name: "wa"}
+			wb := &wire.Wire{Name: "wb"}
+			return append(Bus(c.Group(""), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil

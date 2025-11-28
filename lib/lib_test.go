@@ -461,6 +461,13 @@ func TestOutputsCombinational(t *testing.T) {
 				}
 			}
 		}(),
+	}, {
+		name: "Bus",
+		// a, b, r => bus wa wb
+		want: []string{
+			"000=>000", "001=>111", "010=>111", "011=>111",
+			"100=>111", "101=>111", "110=>111", "111=>111",
+		},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
