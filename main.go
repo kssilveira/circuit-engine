@@ -18,9 +18,9 @@ var (
 	maxPrintDepth   = flag.Int("max_print_depth", -1, "max print depth")
 	drawGraph       = flag.Bool("draw_graph", false, "draw graph")
 	drawSingleGraph = flag.Bool("draw_single_graph", false, "draw single graph")
-	drawShapePoint  = flag.Bool("draw_shape_point", false, "draw shape point")
-	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
 	drawNodes       = flag.Bool("draw_nodes", true, "draw nodes")
+	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
+	drawShapePoint  = flag.Bool("draw_shape_point", false, "draw shape point")
 )
 
 func transistorOne(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
@@ -264,9 +264,9 @@ func main() {
 		MaxPrintDepth:   *maxPrintDepth,
 		DrawGraph:       *drawGraph,
 		DrawSingleGraph: *drawSingleGraph,
-		DrawShapePoint:  *drawShapePoint,
-		DrawEdges:       *drawEdges,
 		DrawNodes:       *drawNodes,
+		DrawEdges:       *drawEdges,
+		DrawShapePoint:  *drawShapePoint,
 	})
 	g := c.Group("")
 
