@@ -34,14 +34,14 @@ func Transistor(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 }
 
 func Not(parent *group.Group, a *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("NOT(%v)", a.Name))
+	group := parent.Group(fmt.Sprintf("NOT(%s)", a.Name))
 	res := &wire.Wire{Name: group.Name}
 	group.Transistor(a, group.Vcc, group.Gnd, res)
 	return res
 }
 
 func And(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("AND(%v,%v)", a.Name, b.Name))
+	group := parent.Group(fmt.Sprintf("AND(%s,%s)", a.Name, b.Name))
 	res := &wire.Wire{Name: group.Name}
 	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
@@ -57,7 +57,7 @@ func Or(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 }
 
 func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("OR(%v,%v)", a.Name, b.Name))
+	group := parent.Group(fmt.Sprintf("OR(%s,%s)", a.Name, b.Name))
 	res.Name = group.Name
 	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
 	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
@@ -70,7 +70,7 @@ func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 }
 
 func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("NAND(%v,%v)", a.Name, b.Name))
+	group := parent.Group(fmt.Sprintf("NAND(%s,%s)", a.Name, b.Name))
 	res := &wire.Wire{Name: group.Name}
 	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
@@ -81,7 +81,7 @@ func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 }
 
 func Xor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("XOR(%v,%v)", a.Name, b.Name))
+	group := parent.Group(fmt.Sprintf("XOR(%s,%s)", a.Name, b.Name))
 	res := And(group, Or(group, a, b), Nand(group, a, b))
 	res.Name = group.Name
 	return res
@@ -93,7 +93,7 @@ func Nor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 }
 
 func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("NOR(%v,%v)", a.Name, b.Name))
+	group := parent.Group(fmt.Sprintf("NOR(%s,%s)", a.Name, b.Name))
 	res.Name = group.Name
 	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
 	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
@@ -106,21 +106,21 @@ func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 }
 
 func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SUM(%v,%v)", a.Name, b.Name))
+	group := parent.Group(fmt.Sprintf("SUM(%s,%s)", a.Name, b.Name))
 	res := Xor(group, a, b)
 	res.Name = group.Name
 	carry := And(group, a, b)
-	carry.Name = fmt.Sprintf("CARRY(%v,%v)", a.Name, b.Name)
+	carry.Name = fmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
 	return []*wire.Wire{res, carry}
 }
 
 func Sum(parent *group.Group, a, b, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SUM(%v,%v,%v)", a.Name, b.Name, cin.Name))
+	group := parent.Group(fmt.Sprintf("SUM(%s,%s,%s)", a.Name, b.Name, cin.Name))
 	s1 := HalfSum(group, a, b)
 	s2 := HalfSum(group, s1[0], cin)
 	s2[0].Name = group.Name
 	carry := Or(group, s1[1], s2[1])
-	carry.Name = fmt.Sprintf("CARRY(%v,%v)", a.Name, b.Name)
+	carry.Name = fmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
 	return []*wire.Wire{s2[0], carry}
 }
 
@@ -151,7 +151,7 @@ func SRLatch(parent *group.Group, s, r *wire.Wire) []*wire.Wire {
 }
 
 func SRLatchRes(parent *group.Group, q, s, r *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SRLATCH(%v,%v)", s.Name, r.Name))
+	group := parent.Group(fmt.Sprintf("SRLATCH(%s,%s)", s.Name, r.Name))
 	nq := &wire.Wire{Name: "nq"}
 	NorRes(group, q, r, nq)
 	NorRes(group, nq, s, q)
@@ -164,7 +164,7 @@ func SRLatchWithEnable(parent *group.Group, s, r, e *wire.Wire) []*wire.Wire {
 }
 
 func SRLatchResWithEnable(parent *group.Group, q, s, r, e *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SRLATCHEN(%v,%v,%v)", s.Name, r.Name, e.Name))
+	group := parent.Group(fmt.Sprintf("SRLATCHEN(%s,%s,%s)", s.Name, r.Name, e.Name))
 	return SRLatchRes(group, q, And(group, s, e), And(group, r, e))
 }
 
@@ -174,12 +174,12 @@ func DLatch(parent *group.Group, d, e *wire.Wire) []*wire.Wire {
 }
 
 func DLatchRes(parent *group.Group, q, d, e *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("DLATCH(%v,%v)", d.Name, e.Name))
+	group := parent.Group(fmt.Sprintf("DLATCH(%s,%s)", d.Name, e.Name))
 	return SRLatchResWithEnable(group, q, d, Not(group, d), e)
 }
 
 func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("Register(%v,%v,%v)", d.Name, ei.Name, eo.Name))
+	group := parent.Group(fmt.Sprintf("Register(%s,%s,%s)", d.Name, ei.Name, eo.Name))
 	q := &wire.Wire{}
 	DLatchRes(group, q, Or(group, And(group, q, Not(group, ei)), And(group, d, ei)), ei)
 	q.Name = group.Name + "-internal"
