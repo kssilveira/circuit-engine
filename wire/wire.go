@@ -21,7 +21,7 @@ func (w Wire) String() string {
 		return ""
 	}
 	list := []string{
-		boolToString(w.Bit.Get(nil)),
+		BoolToString(w.Bit.Get(nil)),
 	}
 	if w.Gnd.Get(nil) {
 		list = append(list, "Gnd")
@@ -39,7 +39,7 @@ func (w Wire) String() string {
 	return strings.Join(res, "")
 }
 
-func boolToString(a bool) string {
+func BoolToString(a bool) string {
 	if a {
 		return "1"
 	}

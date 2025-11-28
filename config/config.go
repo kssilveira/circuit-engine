@@ -7,4 +7,5 @@ type Config struct {
 	DrawNodes       bool
 	DrawShapePoint  bool
 	DrawEdges       bool
+	IsUnitTest      bool
 }

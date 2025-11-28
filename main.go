@@ -10,6 +10,7 @@ import (
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/config"
 	"github.com/kssilveira/circuit-engine/group"
+	"github.com/kssilveira/circuit-engine/lib"
 	"github.com/kssilveira/circuit-engine/transistor"
 	"github.com/kssilveira/circuit-engine/wire"
 )
@@ -22,14 +23,6 @@ var (
 	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
 	drawShapePoint  = flag.Bool("draw_shape_point", false, "draw shape point")
 )
-
-func transistorOne(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
-	group := parent.Group("transistorOne")
-	emitter := &wire.Wire{Name: "emitter"}
-	collectorOut := &wire.Wire{Name: "collector_out"}
-	group.Transistor(base, collector, emitter, collectorOut)
-	return []*wire.Wire{emitter, collectorOut}
-}
 
 func transistorGnd(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 	group := parent.Group("transistorGnd")
@@ -231,8 +224,8 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func all(c *circuit.Circuit, g *group.Group) {
-	c.Outs(transistorOne(g, c.In("base"), c.In("collector")))
-
+	c.Outs(lib.Transistor(g, c.In("base"), c.In("collector")))
+	c.Outs(transistorGnd(g, c.In("base"), c.In("collector")))
 	c.Out(Not(g, c.In("a")))
 	c.Out(And(g, c.In("a"), c.In("b")))
 	c.Out(Or(g, c.In("a"), c.In("b")))
@@ -270,7 +263,7 @@ func main() {
 	})
 	g := c.Group("")
 
-	c.Outs(transistorGnd(g, c.In("base"), c.In("collector")))
+	c.Outs(lib.Transistor(g, c.In("base"), c.In("collector")))
 
 	res := c.Simulate()
 	fmt.Println(strings.Join(res, "\n"))

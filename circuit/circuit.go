@@ -74,6 +74,18 @@ func (c Circuit) String() string {
 	return strings.Join(res, "\n")
 }
 
+func (c Circuit) StringForUnitTest() string {
+	var res []string
+	for _, input := range c.Inputs {
+		res = append(res, wire.BoolToString(input.Bit.Get(nil)))
+	}
+	res = append(res, "=>")
+	for _, output := range c.Outputs {
+		res = append(res, wire.BoolToString(output.Bit.Get(nil)))
+	}
+	return strings.Join(res, "")
+}
+
 func (c Circuit) Graph() string {
 	res := []string{
 		"digraph {",
@@ -108,6 +120,9 @@ func (c *Circuit) simulate(index int) []string {
 		c.Update()
 		if c.Config.DrawGraph {
 			return []string{c.Graph()}
+		}
+		if c.Config.IsUnitTest {
+			return []string{c.StringForUnitTest()}
 		}
 		return []string{c.String()}
 	}
