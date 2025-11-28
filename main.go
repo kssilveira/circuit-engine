@@ -8,21 +8,8 @@ import (
 
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/config"
-	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/lib"
-	"github.com/kssilveira/circuit-engine/wire"
 )
-
-func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU2")
-	r1 := lib.Alu(group, a1, ai, ao, b1, bi, bo, ri, ro, carry)
-	r2 := lib.Alu(group, a2, ai, ao, b2, bi, bo, ri, ro, r1[6])
-	return append(r1[:6], r2...)
-}
-
-func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(Alu2(g, c.In("a1"), c.In("a2"), c.In("ai"), c.In("ao"), c.In("b1"), c.In("b2"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("carry")))
-}
 
 func all() error {
 	maxPrintDepth := flag.Int("max_print_depth", -1, "max print depth")

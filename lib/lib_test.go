@@ -10,53 +10,95 @@ import (
 
 func TestOutputsCombinational(t *testing.T) {
 	inputs := []struct {
-		name    string
-		want    []string
-		isValid func(inputs map[string]int) []int
+		name        string
+		want        []string
+		isValidInt  func(inputs map[string]int) []int
+		isValidBool func(inputs map[string]bool) []bool
 	}{{
 		name: "TransistorEmitter",
 		// base collector => emitter
 		want: []string{"00=>0", "01=>0", "10=>0", "11=>1"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{inputs["base"] && inputs["collector"]}
+		},
 	}, {
 		name: "TransistorGnd",
 		// base collector => collectorOut
 		want: []string{"00=>0", "01=>1", "10=>0", "11=>0"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{!inputs["base"] && inputs["collector"]}
+		},
 	}, {
 		name: "Transistor",
 		// base collector => emitter collectorOut
 		want: []string{"00=>00", "01=>01", "10=>00", "11=>11"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{inputs["base"] && inputs["collector"], inputs["collector"]}
+		},
 	}, {
 		name: "Not",
 		want: []string{"0=>1", "1=>0"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{!inputs["a"]}
+		},
 	}, {
 		name: "And",
 		want: []string{"00=>0", "01=>0", "10=>0", "11=>1"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{inputs["a"] && inputs["b"]}
+		},
 	}, {
 		name: "Or",
 		want: []string{"00=>0", "01=>1", "10=>1", "11=>1"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{inputs["a"] || inputs["b"]}
+		},
 	}, {
 		name: "OrRes",
 		want: []string{"0=>0", "1=>1"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{inputs["a"]}
+		},
 	}, {
 		name: "Nand",
 		want: []string{"00=>1", "01=>1", "10=>1", "11=>0"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{!(inputs["a"] && inputs["b"])}
+		},
 	}, {
 		name: "Nand(Nand)",
 		want: []string{"000=>1", "001=>1", "010=>1", "011=>1", "100=>0", "101=>0", "110=>0", "111=>1"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{!(inputs["a"] && !(inputs["b"] && inputs["c"]))}
+		},
 	}, {
 		name: "Xor",
 		want: []string{"00=>0", "01=>1", "10=>1", "11=>0"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{inputs["a"] != inputs["b"]}
+		},
 	}, {
 		name: "Nor",
 		want: []string{"00=>1", "01=>0", "10=>0", "11=>0"},
+		isValidBool: func(inputs map[string]bool) []bool {
+			return []bool{!(inputs["a"] || inputs["b"])}
+		},
 	}, {
 		name: "HalfSum",
 		// a b => s carry
 		want: []string{"00=>00", "01=>10", "10=>10", "11=>01"},
+		isValidInt: func(inputs map[string]int) []int {
+			sum := inputs["a"] + inputs["b"]
+			return []int{sum % 2, sum / 2}
+		},
 	}, {
 		name: "Sum",
 		// a b cin => s cout
 		want: []string{"000=>00", "001=>10", "010=>10", "011=>01", "100=>10", "101=>01", "110=>01", "111=>11"},
+		isValidInt: func(inputs map[string]int) []int {
+			sum := inputs["a"] + inputs["b"] + inputs["c"]
+			return []int{sum % 2, sum / 2}
+		},
 	}, {
 		name: "Sum2",
 		// a1 a2 b1 b2 cin => s1 s2 cout
@@ -70,7 +112,7 @@ func TestOutputsCombinational(t *testing.T) {
 			"11000=>110", "11001=>001", "11010=>101", "11011=>011",
 			"11100=>001", "11101=>101", "11110=>011", "11111=>111",
 		},
-		isValid: func(inputs map[string]int) []int {
+		isValidInt: func(inputs map[string]int) []int {
 			sum1 := inputs["a1"] + inputs["b1"] + inputs["c"]
 			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
 			return []int{sum1 % 2, sum2 % 2, sum2 / 2}
@@ -83,7 +125,7 @@ func TestOutputsCombinational(t *testing.T) {
 			"110111101=>11001", "000100010=>00001", "000101110=>01101", "110010110=>00001",
 			"100000101=>01100", "001101111=>11011",
 		},
-		isValid: func(inputs map[string]int) []int {
+		isValidInt: func(inputs map[string]int) []int {
 			sum1 := inputs["a1"] + inputs["b1"] + inputs["c"]
 			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
 			sum3 := sum2/2 + inputs["a3"] + inputs["b3"]
@@ -105,7 +147,7 @@ func TestOutputsCombinational(t *testing.T) {
 			"11010011100110000=>001001110",
 			"11100100110000110=>010101110",
 		},
-		isValid: func(inputs map[string]int) []int {
+		isValidInt: func(inputs map[string]int) []int {
 			sum1 := inputs["a1"] + inputs["b1"] + inputs["c"]
 			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
 			sum3 := sum2/2 + inputs["a3"] + inputs["b3"]
@@ -120,18 +162,70 @@ func TestOutputsCombinational(t *testing.T) {
 		name: "SRLatch",
 		// s r => q !q
 		want: []string{"00=>10", "01=>01", "10=>10", "11=>00"},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q := true
+			return func(inputs map[string]bool) []bool {
+				if inputs["s"] && inputs["r"] {
+					return []bool{false, false}
+				}
+				if inputs["s"] {
+					q = true
+				}
+				if inputs["r"] {
+					q = false
+				}
+				return []bool{q, !q}
+			}
+		}(),
 	}, {
 		name: "SRLatchWithEnable",
 		// s r e => q !q
 		want: []string{"000=>10", "001=>10", "010=>10", "011=>01", "100=>01", "101=>10", "110=>10", "111=>00"},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q := true
+			return func(inputs map[string]bool) []bool {
+				if !inputs["e"] {
+					return []bool{q, !q}
+				}
+				if inputs["s"] && inputs["r"] {
+					return []bool{false, false}
+				}
+				if inputs["s"] {
+					q = true
+				}
+				if inputs["r"] {
+					q = false
+				}
+				return []bool{q, !q}
+			}
+		}(),
 	}, {
 		name: "DLatch",
 		// d e => q !q
 		want: []string{"00=>10", "01=>01", "10=>01", "11=>10"},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q := true
+			return func(inputs map[string]bool) []bool {
+				if !inputs["e"] {
+					return []bool{q, !q}
+				}
+				q = inputs["d"]
+				return []bool{q, !q}
+			}
+		}(),
 	}, {
 		name: "Register",
 		// d ei eo => q r
 		want: []string{"000=>10", "001=>11", "010=>00", "011=>00", "100=>00", "101=>00", "110=>10", "111=>11"},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q := true
+			return func(inputs map[string]bool) []bool {
+				if inputs["ei"] {
+					q = inputs["d"]
+				}
+				return []bool{q, inputs["eo"] && q}
+			}
+		}(),
 	}, {
 		name: "Register2",
 		// d1 d2 ei eo => q1 r1 q2 r2
@@ -141,6 +235,18 @@ func TestOutputsCombinational(t *testing.T) {
 			"1000=>0010", "1001=>0011", "1010=>1000", "1011=>1100",
 			"1100=>1000", "1101=>1100", "1110=>1010", "1111=>1111",
 		},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q1 := true
+			q2 := true
+			return func(inputs map[string]bool) []bool {
+				if inputs["ei"] {
+					q1 = inputs["d1"]
+					q2 = inputs["d2"]
+				}
+				eo := inputs["eo"]
+				return []bool{q1, eo && q1, q2, eo && q2}
+			}
+		}(),
 	}, {
 		name: "Register4",
 		// d1 d2 d3 d4 ei eo => q1 r1 q2 r2 q3 r3 q4 r4
@@ -162,6 +268,22 @@ func TestOutputsCombinational(t *testing.T) {
 			"111000=>10100010", "111001=>11110011", "111010=>10101000", "111011=>11111100",
 			"111100=>10101000", "111101=>11111100", "111110=>10101010", "111111=>11111111",
 		},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q1 := true
+			q2 := true
+			q3 := true
+			q4 := true
+			return func(inputs map[string]bool) []bool {
+				if inputs["ei"] {
+					q1 = inputs["d1"]
+					q2 = inputs["d2"]
+					q3 = inputs["d3"]
+					q4 = inputs["d4"]
+				}
+				eo := inputs["eo"]
+				return []bool{q1, eo && q1, q2, eo && q2, q3, eo && q3, q4, eo && q4}
+			}
+		}(),
 	}, {
 		name: "Register8",
 		// d1 d2 d3 d4 d5 d6 d7 d8 ei eo => q1 r1 q2 r2 q3 r3 q4 r4 q5 r5 q6 r6 q7 r7 q8 r8
@@ -172,14 +294,95 @@ func TestOutputsCombinational(t *testing.T) {
 			"1101100101=>1111110011000000", "1010000010=>1000100000000000",
 			"1001101111=>1100001111001111", "1110110100=>1000001010001010",
 		},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q1 := true
+			q2 := true
+			q3 := true
+			q4 := true
+			q5 := true
+			q6 := true
+			q7 := true
+			q8 := true
+			return func(inputs map[string]bool) []bool {
+				if inputs["ei"] {
+					q1 = inputs["d1"]
+					q2 = inputs["d2"]
+					q3 = inputs["d3"]
+					q4 = inputs["d4"]
+					q5 = inputs["d5"]
+					q6 = inputs["d6"]
+					q7 = inputs["d7"]
+					q8 = inputs["d8"]
+				}
+				eo := inputs["eo"]
+				return []bool{q1, eo && q1, q2, eo && q2, q3, eo && q3, q4, eo && q4, q5, eo && q5, q6, eo && q6, q7, eo && q7, q8, eo && q8}
+			}
+		}(),
 	}, {
 		name: "Alu",
-		// a ai ao b bi bo ri ro carry => qa ra qb rb qr rr
+		// a ai ao b bi bo ri ro cin => qa ra qb rb qr rr cout
 		want: []string{
 			"110110101=>1010101", "110000110=>1010001", "000101101=>1011101", "000000010=>1010111",
 			"110111101=>1011101", "000100010=>1010111", "000101110=>1011001", "110010110=>1000110",
 			"100000101=>1000001", "001101111=>1100001",
 		},
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa := 1
+			qb := 1
+			qr := 1
+			return func(inputs map[string]int) []int {
+				if inputs["ai"] == 1 {
+					qa = inputs["a"]
+				}
+				if inputs["bi"] == 1 {
+					qb = inputs["b"]
+				}
+				sum := qa + qb + inputs["cin"]
+				if inputs["ri"] == 1 {
+					qr = sum % 2
+				}
+				return []int{qa, inputs["ao"] & qa, qb, inputs["bo"] & qb, qr, inputs["ro"] & qr, sum / 2}
+			}
+		}(),
+	}, {
+		name: "Alu2",
+		// a1 a2 ai ao b1 b2 bi bo ri ro carry => qa1 ra1 qb1 rb1 qr1 rr1 qa2 ra2 qb2 rb2 qr2 rr2
+		want: []string{
+			"11011010111=>1110111100001", "00001100001=>1010101000001",
+			"01101000000=>0010101000000", "01011011110=>0011111100110",
+			"10001000100=>0010101000100", "00101110110=>0010110010110",
+			"01011010000=>0010100000100", "01010011011=>0000110000110",
+			"11111011010=>1111111100111", "01000101000=>1011101000101",
+		},
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa1 := 1
+			qb1 := 1
+			qr1 := 1
+			qa2 := 1
+			qb2 := 1
+			qr2 := 1
+			return func(inputs map[string]int) []int {
+				if inputs["ai"] == 1 {
+					qa1 = inputs["a1"]
+					qa2 = inputs["a2"]
+				}
+				if inputs["bi"] == 1 {
+					qb1 = inputs["b1"]
+					qb2 = inputs["b2"]
+				}
+				sum1 := qa1 + qb1 + inputs["cin"]
+				sum2 := qa2 + qb2 + sum1/2
+				if inputs["ri"] == 1 {
+					qr1 = sum1 % 2
+					qr2 = sum2 % 2
+				}
+				return []int{
+					qa1, inputs["ao"] & qa1, qb1, inputs["bo"] & qb1, qr1, inputs["ro"] & qr1,
+					qa2, inputs["ao"] & qa2, qb2, inputs["bo"] & qb2, qr2, inputs["ro"] & qr2,
+					sum2 / 2,
+				}
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
@@ -188,19 +391,33 @@ func TestOutputsCombinational(t *testing.T) {
 		if diff := cmp.Diff(in.want, got); diff != "" {
 			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, got, diff)
 		}
-		if in.isValid == nil {
-			continue
-		}
-		for _, out := range got {
-			inputs := map[string]int{}
-			for i, input := range c.Inputs {
-				inputs[input.Name] = int(out[i] - '0')
+		if in.isValidInt != nil {
+			for _, out := range got {
+				inputs := map[string]int{}
+				for i, input := range c.Inputs {
+					inputs[input.Name] = int(out[i] - '0')
+				}
+				wants := in.isValidInt(inputs)
+				for i, want := range wants {
+					got := int(out[len(c.Inputs)+len("=>")+i] - '0')
+					if want != got {
+						t.Errorf("Simulate(%q) out %s output %s want %d got %#v", in.name, out, c.Outputs[i].Name, want, got)
+					}
+				}
 			}
-			wants := in.isValid(inputs)
-			for i, want := range wants {
-				got := int(out[len(c.Inputs)+len("=>")+i] - '0')
-				if want != got {
-					t.Errorf("Simulate(%q) out %s output %s want %d got %#v", in.name, out, c.Outputs[i].Name, want, got)
+		}
+		if in.isValidBool != nil {
+			for _, out := range got {
+				inputs := map[string]bool{}
+				for i, input := range c.Inputs {
+					inputs[input.Name] = out[i] == '1'
+				}
+				wants := in.isValidBool(inputs)
+				for i, want := range wants {
+					got := out[len(c.Inputs)+len("=>")+i] == '1'
+					if want != got {
+						t.Errorf("Simulate(%q) out %s output %s want %t got %#v", in.name, out, c.Outputs[i].Name, want, got)
+					}
 				}
 			}
 		}

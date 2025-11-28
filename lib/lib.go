@@ -218,6 +218,13 @@ func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, carry *wire.Wire) []
 	return slices.Concat(ra, rb, rr, []*wire.Wire{rs[1]})
 }
 
+func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
+	group := parent.Group("ALU2")
+	r1 := Alu(group, a1, ai, ao, b1, bi, bo, ri, ro, carry)
+	r2 := Alu(group, a2, ai, ao, b2, bi, bo, ri, ro, r1[6])
+	return append(r1[:6], r2...)
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -308,7 +315,10 @@ var (
 			return Register8(c.Group(""), c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("d5"), c.In("d6"), c.In("d7"), c.In("d8"), c.In("ei"), c.In("eo"))
 		},
 		"Alu": func(c *circuit.Circuit) []*wire.Wire {
-			return Alu(c.Group(""), c.In("a"), c.In("ai"), c.In("ao"), c.In("b"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("carry"))
+			return Alu(c.Group(""), c.In("a"), c.In("ai"), c.In("ao"), c.In("b"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("cin"))
+		},
+		"Alu2": func(c *circuit.Circuit) []*wire.Wire {
+			return Alu2(c.Group(""), c.In("a1"), c.In("a2"), c.In("ai"), c.In("ao"), c.In("b1"), c.In("b2"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("cin"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
