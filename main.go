@@ -14,20 +14,10 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("Register(%v,%v,%v)", d.Name, ei.Name, eo.Name))
-	q := &wire.Wire{}
-	lib.DLatchRes(group, q, lib.Or(group, lib.And(group, q, lib.Not(group, ei)), lib.And(group, d, ei)), ei)
-	q.Name = group.Name + "-internal"
-	res := lib.And(group, q, eo)
-	res.Name = group.Name
-	return []*wire.Wire{q, res}
-}
-
 func Register2(parent *group.Group, d1, d2, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group("Register2")
-	r1 := Register(group, d1, ei, eo)
-	r2 := Register(group, d2, ei, eo)
+	r1 := lib.Register(group, d1, ei, eo)
+	r2 := lib.Register(group, d2, ei, eo)
 	return append(r1, r2...)
 }
 
@@ -47,10 +37,10 @@ func Register8(parent *group.Group, d1, d2, d3, d4, d5, d6, d7, d8, ei, eo *wire
 
 func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU")
-	ra := Register(group, a, ai, ao)
-	rb := Register(group, b, bi, bo)
+	ra := lib.Register(group, a, ai, ao)
+	rb := lib.Register(group, b, bi, bo)
 	rs := lib.Sum(group, ra[0], rb[0], carry)
-	rr := Register(group, rs[0], ri, ro)
+	rr := lib.Register(group, rs[0], ri, ro)
 	return slices.Concat(ra, rb, rr, []*wire.Wire{rs[1]})
 }
 
@@ -62,7 +52,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(Register(g, c.In("d"), c.In("ei"), c.In("eo")))
 	c.Outs(Register2(g, c.In("d1"), c.In("d2"), c.In("ei"), c.In("eo")))
 	c.Outs(Register4(g, c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("ei"), c.In("eo")))
 	c.Outs(Register8(g, c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("d5"), c.In("d6"), c.In("d7"), c.In("d8"), c.In("ei"), c.In("eo")))

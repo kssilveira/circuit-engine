@@ -128,6 +128,10 @@ func TestOutputsCombinational(t *testing.T) {
 		name: "DLatch",
 		// d e => q !q
 		want: []string{"00=>10", "01=>01", "10=>01", "11=>10"},
+	}, {
+		name: "Register",
+		// d ei eo => q r
+		want: []string{"000=>10", "001=>11", "010=>00", "011=>00", "100=>00", "101=>00", "110=>10", "111=>11"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})

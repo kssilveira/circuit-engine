@@ -177,6 +177,16 @@ func DLatchRes(parent *group.Group, q, d, e *wire.Wire) []*wire.Wire {
 	return SRLatchResWithEnable(group, q, d, Not(group, d), e)
 }
 
+func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
+	group := parent.Group(fmt.Sprintf("Register(%v,%v,%v)", d.Name, ei.Name, eo.Name))
+	q := &wire.Wire{}
+	DLatchRes(group, q, Or(group, And(group, q, Not(group, ei)), And(group, d, ei)), ei)
+	q.Name = group.Name + "-internal"
+	res := And(group, q, eo)
+	res.Name = group.Name
+	return []*wire.Wire{q, res}
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -253,6 +263,9 @@ var (
 		},
 		"DLatch": func(c *circuit.Circuit) []*wire.Wire {
 			return DLatch(c.Group(""), c.In("d"), c.In("e"))
+		},
+		"Register": func(c *circuit.Circuit) []*wire.Wire {
+			return Register(c.Group(""), c.In("d"), c.In("ei"), c.In("eo"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
