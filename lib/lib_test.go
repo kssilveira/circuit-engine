@@ -509,6 +509,53 @@ func TestOutputsCombinational(t *testing.T) {
 				return []int{bus, qa, ra, qb, rb, qr, rr, sum / 2}
 			}
 		}(),
+	}, {
+		name: "AluWithBus2",
+		// bus1 bus2 ai ao bi bo ri ro cin
+		// => rbus1 qa1 ra1 qb1 rb1 qr1 rr1
+		//    rbus2 qa2 ra2 qb2 rb2 qr2 rr2
+		//    cout
+		want: []string{
+			"110110101=>111101011110101", "110000110=>110100011010111",
+			"000101101=>111111011111101", "000000010=>110101111010111",
+			"110111101=>111111011111101", "000100010=>111101111110111",
+			"000101110=>111110011111111", "100000101=>110101001010101",
+		},
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa1, qb1, qr1 := 1, 1, 1
+			qa2, qb2, qr2 := 1, 1, 1
+			return func(inputs map[string]int) []int {
+				ra1, rb1, rr1, bus1, sum1 := 0, 0, 0, 0, 0
+				ra2, rb2, rr2, bus2, sum2 := 0, 0, 0, 0, 0
+				for i := 0; i < 10; i++ {
+					ra1 = inputs["ao"] & qa1
+					rb1 = inputs["bo"] & qb1
+					rr1 = inputs["ro"] & qr1
+					bus1 = inputs["bus1"] | ra1 | rb1 | rr1
+
+					ra2 = inputs["ao"] & qa2
+					rb2 = inputs["bo"] & qb2
+					rr2 = inputs["ro"] & qr2
+					bus2 = inputs["bus2"] | ra2 | rb2 | rr2
+
+					if inputs["ai"] == 1 {
+						qa1, qa2 = bus1, bus2
+					}
+					if inputs["bi"] == 1 {
+						qb1, qb2 = bus1, bus2
+					}
+					sum1 = qa1 + qb1 + inputs["cin"]
+					sum2 = qa1 + qb1 + sum1/2
+					if inputs["ri"] == 1 {
+						qr1, qr2 = sum1%2, sum2%2
+					}
+				}
+				return []int{
+					bus1, qa1, ra1, qb1, rb1, qr1, rr1,
+					bus2, qa2, ra2, qb2, rb2, qr2, rr2,
+					sum2 / 2}
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})

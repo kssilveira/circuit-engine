@@ -243,7 +243,7 @@ func Alu8(parent *group.Group, a [8]*wire.Wire, ai, ao *wire.Wire, b [8]*wire.Wi
 }
 
 func Bus(parent *group.Group, bus, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("BUS"))
+	group := parent.Group(fmt.Sprintf("BUS(%s)", bus.Name))
 	res := &wire.Wire{Name: group.Name}
 	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
 	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
@@ -272,6 +272,14 @@ func AluWithBus(parent *group.Group, bus, ai, ao, bi, bo, ri, ro, cin *wire.Wire
 	rr := Register(group, rs[0], ri, ro)
 	rbus := Bus(group, bus, ra[1], rb[1], rr[1], a, b)
 	return slices.Concat(rbus, ra, rb, rr, []*wire.Wire{rs[1]})
+}
+
+func AluWithBus2(parent *group.Group, bus1, bus2, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
+	group := parent.Group("ALU-BUS2")
+	alu1 := AluWithBus(group, bus1, ai, ao, bi, bo, ri, ro, cin)
+	last := len(alu1) - 1
+	alu2 := AluWithBus(group, bus2, ai, ao, bi, bo, ri, ro, alu1[last])
+	return slices.Concat(alu1[:last], alu2)
 }
 
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
@@ -439,6 +447,17 @@ var (
 				return !(ri.Bit.Get(nil) && ro.Bit.Get(nil) && (ai.Bit.Get(nil) || bi.Bit.Get(nil)))
 			})
 			return AluWithBus(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
+		},
+		"AluWithBus2": func(c *circuit.Circuit) []*wire.Wire {
+			bus1, bus2 := c.In("bus1"), c.In("bus2")
+			ai, ao := c.In("ai"), c.In("ao")
+			bi, bo := c.In("bi"), c.In("bo")
+			ri, ro := c.In("ri"), c.In("ro")
+			cin := c.In("cin")
+			c.AddInputValidation(func() bool {
+				return !(ri.Bit.Get(nil) && ro.Bit.Get(nil) && (ai.Bit.Get(nil) || bi.Bit.Get(nil)))
+			})
+			return AluWithBus2(c.Group(""), bus1, bus2, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
