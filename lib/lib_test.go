@@ -15,12 +15,15 @@ func TestOutputsCombinational(t *testing.T) {
 		isValid func(inputs map[string]int) []int
 	}{{
 		name: "TransistorEmitter",
+		// base collector => emitter
 		want: []string{"00=>0", "01=>0", "10=>0", "11=>1"},
 	}, {
 		name: "TransistorGnd",
+		// base collector => collectorOut
 		want: []string{"00=>0", "01=>1", "10=>0", "11=>0"},
 	}, {
 		name: "Transistor",
+		// base collector => emitter collectorOut
 		want: []string{"00=>00", "01=>01", "10=>00", "11=>11"},
 	}, {
 		name: "Not",
@@ -48,9 +51,11 @@ func TestOutputsCombinational(t *testing.T) {
 		want: []string{"00=>1", "01=>0", "10=>0", "11=>0"},
 	}, {
 		name: "HalfSum",
+		// a b => s carry
 		want: []string{"00=>00", "01=>10", "10=>10", "11=>01"},
 	}, {
 		name: "Sum",
+		// a b cin => s cout
 		want: []string{"000=>00", "001=>10", "010=>10", "011=>01", "100=>10", "101=>01", "110=>01", "111=>11"},
 	}, {
 		name: "Sum2",
@@ -111,6 +116,10 @@ func TestOutputsCombinational(t *testing.T) {
 			sum8 := sum7/2 + inputs["a8"] + inputs["b8"]
 			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum5 % 2, sum6 % 2, sum7 % 2, sum8 % 2, sum8 / 2}
 		},
+	}, {
+		name: "SRLatch",
+		// s r => q !q
+		want: []string{"00=>10", "01=>01", "10=>10", "11=>00"},
 	}, {
 		name: "",
 		want: []string{"=>"},

@@ -14,19 +14,6 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-func SRLatch(parent *group.Group, s, r *wire.Wire) []*wire.Wire {
-	q := &wire.Wire{Name: "q"}
-	return SRLatchRes(parent, q, s, r)
-}
-
-func SRLatchRes(parent *group.Group, q, s, r *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SRLATCH(%v,%v)", s.Name, r.Name))
-	nq := &wire.Wire{Name: "nq"}
-	lib.NorRes(group, q, r, nq)
-	lib.NorRes(group, nq, s, q)
-	return []*wire.Wire{q, nq}
-}
-
 func SRLatchWithEnable(parent *group.Group, s, r, e *wire.Wire) []*wire.Wire {
 	q := &wire.Wire{Name: "q"}
 	return SRLatchResWithEnable(parent, q, s, r, e)
@@ -34,7 +21,7 @@ func SRLatchWithEnable(parent *group.Group, s, r, e *wire.Wire) []*wire.Wire {
 
 func SRLatchResWithEnable(parent *group.Group, q, s, r, e *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SRLATCHEN(%v,%v,%v)", s.Name, r.Name, e.Name))
-	return SRLatchRes(group, q, lib.And(group, s, e), lib.And(group, r, e))
+	return lib.SRLatchRes(group, q, lib.And(group, s, e), lib.And(group, r, e))
 }
 
 func DLatch(parent *group.Group, d, e *wire.Wire) []*wire.Wire {
@@ -95,7 +82,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(SRLatch(g, c.In("s"), c.In("r")))
 	c.Outs(SRLatchWithEnable(g, c.In("s"), c.In("r"), c.In("e")))
 	c.Outs(DLatch(g, c.In("d"), c.In("e")))
 	c.Outs(Register(g, c.In("d"), c.In("ei"), c.In("eo")))
