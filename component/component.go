@@ -6,6 +6,6 @@ import (
 
 type Component interface {
 	Update()
-	String(depth int) string
+	String(depth int, cfg config.Config) string
 	Graph(depth int, cfg config.Config) string
 }

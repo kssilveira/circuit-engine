@@ -24,7 +24,7 @@ func (w *JointWire) Update() {
 	w.Res.Bit.Set(w.A.Bit.Get(w) || w.B.Bit.Get(w))
 }
 
-func (w JointWire) String(depth int) string {
+func (w JointWire) String(depth int, cfg config.Config) string {
 	var res []string
 	for _, wire := range []*wire.Wire{w.A, w.B, w.Res} {
 		one := fmt.Sprintf("%v", *wire)

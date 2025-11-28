@@ -11,8 +11,7 @@ import (
 	"github.com/kssilveira/circuit-engine/bit"
 	"github.com/kssilveira/circuit-engine/component"
 	"github.com/kssilveira/circuit-engine/config"
-	"github.com/kssilveira/circuit-engine/draw"
-	"github.com/kssilveira/circuit-engine/jointwire"
+	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/transistor"
 	"github.com/kssilveira/circuit-engine/wire"
 )
@@ -25,94 +24,6 @@ var (
 	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
 	drawNodes       = flag.Bool("draw_nodes", true, "draw nodes")
 )
-
-type Group struct {
-	Name       string
-	Vcc        *wire.Wire
-	Gnd        *wire.Wire
-	Unused     *wire.Wire
-	Components []component.Component
-}
-
-func (g *Group) Group(name string) *Group {
-	res := &Group{Name: name, Vcc: g.Vcc, Gnd: g.Gnd, Unused: g.Unused}
-	g.Components = append(g.Components, res)
-	return res
-}
-
-var (
-	horizontalLine = strings.Repeat("-", 10)
-)
-
-func (g Group) String(depth int) string {
-	if *maxPrintDepth >= 0 && depth >= *maxPrintDepth {
-		return ""
-	}
-	prefix := draw.StringPrefix(depth)
-	res := []string{
-		prefix + g.Name,
-		prefix + horizontalLine,
-	}
-	for _, component := range g.Components {
-		one := component.String(depth + 1)
-		if one == "" {
-			continue
-		}
-		res = append(res, one)
-	}
-	res = append(res, prefix+horizontalLine)
-	return strings.Join(res, "\n")
-}
-
-func (g Group) Graph(depth int, cfg config.Config) string {
-	if cfg.MaxPrintDepth >= 0 && depth >= cfg.MaxPrintDepth {
-		return ""
-	}
-	prefix := draw.GraphPrefix(depth)
-	nextPrefix := draw.GraphPrefix(depth + 1)
-	res := []string{
-		fmt.Sprintf("%ssubgraph cluster_%p {", prefix, &g),
-		fmt.Sprintf(`%slabel="%s";`, nextPrefix, g.Name),
-		fmt.Sprintf(`%sgraph[style=dotted];`, nextPrefix),
-		fmt.Sprintf(`%s"%p"[style=invis,shape=point];`, nextPrefix, &g),
-	}
-	for _, component := range g.Components {
-		one := component.Graph(depth+1, cfg)
-		if one == "" {
-			continue
-		}
-		res = append(res, one)
-	}
-	res = append(res, fmt.Sprintf("%s}", prefix))
-	return strings.Join(res, "\n")
-}
-
-func (g *Group) JointWire(res, a, b *wire.Wire, isAnd bool) {
-	g.Components = append(g.Components, &jointwire.JointWire{Res: res, A: a, B: b, IsAnd: isAnd})
-}
-
-func (g *Group) AddTransistor(transistor *transistor.Transistor) {
-	if transistor.CollectorOut == nil {
-		transistor.CollectorOut = g.Unused
-	}
-	g.Components = append(g.Components, transistor)
-}
-
-func (g *Group) Transistor(base, collector, emitter, collectorOut *wire.Wire) {
-	g.AddTransistor(&transistor.Transistor{Base: base, Collector: collector, Emitter: emitter, CollectorOut: collectorOut})
-}
-
-func (g *Group) AddTransistors(transistors []*transistor.Transistor) {
-	for _, transistor := range transistors {
-		g.AddTransistor(transistor)
-	}
-}
-
-func (g *Group) Update() {
-	for _, component := range g.Components {
-		component.Update()
-	}
-}
 
 type Circuit struct {
 	Config     config.Config
@@ -138,8 +49,8 @@ func (c *Circuit) In(name string) *wire.Wire {
 	return res
 }
 
-func (c *Circuit) Group(name string) *Group {
-	res := &Group{Name: name, Vcc: c.Vcc, Gnd: c.Gnd, Unused: c.Unused}
+func (c *Circuit) Group(name string) *group.Group {
+	res := &group.Group{Name: name, Vcc: c.Vcc, Gnd: c.Gnd, Unused: c.Unused}
 	c.Components = append(c.Components, res)
 	return res
 }
@@ -171,7 +82,7 @@ func (c Circuit) String() string {
 	}
 	res = append(res, "Components: ")
 	for _, component := range c.Components {
-		res = append(res, component.String(0))
+		res = append(res, component.String(0, c.Config))
 	}
 	return strings.Join(res, "\n")
 }
@@ -221,7 +132,7 @@ func (c *Circuit) simulate(index int) []string {
 	return res
 }
 
-func transistorOne(parent *Group, base, collector *wire.Wire) []*wire.Wire {
+func transistorOne(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 	group := parent.Group("transistorOne")
 	emitter := &wire.Wire{Name: "emitter"}
 	collectorOut := &wire.Wire{Name: "collector_out"}
@@ -229,21 +140,21 @@ func transistorOne(parent *Group, base, collector *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{emitter, collectorOut}
 }
 
-func transistorGnd(parent *Group, base, collector *wire.Wire) []*wire.Wire {
+func transistorGnd(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 	group := parent.Group("transistorGnd")
 	collectorOut := &wire.Wire{Name: "collector_out"}
 	group.Transistor(base, collector, group.Gnd, collectorOut)
 	return []*wire.Wire{collectorOut}
 }
 
-func Not(parent *Group, a *wire.Wire) *wire.Wire {
+func Not(parent *group.Group, a *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("NOT(%v)", a.Name))
 	res := &wire.Wire{Name: group.Name}
 	group.Transistor(a, group.Vcc, group.Gnd, res)
 	return res
 }
 
-func And(parent *Group, a, b *wire.Wire) *wire.Wire {
+func And(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("AND(%v,%v)", a.Name, b.Name))
 	res := &wire.Wire{Name: group.Name}
 	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
@@ -254,12 +165,12 @@ func And(parent *Group, a, b *wire.Wire) *wire.Wire {
 	return res
 }
 
-func Or(parent *Group, a, b *wire.Wire) *wire.Wire {
+func Or(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	res := &wire.Wire{}
 	return OrRes(parent, res, a, b)
 }
 
-func OrRes(parent *Group, res, a, b *wire.Wire) *wire.Wire {
+func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("OR(%v,%v)", a.Name, b.Name))
 	res.Name = group.Name
 	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
@@ -272,7 +183,7 @@ func OrRes(parent *Group, res, a, b *wire.Wire) *wire.Wire {
 	return res
 }
 
-func Nand(parent *Group, a, b *wire.Wire) *wire.Wire {
+func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("NAND(%v,%v)", a.Name, b.Name))
 	res := &wire.Wire{Name: group.Name}
 	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
@@ -283,19 +194,19 @@ func Nand(parent *Group, a, b *wire.Wire) *wire.Wire {
 	return res
 }
 
-func Xor(parent *Group, a, b *wire.Wire) *wire.Wire {
+func Xor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("XOR(%v,%v)", a.Name, b.Name))
 	res := And(group, Or(group, a, b), Nand(group, a, b))
 	res.Name = group.Name
 	return res
 }
 
-func Nor(parent *Group, a, b *wire.Wire) *wire.Wire {
+func Nor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	res := &wire.Wire{}
 	return NorRes(parent, res, a, b)
 }
 
-func NorRes(parent *Group, res, a, b *wire.Wire) *wire.Wire {
+func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("NOR(%v,%v)", a.Name, b.Name))
 	res.Name = group.Name
 	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
@@ -308,7 +219,7 @@ func NorRes(parent *Group, res, a, b *wire.Wire) *wire.Wire {
 	return res
 }
 
-func HalfSum(parent *Group, a, b *wire.Wire) []*wire.Wire {
+func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SUM(%v,%v)", a.Name, b.Name))
 	res := Xor(group, a, b)
 	res.Name = group.Name
@@ -317,7 +228,7 @@ func HalfSum(parent *Group, a, b *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{res, carry}
 }
 
-func Sum(parent *Group, a, b, cin *wire.Wire) []*wire.Wire {
+func Sum(parent *group.Group, a, b, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SUM(%v,%v,%v)", a.Name, b.Name, cin.Name))
 	s1 := HalfSum(group, a, b)
 	s2 := HalfSum(group, s1[0], cin)
@@ -327,33 +238,33 @@ func Sum(parent *Group, a, b, cin *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{s2[0], carry}
 }
 
-func Sum2(parent *Group, a1, a2, b1, b2, cin *wire.Wire) []*wire.Wire {
+func Sum2(parent *group.Group, a1, a2, b1, b2, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("SUM2")
 	s1 := Sum(group, a1, b1, cin)
 	s2 := Sum(group, a2, b2, s1[1])
 	return []*wire.Wire{s1[0], s2[0], s2[1]}
 }
 
-func Sum4(parent *Group, a1, a2, a3, a4, b1, b2, b3, b4, cin *wire.Wire) []*wire.Wire {
+func Sum4(parent *group.Group, a1, a2, a3, a4, b1, b2, b3, b4, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("SUM4")
 	s1 := Sum2(group, a1, a2, b1, b2, cin)
 	s2 := Sum2(group, a3, a4, b3, b4, s1[2])
 	return []*wire.Wire{s1[0], s1[1], s2[0], s2[1], s2[2]}
 }
 
-func Sum8(parent *Group, a1, a2, a3, a4, a5, a6, a7, a8, b1, b2, b3, b4, b5, b6, b7, b8, cin *wire.Wire) []*wire.Wire {
+func Sum8(parent *group.Group, a1, a2, a3, a4, a5, a6, a7, a8, b1, b2, b3, b4, b5, b6, b7, b8, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("SUM8")
 	s1 := Sum4(group, a1, a2, a3, a4, b1, b2, b3, b4, cin)
 	s2 := Sum4(group, a5, a6, a7, a8, b5, b6, b7, b8, s1[4])
 	return []*wire.Wire{s1[0], s1[1], s1[2], s1[3], s2[0], s2[1], s2[2], s2[3], s2[4]}
 }
 
-func SRLatch(parent *Group, s, r *wire.Wire) []*wire.Wire {
+func SRLatch(parent *group.Group, s, r *wire.Wire) []*wire.Wire {
 	q := &wire.Wire{Name: "q"}
 	return SRLatchRes(parent, q, s, r)
 }
 
-func SRLatchRes(parent *Group, q, s, r *wire.Wire) []*wire.Wire {
+func SRLatchRes(parent *group.Group, q, s, r *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SRLATCH(%v,%v)", s.Name, r.Name))
 	nq := &wire.Wire{Name: "nq"}
 	NorRes(group, q, r, nq)
@@ -361,27 +272,27 @@ func SRLatchRes(parent *Group, q, s, r *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{q, nq}
 }
 
-func SRLatchWithEnable(parent *Group, s, r, e *wire.Wire) []*wire.Wire {
+func SRLatchWithEnable(parent *group.Group, s, r, e *wire.Wire) []*wire.Wire {
 	q := &wire.Wire{Name: "q"}
 	return SRLatchResWithEnable(parent, q, s, r, e)
 }
 
-func SRLatchResWithEnable(parent *Group, q, s, r, e *wire.Wire) []*wire.Wire {
+func SRLatchResWithEnable(parent *group.Group, q, s, r, e *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SRLATCHEN(%v,%v,%v)", s.Name, r.Name, e.Name))
 	return SRLatchRes(group, q, And(group, s, e), And(group, r, e))
 }
 
-func DLatch(parent *Group, d, e *wire.Wire) []*wire.Wire {
+func DLatch(parent *group.Group, d, e *wire.Wire) []*wire.Wire {
 	q := &wire.Wire{Name: "q"}
 	return DLatchRes(parent, q, d, e)
 }
 
-func DLatchRes(parent *Group, q, d, e *wire.Wire) []*wire.Wire {
+func DLatchRes(parent *group.Group, q, d, e *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("DLATCH(%v,%v)", d.Name, e.Name))
 	return SRLatchResWithEnable(group, q, d, Not(group, d), e)
 }
 
-func Register(parent *Group, d, ei, eo *wire.Wire) []*wire.Wire {
+func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("Register(%v,%v,%v)", d.Name, ei.Name, eo.Name))
 	q := &wire.Wire{}
 	DLatchRes(group, q, Or(group, And(group, q, Not(group, ei)), And(group, d, ei)), ei)
@@ -391,28 +302,28 @@ func Register(parent *Group, d, ei, eo *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{q, res}
 }
 
-func Register2(parent *Group, d1, d2, ei, eo *wire.Wire) []*wire.Wire {
+func Register2(parent *group.Group, d1, d2, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group("Register2")
 	r1 := Register(group, d1, ei, eo)
 	r2 := Register(group, d2, ei, eo)
 	return append(r1, r2...)
 }
 
-func Register4(parent *Group, d1, d2, d3, d4, ei, eo *wire.Wire) []*wire.Wire {
+func Register4(parent *group.Group, d1, d2, d3, d4, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group("Register4")
 	r1 := Register2(group, d1, d2, ei, eo)
 	r2 := Register2(group, d3, d4, ei, eo)
 	return append(r1, r2...)
 }
 
-func Register8(parent *Group, d1, d2, d3, d4, d5, d6, d7, d8, ei, eo *wire.Wire) []*wire.Wire {
+func Register8(parent *group.Group, d1, d2, d3, d4, d5, d6, d7, d8, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group("Register8")
 	r1 := Register4(group, d1, d2, d3, d4, ei, eo)
 	r2 := Register4(group, d5, d6, d7, d8, ei, eo)
 	return append(r1, r2...)
 }
 
-func Alu(parent *Group, a, ai, ao, b, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
+func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU")
 	ra := Register(group, a, ai, ao)
 	rb := Register(group, b, bi, bo)
@@ -421,14 +332,14 @@ func Alu(parent *Group, a, ai, ao, b, bi, bo, ri, ro, carry *wire.Wire) []*wire.
 	return slices.Concat(ra, rb, rr, []*wire.Wire{rs[1]})
 }
 
-func Alu2(parent *Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
+func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU2")
 	r1 := Alu(group, a1, ai, ao, b1, bi, bo, ri, ro, carry)
 	r2 := Alu(group, a2, ai, ao, b2, bi, bo, ri, ro, r1[6])
 	return append(r1[:6], r2...)
 }
 
-func all(c *Circuit, g *Group) {
+func all(c *Circuit, g *group.Group) {
 	c.Outs(transistorOne(g, c.In("base"), c.In("collector")))
 
 	c.Out(Not(g, c.In("a")))

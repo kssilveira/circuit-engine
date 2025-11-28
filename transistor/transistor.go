@@ -32,7 +32,7 @@ func (t *Transistor) Update() {
 	}
 }
 
-func (t Transistor) String(depth int) string {
+func (t Transistor) String(depth int, cfg config.Config) string {
 	var res []string
 	for _, wire := range []*wire.Wire{t.Base, t.Collector, t.Emitter, t.CollectorOut} {
 		one := fmt.Sprintf("%v", *wire)
