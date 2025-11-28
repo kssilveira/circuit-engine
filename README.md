@@ -53,7 +53,8 @@ Components:
 Single graph:
 
 ```sh
-$ go run main.go --example_name HalfSum --draw_graph --draw_single_graph | dot -Tsvg > doc/HalfSum.svg
+$ go run main.go --example_name HalfSum --draw_graph --draw_single_graph | \
+    dot -Tsvg > doc/HalfSum.svg
 $ google-chrome doc/HalfSum.svg
 ```
 
