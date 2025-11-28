@@ -7,6 +7,8 @@ import (
 	"os"
 	"slices"
 	"strings"
+
+	"github.com/kssilveira/circuit-engine/component"
 )
 
 var (
@@ -32,18 +34,12 @@ func depthToString(depth int) string {
 	return strings.Repeat("|", depth)
 }
 
-type Component interface {
-	Update()
-	String(int) string
-	Graph(int) string
-}
-
 type Bool struct {
 	bit     bool
-	Readers []Component
+	Readers []component.Component
 }
 
-func (b *Bool) Get(reader Component) bool {
+func (b *Bool) Get(reader component.Component) bool {
 	if reader == nil {
 		return b.bit
 	}
@@ -229,7 +225,7 @@ type Group struct {
 	Vcc        *Wire
 	Gnd        *Wire
 	Unused     *Wire
-	Components []Component
+	Components []component.Component
 }
 
 func (g *Group) Group(name string) *Group {
@@ -318,7 +314,7 @@ type Circuit struct {
 	Unused     *Wire
 	Inputs     []*Wire
 	Outputs    []*Wire
-	Components []Component
+	Components []component.Component
 }
 
 func NewCircuit() *Circuit {
