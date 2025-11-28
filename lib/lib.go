@@ -255,6 +255,13 @@ func Bus(parent *group.Group, bus, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{res}
 }
 
+func Bus2(parent *group.Group, bus1, bus2, a1, a2, b1, b2, r1, r2, wa1, wa2, wb1, wb2 *wire.Wire) []*wire.Wire {
+	group := parent.Group(fmt.Sprintf("BUS2"))
+	rbus1 := Bus(group, bus1, a1, b1, r1, wa1, wb1)
+	rbus2 := Bus(group, bus2, a2, b2, r2, wa2, wb2)
+	return slices.Concat(rbus1, rbus2)
+}
+
 func AluWithBus(parent *group.Group, bus, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU-BUS")
 	a := &wire.Wire{Name: fmt.Sprintf("ALU-%s-a", bus.Name)}
@@ -412,6 +419,15 @@ var (
 			wa := &wire.Wire{Name: "wa"}
 			wb := &wire.Wire{Name: "wb"}
 			return append(Bus(c.Group(""), c.In("bus"), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
+		},
+		"Bus2": func(c *circuit.Circuit) []*wire.Wire {
+			wa1, wa2 := &wire.Wire{Name: "wa1"}, &wire.Wire{Name: "wa2"}
+			wb1, wb2 := &wire.Wire{Name: "wb1"}, &wire.Wire{Name: "wb2"}
+			return append(Bus2(
+				c.Group(""), c.In("bus1"), c.In("bus2"),
+				c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("r1"), c.In("r2"),
+				wa1, wa2, wb1, wb2),
+				wa1, wa2, wb1, wb2)
 		},
 		"AluWithBus": func(c *circuit.Circuit) []*wire.Wire {
 			bus := c.In("bus")

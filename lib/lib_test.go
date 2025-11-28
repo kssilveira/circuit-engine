@@ -471,6 +471,14 @@ func TestOutputsCombinational(t *testing.T) {
 			"1100=>111", "1101=>111", "1110=>111", "1111=>111",
 		},
 	}, {
+		name: "Bus2",
+		// bus1 bus2 a1 a2 b1 b2 r1 r2 => rbus1 rbus2 wa1 wa2 wb1 wb2
+		want: []string{
+			"11011010=>111111", "11100001=>111111", "10000101=>111111", "10100000=>101010",
+			"00101101=>111111", "11101000=>111111", "10001000=>101010", "01011101=>111111",
+			"10010110=>111111", "10000010=>101010",
+		},
+	}, {
 		name: "AluWithBus",
 		// bus ai ao bi bo ri ro cin => rbus qa ra qb rb qr rr cout
 		want: []string{
