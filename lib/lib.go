@@ -5,6 +5,7 @@ import (
 
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/group"
+	"github.com/kssilveira/circuit-engine/transistor"
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
@@ -38,6 +39,17 @@ func Not(parent *group.Group, a *wire.Wire) *wire.Wire {
 	return res
 }
 
+func And(parent *group.Group, a, b *wire.Wire) *wire.Wire {
+	group := parent.Group(fmt.Sprintf("AND(%v,%v)", a.Name, b.Name))
+	res := &wire.Wire{Name: group.Name}
+	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
+	group.AddTransistors([]*transistor.Transistor{
+		{Base: a, Collector: group.Vcc, Emitter: wire},
+		{Base: b, Collector: wire, Emitter: res},
+	})
+	return res
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -67,6 +79,9 @@ var (
 		},
 		"Not": func(c *circuit.Circuit) []*wire.Wire {
 			return []*wire.Wire{Not(c.Group(""), c.In("a"))}
+		},
+		"And": func(c *circuit.Circuit) []*wire.Wire {
+			return []*wire.Wire{And(c.Group(""), c.In("a"), c.In("b"))}
 		},
 	}
 )

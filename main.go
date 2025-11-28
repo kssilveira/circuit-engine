@@ -26,17 +26,6 @@ var (
 	exampleName     = flag.String("example_name", "TransistorEmitter", "example name")
 )
 
-func And(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("AND(%v,%v)", a.Name, b.Name))
-	res := &wire.Wire{Name: group.Name}
-	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
-	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: wire},
-		{Base: b, Collector: wire, Emitter: res},
-	})
-	return res
-}
-
 func Or(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	res := &wire.Wire{}
 	return OrRes(parent, res, a, b)
@@ -68,7 +57,7 @@ func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 
 func Xor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("XOR(%v,%v)", a.Name, b.Name))
-	res := And(group, Or(group, a, b), Nand(group, a, b))
+	res := lib.And(group, Or(group, a, b), Nand(group, a, b))
 	res.Name = group.Name
 	return res
 }
@@ -95,7 +84,7 @@ func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SUM(%v,%v)", a.Name, b.Name))
 	res := Xor(group, a, b)
 	res.Name = group.Name
-	carry := And(group, a, b)
+	carry := lib.And(group, a, b)
 	carry.Name = fmt.Sprintf("CARRY(%v,%v)", a.Name, b.Name)
 	return []*wire.Wire{res, carry}
 }
@@ -151,7 +140,7 @@ func SRLatchWithEnable(parent *group.Group, s, r, e *wire.Wire) []*wire.Wire {
 
 func SRLatchResWithEnable(parent *group.Group, q, s, r, e *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SRLATCHEN(%v,%v,%v)", s.Name, r.Name, e.Name))
-	return SRLatchRes(group, q, And(group, s, e), And(group, r, e))
+	return SRLatchRes(group, q, lib.And(group, s, e), lib.And(group, r, e))
 }
 
 func DLatch(parent *group.Group, d, e *wire.Wire) []*wire.Wire {
@@ -167,9 +156,9 @@ func DLatchRes(parent *group.Group, q, d, e *wire.Wire) []*wire.Wire {
 func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("Register(%v,%v,%v)", d.Name, ei.Name, eo.Name))
 	q := &wire.Wire{}
-	DLatchRes(group, q, Or(group, And(group, q, lib.Not(group, ei)), And(group, d, ei)), ei)
+	DLatchRes(group, q, Or(group, lib.And(group, q, lib.Not(group, ei)), lib.And(group, d, ei)), ei)
 	q.Name = group.Name + "-internal"
-	res := And(group, q, eo)
+	res := lib.And(group, q, eo)
 	res.Name = group.Name
 	return []*wire.Wire{q, res}
 }
@@ -212,7 +201,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Out(And(g, c.In("a"), c.In("b")))
 	c.Out(Or(g, c.In("a"), c.In("b")))
 	c.Out(Nand(g, c.In("a"), c.In("b")))
 	c.Out(Nand(g, c.In("a"), Nand(g, c.In("b"), c.In("c"))))
