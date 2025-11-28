@@ -399,6 +399,68 @@ func TestOutputsCombinational(t *testing.T) {
 				}
 			}
 		}(),
+	}, {
+		name: "Alu8",
+		// a1 a2 a3 a4 a5 a6 a7 a8 ai ao b1 b2 b3 b4 b5 b6 b7 b8 bi bo ri ro carry
+		// => qa1 ra1 qb1 rb1 qr1 rr1 qa2 ra2 qb2 rb2 qr2 rr2
+		//    qa3 ra3 qb3 rb3 qr3 rr3 qa4 ra4 qb4 rb4 qr4 rr4
+		//    qa5 ra5 qb5 rb5 qr5 rr5 qa6 ra6 qb6 rb6 qr6 rr6
+		//    qa7 ra7 qb7 rb7 qr7 rr7 qa8 ra8 qb8 rb8 qr8 rr8
+		want: []string{
+			"11011010111000011000010=>1110111110110010111110111110110010111110110010111",
+			"11010000000101101111010=>1000111011110000111011111011110000111011110011111",
+			"00100010000101110110010=>1000111010110000111010111010110010111000110010111",
+			"11010000010100110111111=>1100001111110000111100111111000011001100000011001",
+			"10110100100010100010011=>1000000000111010111000110010001000000000000000000",
+			"11100001010101011100011=>1100000000111110111100110010001100000000000000000",
+			"01001110011000011100100=>1100100000001110001100000010001100000000100000000",
+			"11000011000100001000001=>1000100000001010001000000010001000000000100000000",
+			"00101101010010011010101=>1100000000101110001100000000101110000010000000100",
+			"11100011000101110101001=>1000000000101011001000000000101011000011000000100",
+		},
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa1, qb1, qr1 := 1, 1, 1
+			qa2, qb2, qr2 := 1, 1, 1
+			qa3, qb3, qr3 := 1, 1, 1
+			qa4, qb4, qr4 := 1, 1, 1
+			qa5, qb5, qr5 := 1, 1, 1
+			qa6, qb6, qr6 := 1, 1, 1
+			qa7, qb7, qr7 := 1, 1, 1
+			qa8, qb8, qr8 := 1, 1, 1
+			return func(inputs map[string]int) []int {
+				if inputs["ai"] == 1 {
+					qa1, qa2, qa3, qa4 = inputs["a1"], inputs["a2"], inputs["a3"], inputs["a4"]
+					qa5, qa6, qa7, qa8 = inputs["a5"], inputs["a6"], inputs["a7"], inputs["a8"]
+				}
+				if inputs["bi"] == 1 {
+					qb1, qb2, qb3, qb4 = inputs["b1"], inputs["b2"], inputs["b3"], inputs["b4"]
+					qb5, qb6, qb7, qb8 = inputs["b5"], inputs["b6"], inputs["b7"], inputs["b8"]
+				}
+				sum1 := qa1 + qb1 + inputs["cin"]
+				sum2 := qa2 + qb2 + sum1/2
+				sum3 := qa3 + qb3 + sum2/2
+				sum4 := qa4 + qb4 + sum3/2
+				sum5 := qa5 + qb5 + sum4/2
+				sum6 := qa6 + qb6 + sum5/2
+				sum7 := qa7 + qb7 + sum6/2
+				sum8 := qa8 + qb8 + sum7/2
+				if inputs["ri"] == 1 {
+					qr1, qr2, qr3, qr4 = sum1%2, sum2%2, sum3%2, sum4%2
+					qr5, qr6, qr7, qr8 = sum5%2, sum6%2, sum7%2, sum8%2
+				}
+				return []int{
+					qa1, inputs["ao"] & qa1, qb1, inputs["bo"] & qb1, qr1, inputs["ro"] & qr1,
+					qa2, inputs["ao"] & qa2, qb2, inputs["bo"] & qb2, qr2, inputs["ro"] & qr2,
+					qa3, inputs["ao"] & qa3, qb3, inputs["bo"] & qb3, qr3, inputs["ro"] & qr3,
+					qa4, inputs["ao"] & qa4, qb4, inputs["bo"] & qb4, qr4, inputs["ro"] & qr4,
+					qa5, inputs["ao"] & qa5, qb5, inputs["bo"] & qb5, qr5, inputs["ro"] & qr5,
+					qa6, inputs["ao"] & qa6, qb6, inputs["bo"] & qb6, qr6, inputs["ro"] & qr6,
+					qa7, inputs["ao"] & qa7, qb7, inputs["bo"] & qb7, qr7, inputs["ro"] & qr7,
+					qa8, inputs["ao"] & qa8, qb8, inputs["bo"] & qb8, qr8, inputs["ro"] & qr8,
+					sum8 / 2,
+				}
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
