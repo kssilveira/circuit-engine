@@ -26,13 +26,6 @@ var (
 	exampleName     = flag.String("example_name", "TransistorEmitter", "example name")
 )
 
-func Not(parent *group.Group, a *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("NOT(%v)", a.Name))
-	res := &wire.Wire{Name: group.Name}
-	group.Transistor(a, group.Vcc, group.Gnd, res)
-	return res
-}
-
 func And(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("AND(%v,%v)", a.Name, b.Name))
 	res := &wire.Wire{Name: group.Name}
@@ -168,13 +161,13 @@ func DLatch(parent *group.Group, d, e *wire.Wire) []*wire.Wire {
 
 func DLatchRes(parent *group.Group, q, d, e *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("DLATCH(%v,%v)", d.Name, e.Name))
-	return SRLatchResWithEnable(group, q, d, Not(group, d), e)
+	return SRLatchResWithEnable(group, q, d, lib.Not(group, d), e)
 }
 
 func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("Register(%v,%v,%v)", d.Name, ei.Name, eo.Name))
 	q := &wire.Wire{}
-	DLatchRes(group, q, Or(group, And(group, q, Not(group, ei)), And(group, d, ei)), ei)
+	DLatchRes(group, q, Or(group, And(group, q, lib.Not(group, ei)), And(group, d, ei)), ei)
 	q.Name = group.Name + "-internal"
 	res := And(group, q, eo)
 	res.Name = group.Name
@@ -219,7 +212,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Out(Not(g, c.In("a")))
 	c.Out(And(g, c.In("a"), c.In("b")))
 	c.Out(Or(g, c.In("a"), c.In("b")))
 	c.Out(Nand(g, c.In("a"), c.In("b")))

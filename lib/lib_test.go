@@ -23,6 +23,9 @@ func TestOutputs(t *testing.T) {
 	}, {
 		name: "Transistor",
 		want: []string{"00=>00", "01=>01", "10=>00", "11=>11"},
+	}, {
+		name: "Not",
+		want: []string{"0=>1", "1=>0"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
