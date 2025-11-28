@@ -53,8 +53,8 @@ Components:
 Single graph:
 
 ```console
-$ go run main.go --example_name HalfSum --draw_graph --draw_single_graph | \
-    dot -Tsvg > doc/HalfSum.svg
+$ go run main.go --example_name HalfSum --draw_graph --draw_single_graph \
+| dot -Tsvg > doc/HalfSum.svg
 $ google-chrome doc/HalfSum.svg
 ```
 
@@ -73,8 +73,8 @@ $ google-chrome *.svg
 Run unit tests:
 
 ```console
-$ while inotifywait -r . 2>/dev/null; do \
-    clear; go test ./... | grep -v "no test files"; done
+$ while inotifywait -r . 2>/dev/null; \
+do clear; go test ./... | grep -v "no test files"; done
 ```
 
 Format files:
