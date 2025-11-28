@@ -123,6 +123,13 @@ func Sum(parent *group.Group, a, b, cin *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{s2[0], carry}
 }
 
+func Sum2(parent *group.Group, a1, a2, b1, b2, cin *wire.Wire) []*wire.Wire {
+	group := parent.Group("SUM2")
+	s1 := Sum(group, a1, b1, cin)
+	s2 := Sum(group, a2, b2, s1[1])
+	return []*wire.Wire{s1[0], s2[0], s2[1]}
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -181,6 +188,9 @@ var (
 		},
 		"Sum": func(c *circuit.Circuit) []*wire.Wire {
 			return Sum(c.Group(""), c.In("a"), c.In("b"), c.In("c"))
+		},
+		"Sum2": func(c *circuit.Circuit) []*wire.Wire {
+			return Sum2(c.Group(""), c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("c"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
