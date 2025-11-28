@@ -12,6 +12,7 @@ func TestOutputsCombinational(t *testing.T) {
 	inputs := []struct {
 		name string
 		want []string
+		isValid func(inputs map[string]int)[]int
 	}{{
 		name: "TransistorEmitter",
 		want: []string{"00=>0", "01=>0", "10=>0", "11=>1"},
@@ -63,6 +64,11 @@ func TestOutputsCombinational(t *testing.T) {
 			"11001=>001", "11010=>101", "11011=>011", "11100=>001", "11101=>101",
 			"11110=>011", "11111=>111",
 		},
+		isValid: func(inputs map[string]int) []int {
+			sum1 := inputs["a1"] + inputs["b1"] + inputs["c"]
+			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
+			return []int{sum1%2, sum2%2, sum2/2}
+		},
 	}, {
 		name: "",
 		want: []string{"=>"},
@@ -73,6 +79,22 @@ func TestOutputsCombinational(t *testing.T) {
 		got := c.Simulate()
 		if diff := cmp.Diff(in.want, got); diff != "" {
 			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, got, diff)
+		}
+		if in.isValid == nil {
+			continue
+		}
+		for _, out := range got {
+			inputs := map[string]int{}
+			for i, input := range c.Inputs {
+				inputs[input.Name] = int(out[i] - '0')
+			}
+			wants := in.isValid(inputs)
+			for i, want := range wants {
+				got := int(out[len(c.Inputs) + len("=>") + i] - '0')
+				if want != got {
+					t.Errorf("Simulate(%q) out %s output %s want %d got %#v", in.name, out, c.Outputs[i].Name, want, got)
+				}
+			}
 		}
 	}
 }
