@@ -14,17 +14,10 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-func Register4(parent *group.Group, d1, d2, d3, d4, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group("Register4")
-	r1 := lib.Register2(group, d1, d2, ei, eo)
-	r2 := lib.Register2(group, d3, d4, ei, eo)
-	return append(r1, r2...)
-}
-
 func Register8(parent *group.Group, d1, d2, d3, d4, d5, d6, d7, d8, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group("Register8")
-	r1 := Register4(group, d1, d2, d3, d4, ei, eo)
-	r2 := Register4(group, d5, d6, d7, d8, ei, eo)
+	r1 := lib.Register4(group, d1, d2, d3, d4, ei, eo)
+	r2 := lib.Register4(group, d5, d6, d7, d8, ei, eo)
 	return append(r1, r2...)
 }
 
@@ -45,7 +38,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(Register4(g, c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("ei"), c.In("eo")))
 	c.Outs(Register8(g, c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("d5"), c.In("d6"), c.In("d7"), c.In("d8"), c.In("ei"), c.In("eo")))
 	c.Outs(Alu(g, c.In("a"), c.In("ai"), c.In("ao"), c.In("b"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("carry")))
 	c.Outs(Alu2(g, c.In("a1"), c.In("a2"), c.In("ai"), c.In("ao"), c.In("b1"), c.In("b2"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("carry")))
