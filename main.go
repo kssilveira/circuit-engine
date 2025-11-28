@@ -23,7 +23,7 @@ var (
 	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
 	drawShapePoint  = flag.Bool("draw_shape_point", false, "draw shape point")
 	isUnitTest      = flag.Bool("is_unit_test", false, "is unit test")
-	exampleName     = flag.String("example_name", "Transistor", "example name")
+	exampleName     = flag.String("example_name", "TransistorEmitter", "example name")
 )
 
 func Not(parent *group.Group, a *wire.Wire) *wire.Wire {
