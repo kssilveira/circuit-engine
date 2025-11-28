@@ -2,7 +2,6 @@ package component
 
 type Component interface {
 	Update()
-	String(int) string
-	Graph(int) string
+	String(depth int) string
+	Graph(depth int) string
 }
-

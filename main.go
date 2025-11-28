@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/kssilveira/circuit-engine/bit"
 	"github.com/kssilveira/circuit-engine/component"
 )
 
@@ -34,41 +35,10 @@ func depthToString(depth int) string {
 	return strings.Repeat("|", depth)
 }
 
-type Bool struct {
-	bit     bool
-	Readers []component.Component
-}
-
-func (b *Bool) Get(reader component.Component) bool {
-	if reader == nil {
-		return b.bit
-	}
-	found := false
-	for _, r := range b.Readers {
-		if r == reader {
-			found = true
-			break
-		}
-	}
-	if !found {
-		b.Readers = append(b.Readers, reader)
-	}
-	return b.bit
-}
-
-func (b *Bool) Set(v bool) {
-	if v != b.bit {
-		b.bit = v
-		for _, reader := range b.Readers {
-			reader.Update()
-		}
-	}
-}
-
 type Wire struct {
 	Name string
-	Bit  Bool
-	Gnd  Bool
+	Bit  bit.Bit
+	Gnd  bit.Bit
 }
 
 func (w Wire) String() string {
@@ -318,7 +288,11 @@ type Circuit struct {
 }
 
 func NewCircuit() *Circuit {
-	return &Circuit{Vcc: &Wire{Name: "Vcc", Bit: Bool{bit: true}}, Gnd: &Wire{Name: "Gnd", Gnd: Bool{bit: true}}, Unused: &Wire{Name: "Unused"}}
+	vcc := bit.Bit{}
+	vcc.Set(true)
+	gnd := bit.Bit{}
+	gnd.Set(true)
+	return &Circuit{Vcc: &Wire{Name: "Vcc", Bit: vcc}, Gnd: &Wire{Name: "Gnd", Gnd: gnd}, Unused: &Wire{Name: "Unused"}}
 }
 
 func (c *Circuit) In(name string) *Wire {
@@ -389,7 +363,7 @@ func (c *Circuit) Simulate() []string {
 	}
 	rand := rand.New(rand.NewPCG(42, 1024))
 	for _, input := range c.Inputs {
-		input.Bit.bit = rand.IntN(2) == 1
+		input.Bit.SilentSet(rand.IntN(2) == 1)
 	}
 	return c.simulate(len(c.Inputs))
 }
@@ -404,7 +378,7 @@ func (c *Circuit) simulate(index int) []string {
 	}
 	var res []string
 	for _, value := range []bool{false, true} {
-		c.Inputs[index].Bit.bit = value
+		c.Inputs[index].Bit.SilentSet(value)
 		res = append(res, c.simulate(index+1)...)
 	}
 	return res
