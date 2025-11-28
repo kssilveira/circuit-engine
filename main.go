@@ -26,20 +26,9 @@ var (
 	exampleName     = flag.String("example_name", "TransistorEmitter", "example name")
 )
 
-func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("NAND(%v,%v)", a.Name, b.Name))
-	res := &wire.Wire{Name: group.Name}
-	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
-	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: wire, CollectorOut: res},
-		{Base: b, Collector: wire, Emitter: group.Gnd},
-	})
-	return res
-}
-
 func Xor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("XOR(%v,%v)", a.Name, b.Name))
-	res := lib.And(group, lib.Or(group, a, b), Nand(group, a, b))
+	res := lib.And(group, lib.Or(group, a, b), lib.Nand(group, a, b))
 	res.Name = group.Name
 	return res
 }
@@ -183,8 +172,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Out(Nand(g, c.In("a"), c.In("b")))
-	c.Out(Nand(g, c.In("a"), Nand(g, c.In("b"), c.In("c"))))
 	c.Out(Xor(g, c.In("a"), c.In("b")))
 	c.Outs(HalfSum(g, c.In("a"), c.In("b")))
 	c.Outs(Sum(g, c.In("a"), c.In("b"), c.In("c")))

@@ -68,6 +68,17 @@ func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 	return res
 }
 
+func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
+	group := parent.Group(fmt.Sprintf("NAND(%v,%v)", a.Name, b.Name))
+	res := &wire.Wire{Name: group.Name}
+	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
+	group.AddTransistors([]*transistor.Transistor{
+		{Base: a, Collector: group.Vcc, Emitter: wire, CollectorOut: res},
+		{Base: b, Collector: wire, Emitter: group.Gnd},
+	})
+	return res
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -107,6 +118,13 @@ var (
 		"OrRes": func(c *circuit.Circuit) []*wire.Wire {
 			bOrRes := &wire.Wire{Name: "b"}
 			return []*wire.Wire{OrRes(c.Group(""), bOrRes, c.In("a"), bOrRes)}
+		},
+		"Nand": func(c *circuit.Circuit) []*wire.Wire {
+			return []*wire.Wire{Nand(c.Group(""), c.In("a"), c.In("b"))}
+		},
+		"Nand(Nand)": func(c *circuit.Circuit) []*wire.Wire {
+			g := c.Group("")
+			return []*wire.Wire{Nand(g, c.In("a"), Nand(g, c.In("b"), c.In("c")))}
 		},
 	}
 )
