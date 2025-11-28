@@ -29,7 +29,7 @@ func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 
 ```go
   name: "HalfSum",
-  // a b => s carry
+  desc: "a b => SUM(a,b) CARRY(a,b)",
   want: []string{"00=>00", "01=>10", "10=>10", "11=>01"},
   isValidInt: func(inputs map[string]int) []int {
     sum := inputs["a"] + inputs["b"]

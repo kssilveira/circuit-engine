@@ -61,6 +61,18 @@ func (c *Circuit) AddInputValidation(fn func() bool) {
 	c.InputValidations = append(c.InputValidations, fn)
 }
 
+func (c *Circuit) Description() string {
+	var res []string
+	for _, input := range c.Inputs {
+		res = append(res, input.Name)
+	}
+	res = append(res, "=>")
+	for _, output := range c.Outputs {
+		res = append(res, output.Name)
+	}
+	return strings.Join(res, " ")
+}
+
 func (c Circuit) String() string {
 	var res []string
 	var list []string

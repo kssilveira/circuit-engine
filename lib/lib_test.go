@@ -11,81 +11,90 @@ import (
 func TestOutputsCombinational(t *testing.T) {
 	inputs := []struct {
 		name        string
+		desc        string
 		want        []string
 		isValidInt  func(inputs map[string]int) []int
 		isValidBool func(inputs map[string]bool) []bool
 	}{{
 		name: "TransistorEmitter",
-		// base collector => emitter
+		desc: "base collector => emitter",
 		want: []string{"00=>0", "01=>0", "10=>0", "11=>1"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["base"] && inputs["collector"]}
 		},
 	}, {
 		name: "TransistorGnd",
-		// base collector => collectorOut
+		desc: "base collector => collector_out",
 		want: []string{"00=>0", "01=>1", "10=>0", "11=>0"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!inputs["base"] && inputs["collector"]}
 		},
 	}, {
 		name: "Transistor",
-		// base collector => emitter collectorOut
+		desc: "base collector => emitter collector_out",
 		want: []string{"00=>00", "01=>01", "10=>00", "11=>11"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["base"] && inputs["collector"], inputs["collector"]}
 		},
 	}, {
 		name: "Not",
+		desc: "a => NOT(a)",
 		want: []string{"0=>1", "1=>0"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!inputs["a"]}
 		},
 	}, {
 		name: "And",
+		desc: "a b => AND(a,b)",
 		want: []string{"00=>0", "01=>0", "10=>0", "11=>1"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"] && inputs["b"]}
 		},
 	}, {
 		name: "Or",
+		desc: "a b => OR(a,b)",
 		want: []string{"00=>0", "01=>1", "10=>1", "11=>1"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"] || inputs["b"]}
 		},
 	}, {
 		name: "OrRes",
+		desc: "a => OR(a,bOrRes)",
 		want: []string{"0=>0", "1=>1"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"]}
 		},
 	}, {
 		name: "Nand",
+		desc: "a b => NAND(a,b)",
 		want: []string{"00=>1", "01=>1", "10=>1", "11=>0"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!(inputs["a"] && inputs["b"])}
 		},
 	}, {
 		name: "Nand(Nand)",
+		desc: "a b c => NAND(a,NAND(b,c))",
 		want: []string{"000=>1", "001=>1", "010=>1", "011=>1", "100=>0", "101=>0", "110=>0", "111=>1"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!(inputs["a"] && !(inputs["b"] && inputs["c"]))}
 		},
 	}, {
 		name: "Xor",
+		desc: "a b => XOR(a,b)",
 		want: []string{"00=>0", "01=>1", "10=>1", "11=>0"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"] != inputs["b"]}
 		},
 	}, {
 		name: "Nor",
+		desc: "a b => NOR(a,b)",
 		want: []string{"00=>1", "01=>0", "10=>0", "11=>0"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!(inputs["a"] || inputs["b"])}
 		},
 	}, {
 		name: "HalfSum",
-		// a b => s carry
+		desc: "a b => SUM(a,b) CARRY(a,b)",
 		want: []string{"00=>00", "01=>10", "10=>10", "11=>01"},
 		isValidInt: func(inputs map[string]int) []int {
 			sum := inputs["a"] + inputs["b"]
@@ -93,15 +102,15 @@ func TestOutputsCombinational(t *testing.T) {
 		},
 	}, {
 		name: "Sum",
-		// a b cin => s cout
+		desc: "a b cin => SUM(a,b,cin) CARRY(a,b)",
 		want: []string{"000=>00", "001=>10", "010=>10", "011=>01", "100=>10", "101=>01", "110=>01", "111=>11"},
 		isValidInt: func(inputs map[string]int) []int {
-			sum := inputs["a"] + inputs["b"] + inputs["c"]
+			sum := inputs["a"] + inputs["b"] + inputs["cin"]
 			return []int{sum % 2, sum / 2}
 		},
 	}, {
 		name: "Sum2",
-		// a1 a2 b1 b2 cin => s1 s2 cout
+		desc: "a1 a2 b1 b2 cin => SUM(a1,b1,cin) SUM(a2,b2,CARRY(a1,b1)) CARRY(a2,b2)",
 		want: []string{
 			"00000=>000", "00001=>100", "00010=>010", "00011=>110",
 			"00100=>100", "00101=>010", "00110=>110", "00111=>001",
@@ -113,20 +122,22 @@ func TestOutputsCombinational(t *testing.T) {
 			"11100=>001", "11101=>101", "11110=>011", "11111=>111",
 		},
 		isValidInt: func(inputs map[string]int) []int {
-			sum1 := inputs["a1"] + inputs["b1"] + inputs["c"]
+			sum1 := inputs["a1"] + inputs["b1"] + inputs["cin"]
 			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
 			return []int{sum1 % 2, sum2 % 2, sum2 / 2}
 		},
 	}, {
 		name: "Sum4",
-		// a1 a2 a3 a4 b1 b2 b3 b4 cin => s1 s2 s3 s4 cout
+		desc: "a1 a2 a3 a4 b1 b2 b3 b4 cin" +
+			" => SUM(a1,b1,cin) SUM(a2,b2,CARRY(a1,b1)) SUM(a3,b3,CARRY(a2,b2)) SUM(a4,b4,CARRY(a3,b3))" +
+			" CARRY(a4,b4)",
 		want: []string{
 			"110110101=>10001", "110000110=>11110", "000101101=>11110", "000000010=>00010",
 			"110111101=>11001", "000100010=>00001", "000101110=>01101", "110010110=>00001",
 			"100000101=>01100", "001101111=>11011",
 		},
 		isValidInt: func(inputs map[string]int) []int {
-			sum1 := inputs["a1"] + inputs["b1"] + inputs["c"]
+			sum1 := inputs["a1"] + inputs["b1"] + inputs["cin"]
 			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
 			sum3 := sum2/2 + inputs["a3"] + inputs["b3"]
 			sum4 := sum3/2 + inputs["a4"] + inputs["b4"]
@@ -134,7 +145,11 @@ func TestOutputsCombinational(t *testing.T) {
 		},
 	}, {
 		name: "Sum8",
-		// a1 a2 a3 a4 a5 a5 a7 a8 b1 b2 b3 b4 b5 b6 b7 b8 cin => s1 s2 s3 s4 s5 s6 s7 s8 cout
+		desc: "a1 a2 a3 a4 a5 a6 a7 a8" +
+			" b1 b2 b3 b4 b5 b6 b7 b8 cin" +
+			" => SUM(a1,b1,cin) SUM(a2,b2,CARRY(a1,b1)) SUM(a3,b3,CARRY(a2,b2)) SUM(a4,b4,CARRY(a3,b3))" +
+			" SUM(a5,b5,CARRY(a4,b4)) SUM(a6,b6,CARRY(a5,b5)) SUM(a7,b7,CARRY(a6,b6)) SUM(a8,b8,CARRY(a7,b7))" +
+			" CARRY(a8,b8)",
 		want: []string{
 			"11011010111000011=>110001110",
 			"00001011010000000=>010010110",
@@ -148,7 +163,7 @@ func TestOutputsCombinational(t *testing.T) {
 			"11100100110000110=>010101110",
 		},
 		isValidInt: func(inputs map[string]int) []int {
-			sum1 := inputs["a1"] + inputs["b1"] + inputs["c"]
+			sum1 := inputs["a1"] + inputs["b1"] + inputs["cin"]
 			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
 			sum3 := sum2/2 + inputs["a3"] + inputs["b3"]
 			sum4 := sum3/2 + inputs["a4"] + inputs["b4"]
@@ -160,7 +175,7 @@ func TestOutputsCombinational(t *testing.T) {
 		},
 	}, {
 		name: "SRLatch",
-		// s r => q !q
+		desc: "s r => q nq",
 		want: []string{"00=>10", "01=>01", "10=>10", "11=>00"},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true
@@ -179,7 +194,7 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "SRLatchWithEnable",
-		// s r e => q !q
+		desc: "s r e => q nq",
 		want: []string{"000=>10", "001=>10", "010=>10", "011=>01", "100=>01", "101=>10", "110=>10", "111=>00"},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true
@@ -201,7 +216,7 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "DLatch",
-		// d e => q !q
+		desc: "d e => q nq",
 		want: []string{"00=>10", "01=>01", "10=>01", "11=>10"},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true
@@ -215,7 +230,7 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Register",
-		// d ei eo => q r
+		desc: "d ei eo => reg(d,ei,eo) REG(d,ei,eo)",
 		want: []string{"000=>10", "001=>11", "010=>00", "011=>00", "100=>00", "101=>00", "110=>10", "111=>11"},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true
@@ -228,7 +243,7 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Register2",
-		// d1 d2 ei eo => q1 r1 q2 r2
+		desc: "d1 d2 ei eo => reg(d1,ei,eo) REG(d1,ei,eo) reg(d2,ei,eo) REG(d2,ei,eo)",
 		want: []string{
 			"0000=>1010", "0001=>1111", "0010=>0000", "0011=>0000",
 			"0100=>0000", "0101=>0000", "0110=>0010", "0111=>0011",
@@ -247,7 +262,9 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Register4",
-		// d1 d2 d3 d4 ei eo => q1 r1 q2 r2 q3 r3 q4 r4
+		desc: "d1 d2 d3 d4 ei eo" +
+			" => reg(d1,ei,eo) REG(d1,ei,eo) reg(d2,ei,eo) REG(d2,ei,eo)" +
+			" reg(d3,ei,eo) REG(d3,ei,eo) reg(d4,ei,eo) REG(d4,ei,eo)",
 		want: []string{
 			"000000=>10101010", "000001=>11111111", "000010=>00000000", "000011=>00000000",
 			"000100=>00000000", "000101=>00000000", "000110=>00000010", "000111=>00000011",
@@ -278,7 +295,11 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Register8",
-		// d1 d2 d3 d4 d5 d6 d7 d8 ei eo => q1 r1 q2 r2 q3 r3 q4 r4 q5 r5 q6 r6 q7 r7 q8 r8
+		desc: "d1 d2 d3 d4 d5 d6 d7 d8 ei eo" +
+			" => reg(d1,ei,eo) REG(d1,ei,eo) reg(d2,ei,eo) REG(d2,ei,eo)" +
+			" reg(d3,ei,eo) REG(d3,ei,eo) reg(d4,ei,eo) REG(d4,ei,eo)" +
+			" reg(d5,ei,eo) REG(d5,ei,eo) reg(d6,ei,eo) REG(d6,ei,eo)" +
+			" reg(d7,ei,eo) REG(d7,ei,eo) reg(d8,ei,eo) REG(d8,ei,eo)",
 		want: []string{
 			"1101101011=>1111001111001100", "1000011000=>1010001010001000",
 			"0101101000=>1010001010001000", "0000101101=>1111001111001100",
@@ -300,7 +321,10 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Alu",
-		// a ai ao b bi bo ri ro cin => qa ra qb rb qr rr cout
+		desc: "a ai ao b bi bo ri ro cin" +
+			" => reg(a,ai,ao) REG(a,ai,ao) reg(b,bi,bo) REG(b,bi,bo)" +
+			" reg(SUM(reg(a,ai,ao),reg(b,bi,bo),cin),ri,ro) REG(SUM(reg(a,ai,ao),reg(b,bi,bo),cin),ri,ro)" +
+			" CARRY(reg(a,ai,ao),reg(b,bi,bo))",
 		want: []string{
 			"110110101=>1010101", "110000110=>1010001", "000101101=>1011101", "000000010=>1010111",
 			"110111101=>1011101", "000100010=>1010111", "000101110=>1011001", "110010110=>1000110",
@@ -324,7 +348,13 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Alu2",
-		// a1 a2 ai ao b1 b2 bi bo ri ro carry => qa1 ra1 qb1 rb1 qr1 rr1 qa2 ra2 qb2 rb2 qr2 rr2
+		desc: "a1 a2 ai ao b1 b2 bi bo ri ro cin" +
+			" => reg(a1,ai,ao) REG(a1,ai,ao) reg(b1,bi,bo) REG(b1,bi,bo)" +
+			" reg(SUM(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro) REG(SUM(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro)" +
+			" reg(a2,ai,ao) REG(a2,ai,ao) reg(b2,bi,bo) REG(b2,bi,bo)" +
+			" reg(SUM(reg(a2,ai,ao),reg(b2,bi,bo),CARRY(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a2,ai,ao),reg(b2,bi,bo),CARRY(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
+			" CARRY(reg(a2,ai,ao),reg(b2,bi,bo))",
 		want: []string{
 			"11011010111=>1110111100001", "00001100001=>1010101000001",
 			"01101000000=>0010101000000", "01011011110=>0011111100110",
@@ -356,9 +386,19 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Alu4",
-		// a1 a2 a3 a4 ai ao b1 b2 b3 b4 bi bo ri ro carry
-		// => qa1 ra1 qb1 rb1 qr1 rr1 qa2 ra2 qb2 rb2 qr2 rr2
-		//    qa3 ra3 qb3 rb3 qr3 rr3 qa4 ra4 qb4 rb4 qr4 rr4
+		desc: "a1 a2 a3 a4 ai ao b1 b2 b3 b4 bi bo ri ro cin" +
+			" => reg(a1,ai,ao) REG(a1,ai,ao) reg(b1,bi,bo) REG(b1,bi,bo)" +
+			" reg(SUM(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro) REG(SUM(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro)" +
+			" reg(a2,ai,ao) REG(a2,ai,ao) reg(b2,bi,bo) REG(b2,bi,bo)" +
+			" reg(SUM(reg(a2,ai,ao),reg(b2,bi,bo),CARRY(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a2,ai,ao),reg(b2,bi,bo),CARRY(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
+			" reg(a3,ai,ao) REG(a3,ai,ao) reg(b3,bi,bo) REG(b3,bi,bo)" +
+			" reg(SUM(reg(a3,ai,ao),reg(b3,bi,bo),CARRY(reg(a2,ai,ao),reg(b2,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a3,ai,ao),reg(b3,bi,bo),CARRY(reg(a2,ai,ao),reg(b2,bi,bo))),ri,ro)" +
+			" reg(a4,ai,ao) REG(a4,ai,ao) reg(b4,bi,bo) REG(b4,bi,bo)" +
+			" reg(SUM(reg(a4,ai,ao),reg(b4,bi,bo),CARRY(reg(a3,ai,ao),reg(b3,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a4,ai,ao),reg(b4,bi,bo),CARRY(reg(a3,ai,ao),reg(b3,bi,bo))),ri,ro)" +
+			" CARRY(reg(a4,ai,ao),reg(b4,bi,bo))",
 		want: []string{
 			"110110101110000=>1010101000100010101010101",
 			"110000101101000=>1011101000100011101011101",
@@ -401,11 +441,31 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Alu8",
-		// a1 a2 a3 a4 a5 a6 a7 a8 ai ao b1 b2 b3 b4 b5 b6 b7 b8 bi bo ri ro carry
-		// => qa1 ra1 qb1 rb1 qr1 rr1 qa2 ra2 qb2 rb2 qr2 rr2
-		//    qa3 ra3 qb3 rb3 qr3 rr3 qa4 ra4 qb4 rb4 qr4 rr4
-		//    qa5 ra5 qb5 rb5 qr5 rr5 qa6 ra6 qb6 rb6 qr6 rr6
-		//    qa7 ra7 qb7 rb7 qr7 rr7 qa8 ra8 qb8 rb8 qr8 rr8
+		desc: "a1 a2 a3 a4 a5 a6 a7 a8 ai ao b1 b2 b3 b4 b5 b6 b7 b8 bi bo ri ro cin" +
+			" => reg(a1,ai,ao) REG(a1,ai,ao) reg(b1,bi,bo) REG(b1,bi,bo)" +
+			" reg(SUM(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro) REG(SUM(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro)" +
+			" reg(a2,ai,ao) REG(a2,ai,ao) reg(b2,bi,bo) REG(b2,bi,bo)" +
+			" reg(SUM(reg(a2,ai,ao),reg(b2,bi,bo),CARRY(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a2,ai,ao),reg(b2,bi,bo),CARRY(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
+			" reg(a3,ai,ao) REG(a3,ai,ao) reg(b3,bi,bo) REG(b3,bi,bo)" +
+			" reg(SUM(reg(a3,ai,ao),reg(b3,bi,bo),CARRY(reg(a2,ai,ao),reg(b2,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a3,ai,ao),reg(b3,bi,bo),CARRY(reg(a2,ai,ao),reg(b2,bi,bo))),ri,ro)" +
+			" reg(a4,ai,ao) REG(a4,ai,ao) reg(b4,bi,bo) REG(b4,bi,bo)" +
+			" reg(SUM(reg(a4,ai,ao),reg(b4,bi,bo),CARRY(reg(a3,ai,ao),reg(b3,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a4,ai,ao),reg(b4,bi,bo),CARRY(reg(a3,ai,ao),reg(b3,bi,bo))),ri,ro)" +
+			" reg(a5,ai,ao) REG(a5,ai,ao) reg(b5,bi,bo) REG(b5,bi,bo)" +
+			" reg(SUM(reg(a5,ai,ao),reg(b5,bi,bo),CARRY(reg(a4,ai,ao),reg(b4,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a5,ai,ao),reg(b5,bi,bo),CARRY(reg(a4,ai,ao),reg(b4,bi,bo))),ri,ro)" +
+			" reg(a6,ai,ao) REG(a6,ai,ao) reg(b6,bi,bo) REG(b6,bi,bo)" +
+			" reg(SUM(reg(a6,ai,ao),reg(b6,bi,bo),CARRY(reg(a5,ai,ao),reg(b5,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a6,ai,ao),reg(b6,bi,bo),CARRY(reg(a5,ai,ao),reg(b5,bi,bo))),ri,ro)" +
+			" reg(a7,ai,ao) REG(a7,ai,ao) reg(b7,bi,bo) REG(b7,bi,bo)" +
+			" reg(SUM(reg(a7,ai,ao),reg(b7,bi,bo),CARRY(reg(a6,ai,ao),reg(b6,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a7,ai,ao),reg(b7,bi,bo),CARRY(reg(a6,ai,ao),reg(b6,bi,bo))),ri,ro)" +
+			" reg(a8,ai,ao) REG(a8,ai,ao) reg(b8,bi,bo) REG(b8,bi,bo)" +
+			" reg(SUM(reg(a8,ai,ao),reg(b8,bi,bo),CARRY(reg(a7,ai,ao),reg(b7,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(a8,ai,ao),reg(b8,bi,bo),CARRY(reg(a7,ai,ao),reg(b7,bi,bo))),ri,ro)" +
+			" CARRY(reg(a8,ai,ao),reg(b8,bi,bo))",
 		want: []string{
 			"11011010111000011000010=>1110111110110010111110111110110010111110110010111",
 			"11010000000101101111010=>1000111011110000111011111011110000111011110011111",
@@ -463,7 +523,7 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Bus",
-		// bus a b r => rbus wa wb
+		desc: "bus a b r => BUS(bus) wa wb",
 		want: []string{
 			"0000=>000", "0001=>111", "0010=>111", "0011=>111",
 			"0100=>111", "0101=>111", "0110=>111", "0111=>111",
@@ -472,7 +532,7 @@ func TestOutputsCombinational(t *testing.T) {
 		},
 	}, {
 		name: "Bus2",
-		// bus1 bus2 a1 a2 b1 b2 r1 r2 => rbus1 rbus2 wa1 wa2 wb1 wb2
+		desc: "bus1 bus2 a1 a2 b1 b2 r1 r2 => BUS(bus1) BUS(bus2) wa1 wa2 wb1 wb2",
 		want: []string{
 			"11011010=>111111", "11100001=>111111", "10000101=>111111", "10100000=>101010",
 			"00101101=>111111", "11101000=>111111", "10001000=>101010", "01011101=>111111",
@@ -480,7 +540,11 @@ func TestOutputsCombinational(t *testing.T) {
 		},
 	}, {
 		name: "AluWithBus",
-		// bus ai ao bi bo ri ro cin => rbus qa ra qb rb qr rr cout
+		desc: "bus ai ao bi bo ri ro cin" +
+			" => BUS(bus) reg(ALU-bus-a,ai,ao) REG(ALU-bus-a,ai,ao) reg(ALU-bus-b,bi,bo) REG(ALU-bus-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo),cin),ri,ro)" +
+			" REG(SUM(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo),cin),ri,ro)" +
+			" CARRY(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo))",
 		want: []string{
 			"11011010=>11011111", "11100001=>11110101", "10000101=>11010101", "10100000=>11110101",
 			"00101101=>11111101", "11101000=>11111101", "10001000=>11011101", "01011101=>11011101",
@@ -511,10 +575,14 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "AluWithBus2",
-		// bus1 bus2 ai ao bi bo ri ro cin
-		// => rbus1 qa1 ra1 qb1 rb1 qr1 rr1
-		//    rbus2 qa2 ra2 qb2 rb2 qr2 rr2
-		//    cout
+		desc: "bus1 bus2 ai ao bi bo ri ro cin" +
+			" => BUS(bus1) reg(ALU-bus1-a,ai,ao) REG(ALU-bus1-a,ai,ao) reg(ALU-bus1-b,bi,bo) REG(ALU-bus1-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" REG(SUM(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" BUS(bus2) reg(ALU-bus2-a,ai,ao) REG(ALU-bus2-a,ai,ao) reg(ALU-bus2-b,bi,bo) REG(ALU-bus2-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),CARRY(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),CARRY(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" CARRY(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))",
 		want: []string{
 			"110110101=>111101011110101", "110000110=>110100011010111",
 			"000101101=>111111011111101", "000000010=>110101111010111",
@@ -560,6 +628,10 @@ func TestOutputsCombinational(t *testing.T) {
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
 		c.Outs(Example(c, in.name))
+		gotDesc := c.Description()
+		if diff := cmp.Diff(in.desc, gotDesc); diff != "" {
+			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.desc, gotDesc, diff)
+		}
 		got := c.Simulate()
 		if diff := cmp.Diff(in.want, got); diff != "" {
 			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, got, diff)
@@ -600,20 +672,26 @@ func TestOutputsCombinational(t *testing.T) {
 func TestOutputsSequential(t *testing.T) {
 	inputs := []struct {
 		name   string
+		desc   string
 		inputs []string
 		want   []string
 	}{{
 		name:   "OrRes",
+		desc:   "a => OR(a,bOrRes)",
 		inputs: []string{"0", "1", "0"},
 		want:   []string{"0=>0", "1=>1", "0=>1"},
 	}, {
-		name: "SRLatchWithEnable",
-		// s r e => q !q
+		name:   "SRLatchWithEnable",
+		desc:   "s r e => q nq",
 		inputs: []string{"000", "001", "010", "011", "000", "100", "101", "000"},
 		want:   []string{"000=>10", "001=>10", "010=>10", "011=>01", "000=>01", "100=>01", "101=>10", "000=>10"},
 	}, {
 		name: "AluWithBus",
-		// bus ai ao bi bo ri ro cin => rbus qa ra qb rb qr rr cout
+		desc: "bus ai ao bi bo ri ro cin" +
+			" => BUS(bus) reg(ALU-bus-a,ai,ao) REG(ALU-bus-a,ai,ao) reg(ALU-bus-b,bi,bo) REG(ALU-bus-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo),cin),ri,ro)" +
+			" REG(SUM(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo),cin),ri,ro)" +
+			" CARRY(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo))",
 		inputs: []string{"00000000", "10000000", "01000000", "00100000", "00001000", "01001000"},
 		want: []string{
 			// default to a=1 b=1 r=1 sum=0 cout=1
@@ -633,6 +711,10 @@ func TestOutputsSequential(t *testing.T) {
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
 		c.Outs(Example(c, in.name))
+		gotDesc := c.Description()
+		if diff := cmp.Diff(in.desc, gotDesc); diff != "" {
+			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.desc, gotDesc, diff)
+		}
 		got := c.SimulateInputs(in.inputs)
 		if diff := cmp.Diff(in.want, got); diff != "" {
 			t.Errorf("SimulateInputs(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, got, diff)

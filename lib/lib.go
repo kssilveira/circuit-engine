@@ -153,8 +153,11 @@ func SRLatch(parent *group.Group, s, r *wire.Wire) []*wire.Wire {
 func SRLatchRes(parent *group.Group, q, s, r *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SRLATCH(%s,%s)", s.Name, r.Name))
 	nq := &wire.Wire{Name: "nq"}
+	name := q.Name
 	NorRes(group, q, r, nq)
 	NorRes(group, nq, s, q)
+	q.Name = name
+	nq.Name = "nq"
 	return []*wire.Wire{q, nq}
 }
 
@@ -179,10 +182,10 @@ func DLatchRes(parent *group.Group, q, d, e *wire.Wire) []*wire.Wire {
 }
 
 func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("Register(%s,%s,%s)", d.Name, ei.Name, eo.Name))
+	group := parent.Group(fmt.Sprintf("REG(%s,%s,%s)", d.Name, ei.Name, eo.Name))
 	q := &wire.Wire{}
 	DLatchRes(group, q, Or(group, And(group, q, Not(group, ei)), And(group, d, ei)), ei)
-	q.Name = group.Name + "-internal"
+	q.Name = "reg" + group.Name[3:]
 	res := And(group, q, eo)
 	res.Name = group.Name
 	return []*wire.Wire{q, res}
@@ -319,7 +322,7 @@ var (
 			return []*wire.Wire{Or(c.Group(""), c.In("a"), c.In("b"))}
 		},
 		"OrRes": func(c *circuit.Circuit) []*wire.Wire {
-			bOrRes := &wire.Wire{Name: "b"}
+			bOrRes := &wire.Wire{Name: "bOrRes"}
 			return []*wire.Wire{OrRes(c.Group(""), bOrRes, c.In("a"), bOrRes)}
 		},
 		"Nand": func(c *circuit.Circuit) []*wire.Wire {
@@ -339,17 +342,17 @@ var (
 			return HalfSum(c.Group(""), c.In("a"), c.In("b"))
 		},
 		"Sum": func(c *circuit.Circuit) []*wire.Wire {
-			return Sum(c.Group(""), c.In("a"), c.In("b"), c.In("c"))
+			return Sum(c.Group(""), c.In("a"), c.In("b"), c.In("cin"))
 		},
 		"Sum2": func(c *circuit.Circuit) []*wire.Wire {
-			return Sum2(c.Group(""), c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("c"))
+			return Sum2(c.Group(""), c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("cin"))
 		},
 		"Sum4": func(c *circuit.Circuit) []*wire.Wire {
 			return Sum4(
 				c.Group(""),
 				c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"),
 				c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"),
-				c.In("c"))
+				c.In("cin"))
 		},
 		"Sum8": func(c *circuit.Circuit) []*wire.Wire {
 			return Sum8(
@@ -360,7 +363,7 @@ var (
 				[8]*wire.Wire{
 					c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"),
 				},
-				c.In("c"))
+				c.In("cin"))
 		},
 		"SRLatch": func(c *circuit.Circuit) []*wire.Wire {
 			return SRLatch(c.Group(""), c.In("s"), c.In("r"))
