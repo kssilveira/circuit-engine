@@ -13,6 +13,7 @@ import (
 	"github.com/kssilveira/circuit-engine/config"
 	"github.com/kssilveira/circuit-engine/draw"
 	"github.com/kssilveira/circuit-engine/jointwire"
+	"github.com/kssilveira/circuit-engine/transistor"
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
@@ -24,70 +25,6 @@ var (
 	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
 	drawNodes       = flag.Bool("draw_nodes", true, "draw nodes")
 )
-
-type Transistor struct {
-	Base         *wire.Wire
-	Collector    *wire.Wire
-	Emitter      *wire.Wire
-	CollectorOut *wire.Wire
-}
-
-func (t Transistor) String(depth int) string {
-	var res []string
-	for _, wire := range []*wire.Wire{t.Base, t.Collector, t.Emitter, t.CollectorOut} {
-		one := fmt.Sprintf("%v", *wire)
-		if one == "" {
-			continue
-		}
-		res = append(res, one)
-	}
-	return fmt.Sprintf("%s%s", draw.StringPrefix(depth), strings.Join(res, "    "))
-}
-
-func (t Transistor) Graph(depth int, cfg config.Config) string {
-	if !cfg.DrawNodes {
-		return ""
-	}
-	prefix := draw.GraphPrefix(depth)
-	var res []string
-	res = append(res, fmt.Sprintf(`"%p" [label="𓇲";shape=invtriangle];`, &t))
-	for _, wire := range []*wire.Wire{t.Base, t.Collector} {
-		if *drawShapePoint {
-			res = append(res, fmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *wire))
-		}
-		if *drawEdges {
-			res = append(res, fmt.Sprintf(`%s"%v" -> "%p" %s;`, prefix, *wire, &t, draw.EdgeColor(wire, wire)))
-		}
-	}
-	for _, wire := range []*wire.Wire{t.Emitter, t.CollectorOut} {
-		if wire.Name == "Unused" {
-			continue
-		}
-		if *drawShapePoint {
-			res = append(res, fmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *wire))
-		}
-		if *drawEdges {
-			res = append(res, fmt.Sprintf(`%s"%p" -> "%v" %s;`, prefix, &t, *wire, draw.EdgeColor(wire, wire)))
-		}
-	}
-	return strings.Join(res, "\n")
-}
-
-func (t *Transistor) Update() {
-	t.Emitter.Bit.Set(t.Base.Bit.Get(t) && t.Collector.Bit.Get(t))
-	if t.Collector.Bit.Get(t) {
-		if t.Base.Bit.Get(t) && t.Emitter.Gnd.Get(t) {
-			t.Collector.Gnd.Set(true)
-			t.CollectorOut.Bit.Set(false)
-		} else {
-			t.Collector.Gnd.Set(false)
-			t.CollectorOut.Bit.Set(true)
-		}
-	} else {
-		t.Collector.Gnd.Set(false)
-		t.CollectorOut.Bit.Set(false)
-	}
-}
 
 type Group struct {
 	Name       string
@@ -154,7 +91,7 @@ func (g *Group) JointWire(res, a, b *wire.Wire, isAnd bool) {
 	g.Components = append(g.Components, &jointwire.JointWire{Res: res, A: a, B: b, IsAnd: isAnd})
 }
 
-func (g *Group) AddTransistor(transistor *Transistor) {
+func (g *Group) AddTransistor(transistor *transistor.Transistor) {
 	if transistor.CollectorOut == nil {
 		transistor.CollectorOut = g.Unused
 	}
@@ -162,10 +99,10 @@ func (g *Group) AddTransistor(transistor *Transistor) {
 }
 
 func (g *Group) Transistor(base, collector, emitter, collectorOut *wire.Wire) {
-	g.AddTransistor(&Transistor{Base: base, Collector: collector, Emitter: emitter, CollectorOut: collectorOut})
+	g.AddTransistor(&transistor.Transistor{Base: base, Collector: collector, Emitter: emitter, CollectorOut: collectorOut})
 }
 
-func (g *Group) AddTransistors(transistors []*Transistor) {
+func (g *Group) AddTransistors(transistors []*transistor.Transistor) {
 	for _, transistor := range transistors {
 		g.AddTransistor(transistor)
 	}
@@ -284,8 +221,8 @@ func (c *Circuit) simulate(index int) []string {
 	return res
 }
 
-func transistor(parent *Group, base, collector *wire.Wire) []*wire.Wire {
-	group := parent.Group("transistor")
+func transistorOne(parent *Group, base, collector *wire.Wire) []*wire.Wire {
+	group := parent.Group("transistorOne")
 	emitter := &wire.Wire{Name: "emitter"}
 	collectorOut := &wire.Wire{Name: "collector_out"}
 	group.Transistor(base, collector, emitter, collectorOut)
@@ -310,7 +247,7 @@ func And(parent *Group, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("AND(%v,%v)", a.Name, b.Name))
 	res := &wire.Wire{Name: group.Name}
 	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
-	group.AddTransistors([]*Transistor{
+	group.AddTransistors([]*transistor.Transistor{
 		{Base: a, Collector: group.Vcc, Emitter: wire},
 		{Base: b, Collector: wire, Emitter: res},
 	})
@@ -327,7 +264,7 @@ func OrRes(parent *Group, res, a, b *wire.Wire) *wire.Wire {
 	res.Name = group.Name
 	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
 	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
-	group.AddTransistors([]*Transistor{
+	group.AddTransistors([]*transistor.Transistor{
 		{Base: a, Collector: group.Vcc, Emitter: wire1},
 		{Base: b, Collector: group.Vcc, Emitter: wire2},
 	})
@@ -339,7 +276,7 @@ func Nand(parent *Group, a, b *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("NAND(%v,%v)", a.Name, b.Name))
 	res := &wire.Wire{Name: group.Name}
 	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
-	group.AddTransistors([]*Transistor{
+	group.AddTransistors([]*transistor.Transistor{
 		{Base: a, Collector: group.Vcc, Emitter: wire, CollectorOut: res},
 		{Base: b, Collector: wire, Emitter: group.Gnd},
 	})
@@ -363,7 +300,7 @@ func NorRes(parent *Group, res, a, b *wire.Wire) *wire.Wire {
 	res.Name = group.Name
 	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
 	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
-	group.AddTransistors([]*Transistor{
+	group.AddTransistors([]*transistor.Transistor{
 		{Base: a, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire1},
 		{Base: b, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire2},
 	})
@@ -492,7 +429,7 @@ func Alu2(parent *Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wire.Wir
 }
 
 func all(c *Circuit, g *Group) {
-	c.Outs(transistor(g, c.In("base"), c.In("collector")))
+	c.Outs(transistorOne(g, c.In("base"), c.In("collector")))
 
 	c.Out(Not(g, c.In("a")))
 	c.Out(And(g, c.In("a"), c.In("b")))
