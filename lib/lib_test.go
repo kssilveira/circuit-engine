@@ -121,8 +121,9 @@ func TestOutputsCombinational(t *testing.T) {
 		// s r => q !q
 		want: []string{"00=>10", "01=>01", "10=>10", "11=>00"},
 	}, {
-		name: "",
-		want: []string{"=>"},
+		name: "SRLatchWithEnable",
+		// s r e => q !q
+		want: []string{"000=>10", "001=>10", "010=>10", "011=>01", "100=>01", "101=>10", "110=>10", "111=>00"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
@@ -159,6 +160,11 @@ func TestOutputsSequential(t *testing.T) {
 		name:   "OrRes",
 		inputs: []string{"0", "1", "0"},
 		want:   []string{"0=>0", "1=>1", "0=>1"},
+	}, {
+		name: "SRLatchWithEnable",
+		// s r e => q !q
+		inputs: []string{"000", "001", "010", "011", "000", "100", "101", "000"},
+		want:   []string{"000=>10", "001=>10", "010=>10", "011=>01", "000=>01", "100=>01", "101=>10", "000=>10"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})

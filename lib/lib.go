@@ -157,6 +157,16 @@ func SRLatchRes(parent *group.Group, q, s, r *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{q, nq}
 }
 
+func SRLatchWithEnable(parent *group.Group, s, r, e *wire.Wire) []*wire.Wire {
+	q := &wire.Wire{Name: "q"}
+	return SRLatchResWithEnable(parent, q, s, r, e)
+}
+
+func SRLatchResWithEnable(parent *group.Group, q, s, r, e *wire.Wire) []*wire.Wire {
+	group := parent.Group(fmt.Sprintf("SRLATCHEN(%v,%v,%v)", s.Name, r.Name, e.Name))
+	return SRLatchRes(group, q, And(group, s, e), And(group, r, e))
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -227,6 +237,9 @@ var (
 		},
 		"SRLatch": func(c *circuit.Circuit) []*wire.Wire {
 			return SRLatch(c.Group(""), c.In("s"), c.In("r"))
+		},
+		"SRLatchWithEnable": func(c *circuit.Circuit) []*wire.Wire {
+			return SRLatchWithEnable(c.Group(""), c.In("s"), c.In("r"), c.In("e"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
