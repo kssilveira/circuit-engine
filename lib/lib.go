@@ -393,8 +393,7 @@ var (
 				[4]*wire.Wire{
 					c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"),
 				}, c.In("bi"), c.In("bo"),
-				c.In("ri"), c.In("ro"),
-				c.In("cin"))
+				c.In("ri"), c.In("ro"), c.In("cin"))
 		},
 		"Alu8": func(c *circuit.Circuit) []*wire.Wire {
 			return Alu8(
@@ -405,13 +404,18 @@ var (
 				[8]*wire.Wire{
 					c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"),
 				}, c.In("bi"), c.In("bo"),
-				c.In("ri"), c.In("ro"),
-				c.In("cin"))
+				c.In("ri"), c.In("ro"), c.In("cin"))
 		},
 		"Bus": func(c *circuit.Circuit) []*wire.Wire {
 			wa := &wire.Wire{Name: "wa"}
 			wb := &wire.Wire{Name: "wb"}
 			return append(Bus(c.Group(""), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
+		},
+		"AluWithBus": func(c *circuit.Circuit) []*wire.Wire {
+			return AluWithBus(
+				c.Group(""),
+				c.In("bus"), c.In("ai"), c.In("ao"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"),
+				c.In("cin"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil

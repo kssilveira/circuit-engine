@@ -523,6 +523,24 @@ func TestOutputsSequential(t *testing.T) {
 		// s r e => q !q
 		inputs: []string{"000", "001", "010", "011", "000", "100", "101", "000"},
 		want:   []string{"000=>10", "001=>10", "010=>10", "011=>01", "000=>01", "100=>01", "101=>10", "000=>10"},
+	}, {
+		name: "AluWithBus",
+		// bus ai ao bi bo ri ro cin => rbus qa ra qb rb qr rr cout
+		inputs: []string{"00000000", "10000000", "01000000", "00100000", "00001000", "01001000"},
+		want: []string{
+			// default to a=1, b=1, r=1, sum=0, cout=1
+			"00000000=>01010101",
+			// bus=1 makes no difference since no one is reading it
+			"10000000=>01010101",
+			// ai=1 sets a=0 from the bus
+			"01000000=>00010100",
+			// ao=1 writes a=0 to the bus
+			"00100000=>00010100",
+			// bo=1 writes b=1 to the bus
+			"00001000=>10011100",
+			// ai=bo=1 writes b=1 to ai
+			"01001000=>11011101",
+		},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
