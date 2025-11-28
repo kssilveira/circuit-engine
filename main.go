@@ -14,17 +14,10 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-func Sum4(parent *group.Group, a1, a2, a3, a4, b1, b2, b3, b4, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("SUM4")
-	s1 := lib.Sum2(group, a1, a2, b1, b2, cin)
-	s2 := lib.Sum2(group, a3, a4, b3, b4, s1[2])
-	return []*wire.Wire{s1[0], s1[1], s2[0], s2[1], s2[2]}
-}
-
 func Sum8(parent *group.Group, a1, a2, a3, a4, a5, a6, a7, a8, b1, b2, b3, b4, b5, b6, b7, b8, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("SUM8")
-	s1 := Sum4(group, a1, a2, a3, a4, b1, b2, b3, b4, cin)
-	s2 := Sum4(group, a5, a6, a7, a8, b5, b6, b7, b8, s1[4])
+	s1 := lib.Sum4(group, a1, a2, a3, a4, b1, b2, b3, b4, cin)
+	s2 := lib.Sum4(group, a5, a6, a7, a8, b5, b6, b7, b8, s1[4])
 	return []*wire.Wire{s1[0], s1[1], s1[2], s1[3], s2[0], s2[1], s2[2], s2[3], s2[4]}
 }
 
@@ -109,7 +102,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(Sum4(g, c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("c")))
 	c.Outs(Sum8(g, c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8"), c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"), c.In("c")))
 	c.Outs(SRLatch(g, c.In("s"), c.In("r")))
 	c.Outs(SRLatchWithEnable(g, c.In("s"), c.In("r"), c.In("e")))

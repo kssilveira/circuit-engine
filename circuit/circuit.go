@@ -105,23 +105,27 @@ func (c Circuit) Graph() string {
 }
 
 func (c *Circuit) Simulate() []string {
-	if !c.Config.DrawSingleGraph && len(c.Inputs) <= 9 {
+	if !c.Config.DrawSingleGraph && len(c.Inputs) <= 8 {
 		return c.simulate(0)
 	}
 	rand := rand.New(rand.NewPCG(42, 1024))
-	for _, input := range c.Inputs {
-		input.Bit.SilentSet(rand.IntN(2) == 1)
+	var res []string
+	for i := 0; i < 10; i++ {
+		for _, input := range c.Inputs {
+			input.Bit.SilentSet(rand.IntN(2) == 1)
+		}
+		res = append(res, c.simulate(len(c.Inputs))...)
 	}
-	return c.simulate(len(c.Inputs))
+	return res
 }
 
-func (c *Circuit) SimulateInputs(allInputs []string) []string{
+func (c *Circuit) SimulateInputs(allInputs []string) []string {
 	var res []string
 	for _, inputs := range allInputs {
 		for i, input := range inputs {
 			c.Inputs[i].Bit.SilentSet(input == '1')
 		}
-	  res = append(res, c.simulate(len(c.Inputs))...)
+		res = append(res, c.simulate(len(c.Inputs))...)
 	}
 	return res
 }
