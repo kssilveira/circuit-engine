@@ -86,6 +86,32 @@ func TestOutputsCombinational(t *testing.T) {
 			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum4 / 2}
 		},
 	}, {
+		name: "Sum8",
+		// a1 a2 a3 a4 a5 a5 a7 a8 b1 b2 b3 b4 b5 b6 b7 b8 cin => s1 s2 s3 s4 s5 s6 s7 s8 cout
+		want: []string{
+			"11011010111000011=>110001110",
+			"00001011010000000=>010010110",
+			"10110111101000100=>010011001",
+			"01000010111011001=>010111100",
+			"01101000001010011=>110101010",
+			"01111111011010010=>001010011",
+			"00101000100111110=>101100001",
+			"00010101010111000=>010001110",
+			"11010011100110000=>001001110",
+			"11100100110000110=>010101110",
+		},
+		isValid: func(inputs map[string]int) []int {
+			sum1 := inputs["a1"] + inputs["b1"] + inputs["c"]
+			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
+			sum3 := sum2/2 + inputs["a3"] + inputs["b3"]
+			sum4 := sum3/2 + inputs["a4"] + inputs["b4"]
+			sum5 := sum4/2 + inputs["a5"] + inputs["b5"]
+			sum6 := sum5/2 + inputs["a6"] + inputs["b6"]
+			sum7 := sum6/2 + inputs["a7"] + inputs["b7"]
+			sum8 := sum7/2 + inputs["a8"] + inputs["b8"]
+			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum5 % 2, sum6 % 2, sum7 % 2, sum8 % 2, sum8 / 2}
+		},
+	}, {
 		name: "",
 		want: []string{"=>"},
 	}}
