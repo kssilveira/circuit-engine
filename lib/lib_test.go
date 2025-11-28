@@ -354,6 +354,51 @@ func TestOutputsCombinational(t *testing.T) {
 				}
 			}
 		}(),
+	}, {
+		name: "Alu4",
+		// a1 a2 a3 a4 ai ao b1 b2 b3 b4 bi bo ri ro carry
+		// => qa1 ra1 qb1 rb1 qr1 rr1 qa2 ra2 qb2 rb2 qr2 rr2
+		//    qa3 ra3 qb3 rb3 qr3 rr3 qa4 ra4 qb4 rb4 qr4 rr4
+		want: []string{
+			"110110101110000=>1010101000100010101010101",
+			"110000101101000=>1011101000100011101011101",
+			"000010110111101=>0011000011000000100011100",
+			"000100010000101=>0010000010000000100010100",
+			"110110010110100=>1000101010000000101010001",
+			"000101001101111=>1100001111110000111111001",
+			"111011010010001=>1100001110101100100000000",
+			"010001001111100=>1100101100101111000011001",
+			"001010101011100=>0011100000001011000000100",
+			"011010011100110=>0010111000111010000000110",
+		},
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa1, qb1, qr1 := 1, 1, 1
+			qa2, qb2, qr2 := 1, 1, 1
+			qa3, qb3, qr3 := 1, 1, 1
+			qa4, qb4, qr4 := 1, 1, 1
+			return func(inputs map[string]int) []int {
+				if inputs["ai"] == 1 {
+					qa1, qa2, qa3, qa4 = inputs["a1"], inputs["a2"], inputs["a3"], inputs["a4"]
+				}
+				if inputs["bi"] == 1 {
+					qb1, qb2, qb3, qb4 = inputs["b1"], inputs["b2"], inputs["b3"], inputs["b4"]
+				}
+				sum1 := qa1 + qb1 + inputs["cin"]
+				sum2 := qa2 + qb2 + sum1/2
+				sum3 := qa3 + qb3 + sum2/2
+				sum4 := qa4 + qb4 + sum3/2
+				if inputs["ri"] == 1 {
+					qr1, qr2, qr3, qr4 = sum1%2, sum2%2, sum3%2, sum4%2
+				}
+				return []int{
+					qa1, inputs["ao"] & qa1, qb1, inputs["bo"] & qb1, qr1, inputs["ro"] & qr1,
+					qa2, inputs["ao"] & qa2, qb2, inputs["bo"] & qb2, qr2, inputs["ro"] & qr2,
+					qa3, inputs["ao"] & qa3, qb3, inputs["bo"] & qb3, qr3, inputs["ro"] & qr3,
+					qa4, inputs["ao"] & qa4, qb4, inputs["bo"] & qb4, qr4, inputs["ro"] & qr4,
+					sum4 / 2,
+				}
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})

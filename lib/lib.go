@@ -138,7 +138,11 @@ func Sum4(parent *group.Group, a1, a2, a3, a4, b1, b2, b3, b4, cin *wire.Wire) [
 	return []*wire.Wire{s1[0], s1[1], s2[0], s2[1], s2[2]}
 }
 
-func Sum8(parent *group.Group, a1, a2, a3, a4, a5, a6, a7, a8, b1, b2, b3, b4, b5, b6, b7, b8, cin *wire.Wire) []*wire.Wire {
+func Sum8(
+	parent *group.Group,
+	a1, a2, a3, a4, a5, a6, a7, a8,
+	b1, b2, b3, b4, b5, b6, b7, b8,
+	cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("SUM8")
 	s1 := Sum4(group, a1, a2, a3, a4, b1, b2, b3, b4, cin)
 	s2 := Sum4(group, a5, a6, a7, a8, b5, b6, b7, b8, s1[4])
@@ -209,20 +213,33 @@ func Register8(parent *group.Group, d1, d2, d3, d4, d5, d6, d7, d8, ei, eo *wire
 	return append(r1, r2...)
 }
 
-func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
+func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU")
 	ra := Register(group, a, ai, ao)
 	rb := Register(group, b, bi, bo)
-	rs := Sum(group, ra[0], rb[0], carry)
+	rs := Sum(group, ra[0], rb[0], cin)
 	rr := Register(group, rs[0], ri, ro)
 	return slices.Concat(ra, rb, rr, []*wire.Wire{rs[1]})
 }
 
-func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
+func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU2")
-	r1 := Alu(group, a1, ai, ao, b1, bi, bo, ri, ro, carry)
-	r2 := Alu(group, a2, ai, ao, b2, bi, bo, ri, ro, r1[6])
-	return append(r1[:6], r2...)
+	r1 := Alu(group, a1, ai, ao, b1, bi, bo, ri, ro, cin)
+	last := len(r1) - 1
+	r2 := Alu(group, a2, ai, ao, b2, bi, bo, ri, ro, r1[last])
+	return append(r1[:last], r2...)
+}
+
+func Alu4(
+	parent *group.Group,
+	a1, a2, a3, a4, ai, ao,
+	b1, b2, b3, b4, bi, bo,
+	ri, ro, cin *wire.Wire) []*wire.Wire {
+	group := parent.Group("ALU2")
+	r1 := Alu2(group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, cin)
+	last := len(r1) - 1
+	r2 := Alu2(group, a3, a4, ai, ao, b3, b4, bi, bo, ri, ro, r1[last])
+	return append(r1[:last], r2...)
 }
 
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
@@ -288,10 +305,18 @@ var (
 			return Sum2(c.Group(""), c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("c"))
 		},
 		"Sum4": func(c *circuit.Circuit) []*wire.Wire {
-			return Sum4(c.Group(""), c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("c"))
+			return Sum4(
+				c.Group(""),
+				c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"),
+				c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"),
+				c.In("c"))
 		},
 		"Sum8": func(c *circuit.Circuit) []*wire.Wire {
-			return Sum8(c.Group(""), c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8"), c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"), c.In("c"))
+			return Sum8(
+				c.Group(""),
+				c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8"),
+				c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"),
+				c.In("c"))
 		},
 		"SRLatch": func(c *circuit.Circuit) []*wire.Wire {
 			return SRLatch(c.Group(""), c.In("s"), c.In("r"))
@@ -312,13 +337,33 @@ var (
 			return Register4(c.Group(""), c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("ei"), c.In("eo"))
 		},
 		"Register8": func(c *circuit.Circuit) []*wire.Wire {
-			return Register8(c.Group(""), c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("d5"), c.In("d6"), c.In("d7"), c.In("d8"), c.In("ei"), c.In("eo"))
+			return Register8(
+				c.Group(""),
+				c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"),
+				c.In("d5"), c.In("d6"), c.In("d7"), c.In("d8"),
+				c.In("ei"), c.In("eo"))
 		},
 		"Alu": func(c *circuit.Circuit) []*wire.Wire {
-			return Alu(c.Group(""), c.In("a"), c.In("ai"), c.In("ao"), c.In("b"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("cin"))
+			return Alu(
+				c.Group(""),
+				c.In("a"), c.In("ai"), c.In("ao"),
+				c.In("b"), c.In("bi"), c.In("bo"),
+				c.In("ri"), c.In("ro"), c.In("cin"))
 		},
 		"Alu2": func(c *circuit.Circuit) []*wire.Wire {
-			return Alu2(c.Group(""), c.In("a1"), c.In("a2"), c.In("ai"), c.In("ao"), c.In("b1"), c.In("b2"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("cin"))
+			return Alu2(
+				c.Group(""),
+				c.In("a1"), c.In("a2"), c.In("ai"), c.In("ao"),
+				c.In("b1"), c.In("b2"), c.In("bi"), c.In("bo"),
+				c.In("ri"), c.In("ro"), c.In("cin"))
+		},
+		"Alu4": func(c *circuit.Circuit) []*wire.Wire {
+			return Alu4(
+				c.Group(""),
+				c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("ai"), c.In("ao"),
+				c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("bi"), c.In("bo"),
+				c.In("ri"), c.In("ro"),
+				c.In("cin"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
