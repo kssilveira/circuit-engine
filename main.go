@@ -14,20 +14,10 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-func Sum(parent *group.Group, a, b, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SUM(%v,%v,%v)", a.Name, b.Name, cin.Name))
-	s1 := lib.HalfSum(group, a, b)
-	s2 := lib.HalfSum(group, s1[0], cin)
-	s2[0].Name = group.Name
-	carry := lib.Or(group, s1[1], s2[1])
-	carry.Name = fmt.Sprintf("CARRY(%v,%v)", a.Name, b.Name)
-	return []*wire.Wire{s2[0], carry}
-}
-
 func Sum2(parent *group.Group, a1, a2, b1, b2, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("SUM2")
-	s1 := Sum(group, a1, b1, cin)
-	s2 := Sum(group, a2, b2, s1[1])
+	s1 := lib.Sum(group, a1, b1, cin)
+	s2 := lib.Sum(group, a2, b2, s1[1])
 	return []*wire.Wire{s1[0], s2[0], s2[1]}
 }
 
@@ -113,7 +103,7 @@ func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, carry *wire.Wire) []
 	group := parent.Group("ALU")
 	ra := Register(group, a, ai, ao)
 	rb := Register(group, b, bi, bo)
-	rs := Sum(group, ra[0], rb[0], carry)
+	rs := lib.Sum(group, ra[0], rb[0], carry)
 	rr := Register(group, rs[0], ri, ro)
 	return slices.Concat(ra, rb, rr, []*wire.Wire{rs[1]})
 }
@@ -126,7 +116,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(Sum(g, c.In("a"), c.In("b"), c.In("c")))
 	c.Outs(Sum2(g, c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("c")))
 	c.Outs(Sum4(g, c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("c")))
 	c.Outs(Sum8(g, c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8"), c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"), c.In("c")))

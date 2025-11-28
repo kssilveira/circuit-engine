@@ -113,6 +113,16 @@ func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{res, carry}
 }
 
+func Sum(parent *group.Group, a, b, cin *wire.Wire) []*wire.Wire {
+	group := parent.Group(fmt.Sprintf("SUM(%v,%v,%v)", a.Name, b.Name, cin.Name))
+	s1 := HalfSum(group, a, b)
+	s2 := HalfSum(group, s1[0], cin)
+	s2[0].Name = group.Name
+	carry := Or(group, s1[1], s2[1])
+	carry.Name = fmt.Sprintf("CARRY(%v,%v)", a.Name, b.Name)
+	return []*wire.Wire{s2[0], carry}
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -168,6 +178,9 @@ var (
 		},
 		"HalfSum": func(c *circuit.Circuit) []*wire.Wire {
 			return HalfSum(c.Group(""), c.In("a"), c.In("b"))
+		},
+		"Sum": func(c *circuit.Circuit) []*wire.Wire {
+			return Sum(c.Group(""), c.In("a"), c.In("b"), c.In("c"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
