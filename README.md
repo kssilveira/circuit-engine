@@ -73,7 +73,8 @@ $ google-chrome *.svg
 Run unit tests:
 
 ```console
-$ while inotifywait -r . 2>/dev/null; do clear; go test ./... | grep -v "no test files"; done
+$ while inotifywait -r . 2>/dev/null; do \
+    clear; go test ./... | grep -v "no test files"; done
 ```
 
 Format files:
