@@ -41,7 +41,6 @@ func all() error {
 
 	res := c.Simulate()
 	fmt.Println(strings.Join(res, "\n\n"))
-	// fmt.Println(strings.Join(c.Simulate(), "\n"))
 
 	if !*drawGraph {
 		return nil

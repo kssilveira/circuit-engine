@@ -115,6 +115,9 @@ func (c *Circuit) Simulate() []string {
 			input.Bit.SilentSet(rand.IntN(2) == 1)
 		}
 		res = append(res, c.simulate(len(c.Inputs))...)
+		if c.Config.DrawSingleGraph {
+			break
+		}
 	}
 	return res
 }

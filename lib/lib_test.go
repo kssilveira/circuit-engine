@@ -236,12 +236,10 @@ func TestOutputsCombinational(t *testing.T) {
 			"1100=>1000", "1101=>1100", "1110=>1010", "1111=>1111",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
-			q1 := true
-			q2 := true
+			q1, q2 := true, true
 			return func(inputs map[string]bool) []bool {
 				if inputs["ei"] {
-					q1 = inputs["d1"]
-					q2 = inputs["d2"]
+					q1, q2 = inputs["d1"], inputs["d2"]
 				}
 				eo := inputs["eo"]
 				return []bool{q1, eo && q1, q2, eo && q2}
@@ -269,16 +267,10 @@ func TestOutputsCombinational(t *testing.T) {
 			"111100=>10101000", "111101=>11111100", "111110=>10101010", "111111=>11111111",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
-			q1 := true
-			q2 := true
-			q3 := true
-			q4 := true
+			q1, q2, q3, q4 := true, true, true, true
 			return func(inputs map[string]bool) []bool {
 				if inputs["ei"] {
-					q1 = inputs["d1"]
-					q2 = inputs["d2"]
-					q3 = inputs["d3"]
-					q4 = inputs["d4"]
+					q1, q2, q3, q4 = inputs["d1"], inputs["d2"], inputs["d3"], inputs["d4"]
 				}
 				eo := inputs["eo"]
 				return []bool{q1, eo && q1, q2, eo && q2, q3, eo && q3, q4, eo && q4}
@@ -295,24 +287,12 @@ func TestOutputsCombinational(t *testing.T) {
 			"1001101111=>1100001111001111", "1110110100=>1000001010001010",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
-			q1 := true
-			q2 := true
-			q3 := true
-			q4 := true
-			q5 := true
-			q6 := true
-			q7 := true
-			q8 := true
+			q1, q2, q3, q4 := true, true, true, true
+			q5, q6, q7, q8 := true, true, true, true
 			return func(inputs map[string]bool) []bool {
 				if inputs["ei"] {
-					q1 = inputs["d1"]
-					q2 = inputs["d2"]
-					q3 = inputs["d3"]
-					q4 = inputs["d4"]
-					q5 = inputs["d5"]
-					q6 = inputs["d6"]
-					q7 = inputs["d7"]
-					q8 = inputs["d8"]
+					q1, q2, q3, q4 = inputs["d1"], inputs["d2"], inputs["d3"], inputs["d4"]
+					q5, q6, q7, q8 = inputs["d5"], inputs["d6"], inputs["d7"], inputs["d8"]
 				}
 				eo := inputs["eo"]
 				return []bool{q1, eo && q1, q2, eo && q2, q3, eo && q3, q4, eo && q4, q5, eo && q5, q6, eo && q6, q7, eo && q7, q8, eo && q8}
@@ -327,9 +307,7 @@ func TestOutputsCombinational(t *testing.T) {
 			"100000101=>1000001", "001101111=>1100001",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
-			qa := 1
-			qb := 1
-			qr := 1
+			qa, qb, qr := 1, 1, 1
 			return func(inputs map[string]int) []int {
 				if inputs["ai"] == 1 {
 					qa = inputs["a"]
@@ -355,26 +333,19 @@ func TestOutputsCombinational(t *testing.T) {
 			"11111011010=>1111111100111", "01000101000=>1011101000101",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
-			qa1 := 1
-			qb1 := 1
-			qr1 := 1
-			qa2 := 1
-			qb2 := 1
-			qr2 := 1
+			qa1, qb1, qr1 := 1, 1, 1
+			qa2, qb2, qr2 := 1, 1, 1
 			return func(inputs map[string]int) []int {
 				if inputs["ai"] == 1 {
-					qa1 = inputs["a1"]
-					qa2 = inputs["a2"]
+					qa1, qa2 = inputs["a1"], inputs["a2"]
 				}
 				if inputs["bi"] == 1 {
-					qb1 = inputs["b1"]
-					qb2 = inputs["b2"]
+					qb1, qb2 = inputs["b1"], inputs["b2"]
 				}
 				sum1 := qa1 + qb1 + inputs["cin"]
 				sum2 := qa2 + qb2 + sum1/2
 				if inputs["ri"] == 1 {
-					qr1 = sum1 % 2
-					qr2 = sum2 % 2
+					qr1, qr2 = sum1 % 2, sum2 % 2
 				}
 				return []int{
 					qa1, inputs["ao"] & qa1, qb1, inputs["bo"] & qb1, qr1, inputs["ro"] & qr1,
