@@ -42,6 +42,12 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "Xor",
 		want: []string{"00=>0", "01=>1", "10=>1", "11=>0"},
+	}, {
+		name: "Nor",
+		want: []string{"00=>1", "01=>0", "10=>0", "11=>0"},
+	}, {
+		name: "",
+		want: []string{"=>"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})

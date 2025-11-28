@@ -86,6 +86,24 @@ func Xor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	return res
 }
 
+func Nor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
+	res := &wire.Wire{}
+	return NorRes(parent, res, a, b)
+}
+
+func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
+	group := parent.Group(fmt.Sprintf("NOR(%v,%v)", a.Name, b.Name))
+	res.Name = group.Name
+	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
+	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
+	group.AddTransistors([]*transistor.Transistor{
+		{Base: a, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire1},
+		{Base: b, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire2},
+	})
+	group.JointWire(res, wire1, wire2, true /* IsAnd */)
+	return res
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -135,6 +153,12 @@ var (
 		},
 		"Xor": func(c *circuit.Circuit) []*wire.Wire {
 			return []*wire.Wire{Xor(c.Group(""), c.In("a"), c.In("b"))}
+		},
+		"Nor": func(c *circuit.Circuit) []*wire.Wire {
+			return []*wire.Wire{Nor(c.Group(""), c.In("a"), c.In("b"))}
+		},
+		"": func(c *circuit.Circuit) []*wire.Wire {
+			return []*wire.Wire{}
 		},
 	}
 )

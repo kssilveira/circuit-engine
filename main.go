@@ -11,27 +11,8 @@ import (
 	"github.com/kssilveira/circuit-engine/config"
 	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/lib"
-	"github.com/kssilveira/circuit-engine/transistor"
 	"github.com/kssilveira/circuit-engine/wire"
 )
-
-func Nor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	res := &wire.Wire{}
-	return NorRes(parent, res, a, b)
-}
-
-func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("NOR(%v,%v)", a.Name, b.Name))
-	res.Name = group.Name
-	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
-	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
-	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire1},
-		{Base: b, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire2},
-	})
-	group.JointWire(res, wire1, wire2, true /* IsAnd */)
-	return res
-}
 
 func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SUM(%v,%v)", a.Name, b.Name))
@@ -81,8 +62,8 @@ func SRLatch(parent *group.Group, s, r *wire.Wire) []*wire.Wire {
 func SRLatchRes(parent *group.Group, q, s, r *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SRLATCH(%v,%v)", s.Name, r.Name))
 	nq := &wire.Wire{Name: "nq"}
-	NorRes(group, q, r, nq)
-	NorRes(group, nq, s, q)
+	lib.NorRes(group, q, r, nq)
+	lib.NorRes(group, nq, s, q)
 	return []*wire.Wire{q, nq}
 }
 
@@ -159,7 +140,6 @@ func examples(c *circuit.Circuit, g *group.Group) {
 	c.Outs(Sum2(g, c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("c")))
 	c.Outs(Sum4(g, c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("c")))
 	c.Outs(Sum8(g, c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8"), c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"), c.In("c")))
-	c.Out(Nor(g, c.In("a"), c.In("b")))
 	c.Outs(SRLatch(g, c.In("s"), c.In("r")))
 	c.Outs(SRLatchWithEnable(g, c.In("s"), c.In("r"), c.In("e")))
 	c.Outs(DLatch(g, c.In("d"), c.In("e")))
@@ -180,7 +160,9 @@ func all() error {
 	drawShapePoint := flag.Bool("draw_shape_point", false, "draw shape point")
 	isUnitTest := flag.Bool("is_unit_test", false, "is unit test")
 	exampleName := flag.String("example_name", "TransistorEmitter", "example name")
+
 	flag.Parse()
+
 	c := circuit.NewCircuit(config.Config{
 		MaxPrintDepth:   *maxPrintDepth,
 		DrawGraph:       *drawGraph,
