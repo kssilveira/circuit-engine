@@ -345,7 +345,7 @@ func TestOutputsCombinational(t *testing.T) {
 				sum1 := qa1 + qb1 + inputs["cin"]
 				sum2 := qa2 + qb2 + sum1/2
 				if inputs["ri"] == 1 {
-					qr1, qr2 = sum1 % 2, sum2 % 2
+					qr1, qr2 = sum1%2, sum2%2
 				}
 				return []int{
 					qa1, inputs["ao"] & qa1, qb1, inputs["bo"] & qb1, qr1, inputs["ro"] & qr1,

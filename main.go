@@ -53,8 +53,6 @@ func all() error {
 			return fmt.Errorf("WriteFile got err %v", err)
 		}
 	}
-	// $ for file in *.dot; do dot -Tsvg "${file}" > "${file}".svg; done
-	// $ google-chrome *.svg
 	return nil
 }
 
