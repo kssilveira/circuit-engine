@@ -2,6 +2,7 @@ package lib
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/group"
@@ -208,6 +209,15 @@ func Register8(parent *group.Group, d1, d2, d3, d4, d5, d6, d7, d8, ei, eo *wire
 	return append(r1, r2...)
 }
 
+func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
+	group := parent.Group("ALU")
+	ra := Register(group, a, ai, ao)
+	rb := Register(group, b, bi, bo)
+	rs := Sum(group, ra[0], rb[0], carry)
+	rr := Register(group, rs[0], ri, ro)
+	return slices.Concat(ra, rb, rr, []*wire.Wire{rs[1]})
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -296,6 +306,9 @@ var (
 		},
 		"Register8": func(c *circuit.Circuit) []*wire.Wire {
 			return Register8(c.Group(""), c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("d5"), c.In("d6"), c.In("d7"), c.In("d8"), c.In("ei"), c.In("eo"))
+		},
+		"Alu": func(c *circuit.Circuit) []*wire.Wire {
+			return Alu(c.Group(""), c.In("a"), c.In("ai"), c.In("ao"), c.In("b"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("carry"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil

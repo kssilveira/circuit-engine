@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"slices"
 	"strings"
 
 	"github.com/kssilveira/circuit-engine/circuit"
@@ -14,24 +13,14 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU")
-	ra := lib.Register(group, a, ai, ao)
-	rb := lib.Register(group, b, bi, bo)
-	rs := lib.Sum(group, ra[0], rb[0], carry)
-	rr := lib.Register(group, rs[0], ri, ro)
-	return slices.Concat(ra, rb, rr, []*wire.Wire{rs[1]})
-}
-
 func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU2")
-	r1 := Alu(group, a1, ai, ao, b1, bi, bo, ri, ro, carry)
-	r2 := Alu(group, a2, ai, ao, b2, bi, bo, ri, ro, r1[6])
+	r1 := lib.Alu(group, a1, ai, ao, b1, bi, bo, ri, ro, carry)
+	r2 := lib.Alu(group, a2, ai, ao, b2, bi, bo, ri, ro, r1[6])
 	return append(r1[:6], r2...)
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(Alu(g, c.In("a"), c.In("ai"), c.In("ao"), c.In("b"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("carry")))
 	c.Outs(Alu2(g, c.In("a1"), c.In("a2"), c.In("ai"), c.In("ao"), c.In("b1"), c.In("b2"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"), c.In("carry")))
 }
 
