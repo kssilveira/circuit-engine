@@ -6,11 +6,11 @@ Define and simulate circuits from transistors all the way to an 8-bit computer.
 
 ### Simulate
 
-```sh
+```console
 $ go run main.go --example_name HalfSum
 ```
 
-```
+```console
 Inputs:   a=0  b=1
 Outputs:
   SUM(a,b)=1
@@ -52,7 +52,7 @@ Components:
 
 Single graph:
 
-```sh
+```console
 $ go run main.go --example_name HalfSum --draw_graph --draw_single_graph | \
     dot -Tsvg > doc/HalfSum.svg
 $ google-chrome doc/HalfSum.svg
@@ -62,7 +62,7 @@ $ google-chrome doc/HalfSum.svg
 
 Multiple graphs:
 
-```sh
+```console
 $ go run main.go --example_name HalfSum --draw_graph
 $ for file in *.dot; do dot -Tsvg "${file}" > "${file}".svg; done
 $ google-chrome *.svg
@@ -72,12 +72,12 @@ $ google-chrome *.svg
 
 Run unit tests:
 
-```sh
+```console
 $ while inotifywait -r .; do clear; go test ./... | grep -v "no test files"; done
 ```
 
 Format files:
 
-```sh
+```console
 $ find . -name '*.go' | xargs -n 1 go fmt
 ```
