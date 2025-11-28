@@ -463,11 +463,44 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name: "Bus",
-		// a, b, r => bus wa wb
+		// bus a b r => rbus wa wb
 		want: []string{
-			"000=>000", "001=>111", "010=>111", "011=>111",
-			"100=>111", "101=>111", "110=>111", "111=>111",
+			"0000=>000", "0001=>111", "0010=>111", "0011=>111",
+			"0100=>111", "0101=>111", "0110=>111", "0111=>111",
+			"1000=>111", "1001=>111", "1010=>111", "1011=>111",
+			"1100=>111", "1101=>111", "1110=>111", "1111=>111",
 		},
+	}, {
+		name: "AluWithBus",
+		// bus ai ao bi bo ri ro cin => rbus qa ra qb rb qr rr cout
+		want: []string{
+			"11011010=>11011111", "11100001=>11110101", "10000101=>11010101", "10100000=>11110101",
+			"00101101=>11111101", "11101000=>11111101", "10001000=>11011101", "01011101=>11011101",
+			"10000010=>11010111",
+		},
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa, qb, qr := 1, 1, 1
+			return func(inputs map[string]int) []int {
+				ra, rb, rr, bus, sum := 0, 0, 0, 0, 0
+				for i := 0; i < 10; i++ {
+					ra = inputs["ao"] & qa
+					rb = inputs["bo"] & qb
+					rr = inputs["ro"] & qr
+					bus = inputs["bus"] | ra | rb | rr
+					if inputs["ai"] == 1 {
+						qa = bus
+					}
+					if inputs["bi"] == 1 {
+						qb = bus
+					}
+					sum = qa + qb + inputs["cin"]
+					if inputs["ri"] == 1 {
+						qr = sum % 2
+					}
+				}
+				return []int{bus, qa, ra, qb, rb, qr, rr, sum / 2}
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
@@ -528,10 +561,10 @@ func TestOutputsSequential(t *testing.T) {
 		// bus ai ao bi bo ri ro cin => rbus qa ra qb rb qr rr cout
 		inputs: []string{"00000000", "10000000", "01000000", "00100000", "00001000", "01001000"},
 		want: []string{
-			// default to a=1, b=1, r=1, sum=0, cout=1
+			// default to a=1 b=1 r=1 sum=0 cout=1
 			"00000000=>01010101",
-			// bus=1 makes no difference since no one is reading it
-			"10000000=>01010101",
+			// bus=1 writes to rbus
+			"10000000=>11010101",
 			// ai=1 sets a=0 from the bus
 			"01000000=>00010100",
 			// ao=1 writes a=0 to the bus

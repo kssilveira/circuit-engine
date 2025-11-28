@@ -13,13 +13,14 @@ import (
 )
 
 type Circuit struct {
-	Config     config.Config
-	Vcc        *wire.Wire
-	Gnd        *wire.Wire
-	Unused     *wire.Wire
-	Inputs     []*wire.Wire
-	Outputs    []*wire.Wire
-	Components []component.Component
+	Config           config.Config
+	Vcc              *wire.Wire
+	Gnd              *wire.Wire
+	Unused           *wire.Wire
+	Inputs           []*wire.Wire
+	Outputs          []*wire.Wire
+	Components       []component.Component
+	InputValidations []func() bool
 }
 
 func NewCircuit(config config.Config) *Circuit {
@@ -54,6 +55,10 @@ func (c *Circuit) Update() {
 	for _, component := range c.Components {
 		component.Update()
 	}
+}
+
+func (c *Circuit) AddInputValidation(fn func() bool) {
+	c.InputValidations = append(c.InputValidations, fn)
 }
 
 func (c Circuit) String() string {
@@ -105,7 +110,7 @@ func (c Circuit) Graph() string {
 }
 
 func (c *Circuit) Simulate() []string {
-	if !c.Config.DrawSingleGraph && len(c.Inputs) <= 8 {
+	if !c.Config.DrawSingleGraph && len(c.Inputs) <= 7 {
 		return c.simulate(0)
 	}
 	rand := rand.New(rand.NewPCG(42, 1024))
@@ -135,6 +140,16 @@ func (c *Circuit) SimulateInputs(allInputs []string) []string {
 
 func (c *Circuit) simulate(index int) []string {
 	if index >= len(c.Inputs) {
+		valid := true
+		for _, fn := range c.InputValidations {
+			if !fn() {
+				valid = false
+				break
+			}
+		}
+		if !valid {
+			return nil
+		}
 		c.Update()
 		if c.Config.DrawGraph {
 			return []string{c.Graph()}

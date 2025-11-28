@@ -242,12 +242,14 @@ func Alu8(parent *group.Group, a [8]*wire.Wire, ai, ao *wire.Wire, b [8]*wire.Wi
 	return append(r1[:last], r2...)
 }
 
-func Bus(parent *group.Group, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
+func Bus(parent *group.Group, bus, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("BUS"))
 	res := &wire.Wire{Name: group.Name}
 	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
-	group.JointWire(wire1, a, b, false /* isAnd */)
-	group.JointWire(res, wire1, r, false /* isAnd */)
+	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
+	group.JointWire(wire1, bus, a, false /* isAnd */)
+	group.JointWire(wire2, wire1, b, false /* isAnd */)
+	group.JointWire(res, wire2, r, false /* isAnd */)
 	group.JointWire(wa, res, res, false /* isAnd */)
 	group.JointWire(wb, res, res, false /* isAnd */)
 	return []*wire.Wire{res}
@@ -261,7 +263,7 @@ func AluWithBus(parent *group.Group, bus, ai, ao, bi, bo, ri, ro, cin *wire.Wire
 	rb := Register(group, b, bi, bo)
 	rs := Sum(group, ra[0], rb[0], cin)
 	rr := Register(group, rs[0], ri, ro)
-	rbus := Bus(group, ra[1], rb[1], rr[1], a, b)
+	rbus := Bus(group, bus, ra[1], rb[1], rr[1], a, b)
 	return slices.Concat(rbus, ra, rb, rr, []*wire.Wire{rs[1]})
 }
 
@@ -409,13 +411,19 @@ var (
 		"Bus": func(c *circuit.Circuit) []*wire.Wire {
 			wa := &wire.Wire{Name: "wa"}
 			wb := &wire.Wire{Name: "wb"}
-			return append(Bus(c.Group(""), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
+			return append(Bus(c.Group(""), c.In("bus"), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
 		},
 		"AluWithBus": func(c *circuit.Circuit) []*wire.Wire {
-			return AluWithBus(
-				c.Group(""),
-				c.In("bus"), c.In("ai"), c.In("ao"), c.In("bi"), c.In("bo"), c.In("ri"), c.In("ro"),
-				c.In("cin"))
+			bus := c.In("bus")
+			ai, ao := c.In("ai"), c.In("ao")
+			bi, bo := c.In("bi"), c.In("bo")
+			ri, ro := c.In("ri"), c.In("ro")
+			cin := c.In("cin")
+			c.AddInputValidation(func() bool {
+				res := !(ri.Bit.Get(nil) && ro.Bit.Get(nil) && (ai.Bit.Get(nil) || bi.Bit.Get(nil)))
+				return res
+			})
+			return AluWithBus(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
