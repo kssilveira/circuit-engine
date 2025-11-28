@@ -187,6 +187,13 @@ func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{q, res}
 }
 
+func Register2(parent *group.Group, d1, d2, ei, eo *wire.Wire) []*wire.Wire {
+	group := parent.Group("Register2")
+	r1 := Register(group, d1, ei, eo)
+	r2 := Register(group, d2, ei, eo)
+	return append(r1, r2...)
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -266,6 +273,9 @@ var (
 		},
 		"Register": func(c *circuit.Circuit) []*wire.Wire {
 			return Register(c.Group(""), c.In("d"), c.In("ei"), c.In("eo"))
+		},
+		"Register2": func(c *circuit.Circuit) []*wire.Wire {
+			return Register2(c.Group(""), c.In("d1"), c.In("d2"), c.In("ei"), c.In("eo"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
