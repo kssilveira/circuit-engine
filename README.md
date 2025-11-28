@@ -10,6 +10,12 @@ Run unit tests:
 $ while inotifywait -r .; do clear; go test ./... | grep -v "no test files"; done
 ```
 
+Run main:
+
+```sh
+$ go run main.go --example_name TransistorEmitter
+```
+
 Format files:
 
 ```sh

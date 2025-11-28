@@ -263,7 +263,7 @@ func all() error {
 	c.Outs(outs)
 
 	res := c.Simulate()
-	fmt.Println(strings.Join(res, "\n"))
+	fmt.Println(strings.Join(res, "\n\n"))
 	// fmt.Println(strings.Join(c.Simulate(), "\n"))
 
 	if !*drawGraph {
