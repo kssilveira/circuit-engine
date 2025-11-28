@@ -23,15 +23,8 @@ var (
 	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
 	drawShapePoint  = flag.Bool("draw_shape_point", false, "draw shape point")
 	isUnitTest      = flag.Bool("is_unit_test", false, "is unit test")
-	exampleName     = flag.String("example_name", "transistor", "example name")
+	exampleName     = flag.String("example_name", "Transistor", "example name")
 )
-
-func transistorGnd(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
-	group := parent.Group("transistorGnd")
-	collectorOut := &wire.Wire{Name: "collector_out"}
-	group.Transistor(base, collector, group.Gnd, collectorOut)
-	return []*wire.Wire{collectorOut}
-}
 
 func Not(parent *group.Group, a *wire.Wire) *wire.Wire {
 	group := parent.Group(fmt.Sprintf("NOT(%v)", a.Name))
@@ -226,7 +219,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(transistorGnd(g, c.In("base"), c.In("collector")))
 	c.Out(Not(g, c.In("a")))
 	c.Out(And(g, c.In("a"), c.In("b")))
 	c.Out(Or(g, c.In("a"), c.In("b")))

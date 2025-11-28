@@ -14,6 +14,13 @@ func Transistor(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{emitter, collectorOut}
 }
 
+func TransistorGnd(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
+	group := parent.Group("transistorGnd")
+	collectorOut := &wire.Wire{Name: "collector_out"}
+	group.Transistor(base, collector, group.Gnd, collectorOut)
+	return []*wire.Wire{collectorOut}
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -32,8 +39,11 @@ func ExampleNames() []string {
 
 var (
 	examples = map[string]func(*circuit.Circuit) []*wire.Wire{
-		"transistor": func(c *circuit.Circuit) []*wire.Wire {
+		"Transistor": func(c *circuit.Circuit) []*wire.Wire {
 			return Transistor(c.Group(""), c.In("base"), c.In("collector"))
+		},
+		"TransistorGnd": func(c *circuit.Circuit) []*wire.Wire {
+			return TransistorGnd(c.Group(""), c.In("base"), c.In("collector"))
 		},
 	}
 )
