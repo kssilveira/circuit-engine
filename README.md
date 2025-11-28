@@ -4,7 +4,7 @@ Define and simulate circuits from transistors all the way to an 8-bit computer.
 
 ## Example Component
 
-Define:
+### Define
 
 ```go
 func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
@@ -17,7 +17,7 @@ func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 }
 ```
 
-Create:
+### Create
 
 ```go
   "HalfSum": func(c *circuit.Circuit) []*wire.Wire {
@@ -25,7 +25,7 @@ Create:
   },
 ```
 
-Unit test:
+### Unit Test
 
 ```go
   name: "HalfSum",
@@ -37,7 +37,7 @@ Unit test:
   },
 ```
 
-Draw:
+### Draw
 
 ```console
 $ go run main.go --example_name HalfSum --draw_graph --draw_single_graph | dot -Tsvg > doc/HalfSum.svg
@@ -46,7 +46,7 @@ $ google-chrome doc/HalfSum.svg
 
 ![HalfSum](doc/HalfSum.svg)
 
-Print:
+### Print
 
 ```console
 $ go run main.go --example_name HalfSum
@@ -110,13 +110,13 @@ See [lib/lib_test.go](lib/lib_test.go).
 
 ## Development
 
-### Run unit tests
+### Run Unit Tests
 
 ```console
 $ while inotifywait -r . 2>/dev/null; do clear; go test ./... | grep -v "no test files"; done
 ```
 
-### Format Go files
+### Format Go Files
 
 ```console
 $ find . -name '*.go' | xargs -n 1 go fmt
