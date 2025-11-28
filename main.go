@@ -15,17 +15,6 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-var (
-	maxPrintDepth   = flag.Int("max_print_depth", -1, "max print depth")
-	drawGraph       = flag.Bool("draw_graph", false, "draw graph")
-	drawSingleGraph = flag.Bool("draw_single_graph", false, "draw single graph")
-	drawNodes       = flag.Bool("draw_nodes", true, "draw nodes")
-	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
-	drawShapePoint  = flag.Bool("draw_shape_point", false, "draw shape point")
-	isUnitTest      = flag.Bool("is_unit_test", false, "is unit test")
-	exampleName     = flag.String("example_name", "TransistorEmitter", "example name")
-)
-
 func Nor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	res := &wire.Wire{}
 	return NorRes(parent, res, a, b)
@@ -183,6 +172,14 @@ func examples(c *circuit.Circuit, g *group.Group) {
 }
 
 func all() error {
+	maxPrintDepth := flag.Int("max_print_depth", -1, "max print depth")
+	drawGraph := flag.Bool("draw_graph", false, "draw graph")
+	drawSingleGraph := flag.Bool("draw_single_graph", false, "draw single graph")
+	drawNodes := flag.Bool("draw_nodes", true, "draw nodes")
+	drawEdges := flag.Bool("draw_edges", true, "draw edges")
+	drawShapePoint := flag.Bool("draw_shape_point", false, "draw shape point")
+	isUnitTest := flag.Bool("is_unit_test", false, "is unit test")
+	exampleName := flag.String("example_name", "TransistorEmitter", "example name")
 	flag.Parse()
 	c := circuit.NewCircuit(config.Config{
 		MaxPrintDepth:   *maxPrintDepth,
