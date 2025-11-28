@@ -14,19 +14,10 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SUM(%v,%v)", a.Name, b.Name))
-	res := lib.Xor(group, a, b)
-	res.Name = group.Name
-	carry := lib.And(group, a, b)
-	carry.Name = fmt.Sprintf("CARRY(%v,%v)", a.Name, b.Name)
-	return []*wire.Wire{res, carry}
-}
-
 func Sum(parent *group.Group, a, b, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SUM(%v,%v,%v)", a.Name, b.Name, cin.Name))
-	s1 := HalfSum(group, a, b)
-	s2 := HalfSum(group, s1[0], cin)
+	s1 := lib.HalfSum(group, a, b)
+	s2 := lib.HalfSum(group, s1[0], cin)
 	s2[0].Name = group.Name
 	carry := lib.Or(group, s1[1], s2[1])
 	carry.Name = fmt.Sprintf("CARRY(%v,%v)", a.Name, b.Name)
@@ -135,7 +126,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(HalfSum(g, c.In("a"), c.In("b")))
 	c.Outs(Sum(g, c.In("a"), c.In("b"), c.In("c")))
 	c.Outs(Sum2(g, c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("c")))
 	c.Outs(Sum4(g, c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("c")))

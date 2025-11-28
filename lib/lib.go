@@ -104,6 +104,15 @@ func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 	return res
 }
 
+func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
+	group := parent.Group(fmt.Sprintf("SUM(%v,%v)", a.Name, b.Name))
+	res := Xor(group, a, b)
+	res.Name = group.Name
+	carry := And(group, a, b)
+	carry.Name = fmt.Sprintf("CARRY(%v,%v)", a.Name, b.Name)
+	return []*wire.Wire{res, carry}
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -157,8 +166,11 @@ var (
 		"Nor": func(c *circuit.Circuit) []*wire.Wire {
 			return []*wire.Wire{Nor(c.Group(""), c.In("a"), c.In("b"))}
 		},
+		"HalfSum": func(c *circuit.Circuit) []*wire.Wire {
+			return HalfSum(c.Group(""), c.In("a"), c.In("b"))
+		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{}
+			return nil
 		},
 	}
 )

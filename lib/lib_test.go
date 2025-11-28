@@ -46,6 +46,10 @@ func TestOutputsCombinational(t *testing.T) {
 		name: "Nor",
 		want: []string{"00=>1", "01=>0", "10=>0", "11=>0"},
 	}, {
+		name: "HalfSum",
+		want: []string{"00=>00", "01=>10", "10=>10", "11=>01"},
+
+	}, {
 		name: "",
 		want: []string{"=>"},
 	}}
