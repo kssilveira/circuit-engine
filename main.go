@@ -22,6 +22,8 @@ var (
 	drawNodes       = flag.Bool("draw_nodes", true, "draw nodes")
 	drawEdges       = flag.Bool("draw_edges", true, "draw edges")
 	drawShapePoint  = flag.Bool("draw_shape_point", false, "draw shape point")
+	isUnitTest      = flag.Bool("is_unit_test", false, "is unit test")
+	exampleName     = flag.String("example_name", "transistor", "example name")
 )
 
 func transistorGnd(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
@@ -224,7 +226,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func all(c *circuit.Circuit, g *group.Group) {
-	c.Outs(lib.Transistor(g, c.In("base"), c.In("collector")))
 	c.Outs(transistorGnd(g, c.In("base"), c.In("collector")))
 	c.Out(Not(g, c.In("a")))
 	c.Out(And(g, c.In("a"), c.In("b")))
@@ -260,10 +261,10 @@ func main() {
 		DrawNodes:       *drawNodes,
 		DrawEdges:       *drawEdges,
 		DrawShapePoint:  *drawShapePoint,
+		IsUnitTest:      *isUnitTest,
 	})
-	g := c.Group("")
 
-	c.Outs(lib.Transistor(g, c.In("base"), c.In("collector")))
+	c.Outs(lib.Example(c, *exampleName))
 
 	res := c.Simulate()
 	fmt.Println(strings.Join(res, "\n"))

@@ -16,14 +16,11 @@ func TestOutputs(t *testing.T) {
 		want []string
 	}{{
 		name: "transistor",
-		in: func(c *circuit.Circuit) []*wire.Wire {
-			return Transistor(c.Group(""), c.In("base"), c.In("collector"))
-		},
 		want: []string{"00=>00", "01=>01", "10=>00", "11=>11"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
-		c.Outs(in.in(c))
+		c.Outs(Example(c, in.name))
 		got := c.Simulate()
 		if diff := cmp.Diff(in.want, got); diff != "" {
 			t.Errorf("Simulate(%q) want\n\t%#v\ngot\n\t%#v\ndiff -want +got:\n%s", in.name, in.want, got, diff)
