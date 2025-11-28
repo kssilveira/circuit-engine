@@ -10,7 +10,7 @@ Define and simulate circuits from transistors all the way to an 8-bit computer.
 $ go run main.go --example_name HalfSum
 ```
 
-```sh
+```
 Inputs:   a=0  b=1
 Outputs:
   SUM(a,b)=1
