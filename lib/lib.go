@@ -79,6 +79,13 @@ func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	return res
 }
 
+func Xor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
+	group := parent.Group(fmt.Sprintf("XOR(%v,%v)", a.Name, b.Name))
+	res := And(group, Or(group, a, b), Nand(group, a, b))
+	res.Name = group.Name
+	return res
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -125,6 +132,9 @@ var (
 		"Nand(Nand)": func(c *circuit.Circuit) []*wire.Wire {
 			g := c.Group("")
 			return []*wire.Wire{Nand(g, c.In("a"), Nand(g, c.In("b"), c.In("c")))}
+		},
+		"Xor": func(c *circuit.Circuit) []*wire.Wire {
+			return []*wire.Wire{Xor(c.Group(""), c.In("a"), c.In("b"))}
 		},
 	}
 )
