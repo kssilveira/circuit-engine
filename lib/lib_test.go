@@ -124,6 +124,10 @@ func TestOutputsCombinational(t *testing.T) {
 		name: "SRLatchWithEnable",
 		// s r e => q !q
 		want: []string{"000=>10", "001=>10", "010=>10", "011=>01", "100=>01", "101=>10", "110=>10", "111=>00"},
+	}, {
+		name: "DLatch",
+		// d e => q !q
+		want: []string{"00=>10", "01=>01", "10=>01", "11=>10"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})

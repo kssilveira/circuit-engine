@@ -14,20 +14,10 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-func DLatch(parent *group.Group, d, e *wire.Wire) []*wire.Wire {
-	q := &wire.Wire{Name: "q"}
-	return DLatchRes(parent, q, d, e)
-}
-
-func DLatchRes(parent *group.Group, q, d, e *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("DLATCH(%v,%v)", d.Name, e.Name))
-	return lib.SRLatchResWithEnable(group, q, d, lib.Not(group, d), e)
-}
-
 func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("Register(%v,%v,%v)", d.Name, ei.Name, eo.Name))
 	q := &wire.Wire{}
-	DLatchRes(group, q, lib.Or(group, lib.And(group, q, lib.Not(group, ei)), lib.And(group, d, ei)), ei)
+	lib.DLatchRes(group, q, lib.Or(group, lib.And(group, q, lib.Not(group, ei)), lib.And(group, d, ei)), ei)
 	q.Name = group.Name + "-internal"
 	res := lib.And(group, q, eo)
 	res.Name = group.Name
@@ -72,7 +62,6 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, carry *wi
 }
 
 func examples(c *circuit.Circuit, g *group.Group) {
-	c.Outs(DLatch(g, c.In("d"), c.In("e")))
 	c.Outs(Register(g, c.In("d"), c.In("ei"), c.In("eo")))
 	c.Outs(Register2(g, c.In("d1"), c.In("d2"), c.In("ei"), c.In("eo")))
 	c.Outs(Register4(g, c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("ei"), c.In("eo")))
