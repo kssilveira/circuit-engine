@@ -327,6 +327,32 @@ func AluWithBus8(parent *group.Group, bus [8]*wire.Wire, ai, ao, bi, bo, ri, ro,
 	return slices.Concat(alu1[:last], alu2)
 }
 
+func Ram(parent *group.Group, a, d, ei, eo *wire.Wire) []*wire.Wire {
+	group := parent.Group(fmt.Sprintf("RAM(%v,%v)", a.Name, d.Name))
+
+	s1 := Not(group, a)
+	s1.Name = group.Name + "-s1"
+	s2 := Or(group, a, a)
+	s2.Name = group.Name + "-s2"
+
+	ei1 := And(group, ei, s1)
+	ei1.Name = group.Name + "-ei1"
+	ei2 := And(group, ei, s2)
+	ei2.Name = group.Name + "-ei2"
+
+	eo1 := And(group, eo, s1)
+	eo1.Name = group.Name + "-eo1"
+	eo2 := And(group, eo, s2)
+	eo2.Name = group.Name + "-eo2"
+
+	r1 := Register(group, d, ei1, eo1)
+	r2 := Register(group, d, ei2, eo2)
+
+	res := &wire.Wire{Name: group.Name}
+	group.JointWire(res, r1[1], r2[1])
+	return slices.Concat([]*wire.Wire{res, s1, ei1, eo1}, r1, []*wire.Wire{s2, ei2, eo2}, r2)
+}
+
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
 	res, ok := examples[name]
 	if !ok {
@@ -550,6 +576,9 @@ var (
 			cin := c.In("cin")
 			c.AddInputValidation(aluWithBusInputValidation(ai, ao, bi, bo, ri, ro))
 			return AluWithBus8(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
+		},
+		"Ram": func(c *circuit.Circuit) []*wire.Wire {
+			return Ram(c.Group(""), c.In("a"), c.In("d"), c.In("ei"), c.In("eo"))
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil

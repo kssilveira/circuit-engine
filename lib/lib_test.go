@@ -829,6 +829,38 @@ func TestOutputsCombinational(t *testing.T) {
 					sum8 / 2}
 			}
 		}(),
+	}, {
+		name: "Ram",
+		desc: "a d ei eo" +
+			" => RAM(a,d) RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
+			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)" +
+			" RAM(a,d)-s2 RAM(a,d)-ei2 RAM(a,d)-eo2" +
+			" reg(d,RAM(a,d)-ei2,RAM(a,d)-eo2) REG(d,RAM(a,d)-ei2,RAM(a,d)-eo2)",
+		want: []string{
+			"0000=>01001000010", "0001=>11011100010", "0010=>01100000010", "0011=>01110000010",
+			"0100=>01000000010", "0101=>01010000010", "0110=>01101000010", "0111=>11111100010",
+			"1000=>00001010010", "1001=>10001010111", "1010=>00001011000", "1011=>00001011100",
+			"1100=>00001010000", "1101=>00001010100", "1110=>00001011010", "1111=>10001011111",
+		},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q1, q2 := true, true
+			return func(inputs map[string]bool) []bool {
+				a, ei, eo := inputs["a"], inputs["ei"], inputs["eo"]
+				s1, s2 := !a, a
+				r1, r2 := false, false
+				q, r := &q1, &r1
+				if s2 {
+					q, r = &q2, &r2
+				}
+				if ei {
+					*q = inputs["d"]
+				}
+				if eo {
+					*r = *q
+				}
+				return []bool{*r, s1, s1 && ei, s1 && eo, q1, r1, s2, s2 && ei, s2 && eo, q2, r2}
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
@@ -915,6 +947,26 @@ func TestOutputsSequential(t *testing.T) {
 			"00001000=>10011100",
 			// ai=bo=1 writes b=1 to ai
 			"01001000=>11011101",
+		},
+	}, {
+		name: "Ram",
+		desc: "a d ei eo" +
+			" => RAM(a,d) RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
+			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)" +
+			" RAM(a,d)-s2 RAM(a,d)-ei2 RAM(a,d)-eo2" +
+			" reg(d,RAM(a,d)-ei2,RAM(a,d)-eo2) REG(d,RAM(a,d)-ei2,RAM(a,d)-eo2)",
+		inputs: []string{"0000", "0001", "0010", "0001", "1001"},
+		want: []string{
+			// default to s1=q1=q2=1
+			"0000=>01001000010",
+			// eo=1 writes q1=1 to res
+			"0001=>11011100010",
+			// ei=1 reads d=0 to q1
+			"0010=>01100000010",
+			// eo=1 writes q1=0 to res
+			"0001=>01010000010",
+			// a=eo=1 writes q2=1 to res
+			"1001=>10000010111",
 		},
 	}}
 	for _, in := range inputs {
