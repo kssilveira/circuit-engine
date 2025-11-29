@@ -582,9 +582,15 @@ func TestOutputsCombinational(t *testing.T) {
 			return func(inputs map[string]int) []int {
 				ra, rb, rr, bus, sum := 0, 0, 0, 0, 0
 				for i := 0; i < 10; i++ {
-					ra = inputs["ao"] & qa
-					rb = inputs["bo"] & qb
-					rr = inputs["ro"] & qr
+					if inputs["ao"] == 1 {
+						ra = qa
+					}
+					if inputs["bo"] == 1 {
+						rb = qb
+					}
+					if inputs["ro"] == 1 {
+						rr = qr
+					}
 					bus = inputs["bus"] | ra | rb | rr
 					if inputs["ai"] == 1 {
 						qa = bus
@@ -623,16 +629,17 @@ func TestOutputsCombinational(t *testing.T) {
 				ra1, rb1, rr1, bus1, sum1 := 0, 0, 0, 0, 0
 				ra2, rb2, rr2, bus2, sum2 := 0, 0, 0, 0, 0
 				for i := 0; i < 10; i++ {
-					ra1 = inputs["ao"] & qa1
-					rb1 = inputs["bo"] & qb1
-					rr1 = inputs["ro"] & qr1
+					if inputs["ao"] == 1 {
+						ra1, ra2 = qa1, qa2
+					}
+					if inputs["bo"] == 1 {
+						rb1, rb2 = qb1, qb2
+					}
+					if inputs["ro"] == 1 {
+						rr1, rr2 = qr1, qr2
+					}
 					bus1 = inputs["bus1"] | ra1 | rb1 | rr1
-
-					ra2 = inputs["ao"] & qa2
-					rb2 = inputs["bo"] & qb2
-					rr2 = inputs["ro"] & qr2
 					bus2 = inputs["bus2"] | ra2 | rb2 | rr2
-
 					if inputs["ai"] == 1 {
 						qa1, qa2 = bus1, bus2
 					}
@@ -681,27 +688,20 @@ func TestOutputsCombinational(t *testing.T) {
 				ra2, rb2, rr2, bus2, sum2 := 0, 0, 0, 0, 0
 				ra3, rb3, rr3, bus3, sum3 := 0, 0, 0, 0, 0
 				ra4, rb4, rr4, bus4, sum4 := 0, 0, 0, 0, 0
-				for i := 0; i < 100; i++ {
-					ra1 = inputs["ao"] & qa1
-					rb1 = inputs["bo"] & qb1
-					rr1 = inputs["ro"] & qr1
+				for i := 0; i < 10; i++ {
+					if inputs["ao"] == 1 {
+						ra1, ra2, ra3, ra4 = qa1, qa2, qa3, qa4
+					}
+					if inputs["bo"] == 1 {
+						rb1, rb2, rb3, rb4 = qb1, qb2, qb3, qb4
+					}
+					if inputs["ro"] == 1 {
+						rr1, rr2, rr3, rr4 = qr1, qr2, qr3, qr4
+					}
 					bus1 = inputs["bus1"] | ra1 | rb1 | rr1
-
-					ra2 = inputs["ao"] & qa2
-					rb2 = inputs["bo"] & qb2
-					rr2 = inputs["ro"] & qr2
 					bus2 = inputs["bus2"] | ra2 | rb2 | rr2
-
-					ra3 = inputs["ao"] & qa3
-					rb3 = inputs["bo"] & qb3
-					rr3 = inputs["ro"] & qr3
 					bus3 = inputs["bus3"] | ra3 | rb3 | rr3
-
-					ra4 = inputs["ao"] & qa4
-					rb4 = inputs["bo"] & qb4
-					rr4 = inputs["ro"] & qr4
 					bus4 = inputs["bus4"] | ra4 | rb4 | rr4
-
 					if inputs["ai"] == 1 {
 						qa1, qa2, qa3, qa4 = bus1, bus2, bus3, bus4
 					}
