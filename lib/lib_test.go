@@ -539,6 +539,17 @@ func TestOutputsCombinational(t *testing.T) {
 			"10010110=>111111", "10000010=>101010",
 		},
 	}, {
+		name: "Bus4",
+		desc: "bus1 bus2 bus3 bus4 a1 a2 a3 a4 b1 b2 b3 b4 r1 r2 r3 r4" +
+			" => BUS(bus1) BUS(bus2) BUS(bus3) BUS(bus4) wa1 wa2 wa3 wa4 wb1 wb2 wb3 wb4",
+		want: []string{
+			"1101101011100001=>111111111111", "1000010110100000=>111111111111",
+			"0010110111101000=>111111111111", "1000100001011101=>110111011101",
+			"1001011010000010=>111111111111", "1001101111111011=>111111111111",
+			"0100100010100010=>111011101110", "0111110000101010=>111111111111",
+			"1011100011010011=>111111111111", "1001100001110010=>111111111111",
+		},
+	}, {
 		name: "AluWithBus",
 		desc: "bus ai ao bi bo ri ro cin" +
 			" => BUS(bus) reg(ALU-bus-a,ai,ao) REG(ALU-bus-a,ai,ao) reg(ALU-bus-b,bi,bo) REG(ALU-bus-b,bi,bo)" +
