@@ -325,6 +325,10 @@ func ExampleNames() []string {
 	return res
 }
 
+func W(name string) *wire.Wire {
+	return &wire.Wire{Name: name}
+}
+
 var (
 	examples = map[string]func(*circuit.Circuit) []*wire.Wire{
 		"TransistorEmitter": func(c *circuit.Circuit) []*wire.Wire {
@@ -431,12 +435,8 @@ var (
 		"Alu4": func(c *circuit.Circuit) []*wire.Wire {
 			return Alu4(
 				c.Group(""),
-				[4]*wire.Wire{
-					c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"),
-				}, c.In("ai"), c.In("ao"),
-				[4]*wire.Wire{
-					c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"),
-				}, c.In("bi"), c.In("bo"),
+				[4]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4")}, c.In("ai"), c.In("ao"),
+				[4]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4")}, c.In("bi"), c.In("bo"),
 				c.In("ri"), c.In("ro"), c.In("cin"))
 		},
 		"Alu8": func(c *circuit.Circuit) []*wire.Wire {
@@ -451,13 +451,12 @@ var (
 				c.In("ri"), c.In("ro"), c.In("cin"))
 		},
 		"Bus": func(c *circuit.Circuit) []*wire.Wire {
-			wa := &wire.Wire{Name: "wa"}
-			wb := &wire.Wire{Name: "wb"}
+			wa, wb := W("wa"), W("wb")
 			return append(Bus(c.Group(""), c.In("bus"), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
 		},
 		"Bus2": func(c *circuit.Circuit) []*wire.Wire {
-			wa1, wa2 := &wire.Wire{Name: "wa1"}, &wire.Wire{Name: "wa2"}
-			wb1, wb2 := &wire.Wire{Name: "wb1"}, &wire.Wire{Name: "wb2"}
+			wa1, wa2 := W("wa1"), W("wa2")
+			wb1, wb2 := W("wb1"), W("wb2")
 			return append(Bus2(
 				c.Group(""), c.In("bus1"), c.In("bus2"),
 				c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("r1"), c.In("r2"),
@@ -465,10 +464,8 @@ var (
 				wa1, wa2, wb1, wb2)
 		},
 		"Bus4": func(c *circuit.Circuit) []*wire.Wire {
-			wa1, wa2 := &wire.Wire{Name: "wa1"}, &wire.Wire{Name: "wa2"}
-			wa3, wa4 := &wire.Wire{Name: "wa3"}, &wire.Wire{Name: "wa4"}
-			wb1, wb2 := &wire.Wire{Name: "wb1"}, &wire.Wire{Name: "wb2"}
-			wb3, wb4 := &wire.Wire{Name: "wb3"}, &wire.Wire{Name: "wb4"}
+			wa1, wa2, wa3, wa4 := W("wa1"), W("wa2"), W("wa3"), W("wa4")
+			wb1, wb2, wb3, wb4 := W("wb1"), W("wb2"), W("wb3"), W("wb4")
 			wa := [4]*wire.Wire{wa1, wa2, wa3, wa4}
 			wb := [4]*wire.Wire{wb1, wb2, wb3, wb4}
 			return slices.Concat(Bus4(
@@ -479,14 +476,10 @@ var (
 				wa, wb), wa[:], wb[:])
 		},
 		"Bus8": func(c *circuit.Circuit) []*wire.Wire {
-			wa1, wa2 := &wire.Wire{Name: "wa1"}, &wire.Wire{Name: "wa2"}
-			wa3, wa4 := &wire.Wire{Name: "wa3"}, &wire.Wire{Name: "wa4"}
-			wa5, wa6 := &wire.Wire{Name: "wa5"}, &wire.Wire{Name: "wa6"}
-			wa7, wa8 := &wire.Wire{Name: "wa7"}, &wire.Wire{Name: "wa8"}
-			wb1, wb2 := &wire.Wire{Name: "wb1"}, &wire.Wire{Name: "wb2"}
-			wb3, wb4 := &wire.Wire{Name: "wb3"}, &wire.Wire{Name: "wb4"}
-			wb5, wb6 := &wire.Wire{Name: "wb5"}, &wire.Wire{Name: "wb6"}
-			wb7, wb8 := &wire.Wire{Name: "wb7"}, &wire.Wire{Name: "wb8"}
+			wa1, wa2, wa3, wa4 := W("wa1"), W("wa2"), W("wa3"), W("wa4")
+			wa5, wa6, wa7, wa8 := W("wa5"), W("wa6"), W("wa7"), W("wa8")
+			wb1, wb2, wb3, wb4 := W("wb1"), W("wb2"), W("wb3"), W("wb4")
+			wb5, wb6, wb7, wb8 := W("wb5"), W("wb6"), W("wb7"), W("wb8")
 			wa := [8]*wire.Wire{wa1, wa2, wa3, wa4, wa5, wa6, wa7, wa8}
 			wb := [8]*wire.Wire{wb1, wb2, wb3, wb4, wb5, wb6, wb7, wb8}
 			return slices.Concat(Bus8(
