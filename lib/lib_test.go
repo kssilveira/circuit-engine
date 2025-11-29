@@ -724,6 +724,111 @@ func TestOutputsCombinational(t *testing.T) {
 					sum4 / 2}
 			}
 		}(),
+	}, {
+		name: "AluWithBus8",
+		desc: "bus1 bus2 bus3 bus4 bus5 bus6 bus7 bus8 ai ao bi bo ri ro cin" +
+			" => BUS(bus1) reg(ALU-bus1-a,ai,ao) REG(ALU-bus1-a,ai,ao) reg(ALU-bus1-b,bi,bo) REG(ALU-bus1-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" REG(SUM(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" BUS(bus2) reg(ALU-bus2-a,ai,ao) REG(ALU-bus2-a,ai,ao) reg(ALU-bus2-b,bi,bo) REG(ALU-bus2-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),CARRY(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),CARRY(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" BUS(bus3) reg(ALU-bus3-a,ai,ao) REG(ALU-bus3-a,ai,ao) reg(ALU-bus3-b,bi,bo) REG(ALU-bus3-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo),CARRY(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo),CARRY(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))),ri,ro)" +
+			" BUS(bus4) reg(ALU-bus4-a,ai,ao) REG(ALU-bus4-a,ai,ao) reg(ALU-bus4-b,bi,bo) REG(ALU-bus4-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo),CARRY(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo),CARRY(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo))),ri,ro)" +
+			" BUS(bus5) reg(ALU-bus5-a,ai,ao) REG(ALU-bus5-a,ai,ao) reg(ALU-bus5-b,bi,bo) REG(ALU-bus5-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus5-a,ai,ao),reg(ALU-bus5-b,bi,bo),CARRY(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus5-a,ai,ao),reg(ALU-bus5-b,bi,bo),CARRY(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo))),ri,ro)" +
+			" BUS(bus6) reg(ALU-bus6-a,ai,ao) REG(ALU-bus6-a,ai,ao) reg(ALU-bus6-b,bi,bo) REG(ALU-bus6-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus6-a,ai,ao),reg(ALU-bus6-b,bi,bo),CARRY(reg(ALU-bus5-a,ai,ao),reg(ALU-bus5-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus6-a,ai,ao),reg(ALU-bus6-b,bi,bo),CARRY(reg(ALU-bus5-a,ai,ao),reg(ALU-bus5-b,bi,bo))),ri,ro)" +
+			" BUS(bus7) reg(ALU-bus7-a,ai,ao) REG(ALU-bus7-a,ai,ao) reg(ALU-bus7-b,bi,bo) REG(ALU-bus7-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus7-a,ai,ao),reg(ALU-bus7-b,bi,bo),CARRY(reg(ALU-bus6-a,ai,ao),reg(ALU-bus6-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus7-a,ai,ao),reg(ALU-bus7-b,bi,bo),CARRY(reg(ALU-bus6-a,ai,ao),reg(ALU-bus6-b,bi,bo))),ri,ro)" +
+			" BUS(bus8) reg(ALU-bus8-a,ai,ao) REG(ALU-bus8-a,ai,ao) reg(ALU-bus8-b,bi,bo) REG(ALU-bus8-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus8-a,ai,ao),reg(ALU-bus8-b,bi,bo),CARRY(reg(ALU-bus7-a,ai,ao),reg(ALU-bus7-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus8-a,ai,ao),reg(ALU-bus8-b,bi,bo),CARRY(reg(ALU-bus7-a,ai,ao),reg(ALU-bus7-b,bi,bo))),ri,ro)" +
+			" CARRY(reg(ALU-bus8-a,ai,ao),reg(ALU-bus8-b,bi,bo))",
+		want: []string{
+			"000100010000101=>010101001010100101010110101001010100101010010101011010101",
+			"110110010110100=>111100011110101111010111101011110101111010111101011110101",
+			"111011010010001=>110100011010101101010010001011010101101010010001011010101",
+		},
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa1, qb1, qr1 := 1, 1, 1
+			qa2, qb2, qr2 := 1, 1, 1
+			qa3, qb3, qr3 := 1, 1, 1
+			qa4, qb4, qr4 := 1, 1, 1
+			qa5, qb5, qr5 := 1, 1, 1
+			qa6, qb6, qr6 := 1, 1, 1
+			qa7, qb7, qr7 := 1, 1, 1
+			qa8, qb8, qr8 := 1, 1, 1
+			return func(inputs map[string]int) []int {
+				ra1, rb1, rr1, bus1, sum1 := 0, 0, 0, 0, 0
+				ra2, rb2, rr2, bus2, sum2 := 0, 0, 0, 0, 0
+				ra3, rb3, rr3, bus3, sum3 := 0, 0, 0, 0, 0
+				ra4, rb4, rr4, bus4, sum4 := 0, 0, 0, 0, 0
+				ra5, rb5, rr5, bus5, sum5 := 0, 0, 0, 0, 0
+				ra6, rb6, rr6, bus6, sum6 := 0, 0, 0, 0, 0
+				ra7, rb7, rr7, bus7, sum7 := 0, 0, 0, 0, 0
+				ra8, rb8, rr8, bus8, sum8 := 0, 0, 0, 0, 0
+				for i := 0; i < 10; i++ {
+					if inputs["ao"] == 1 {
+						ra1, ra2, ra3, ra4 = qa1, qa2, qa3, qa4
+						ra5, ra6, ra7, ra8 = qa5, qa6, qa7, qa8
+					}
+					if inputs["bo"] == 1 {
+						rb1, rb2, rb3, rb4 = qb1, qb2, qb3, qb4
+						rb5, rb6, rb7, rb8 = qb5, qb6, qb7, qb8
+					}
+					if inputs["ro"] == 1 {
+						rr1, rr2, rr3, rr4 = qr1, qr2, qr3, qr4
+						rr5, rr6, rr7, rr8 = qr5, qr6, qr7, qr8
+					}
+					bus1 = inputs["bus1"] | ra1 | rb1 | rr1
+					bus2 = inputs["bus2"] | ra2 | rb2 | rr2
+					bus3 = inputs["bus3"] | ra3 | rb3 | rr3
+					bus4 = inputs["bus4"] | ra4 | rb4 | rr4
+					bus5 = inputs["bus5"] | ra5 | rb5 | rr5
+					bus6 = inputs["bus6"] | ra6 | rb6 | rr6
+					bus7 = inputs["bus7"] | ra7 | rb7 | rr7
+					bus8 = inputs["bus8"] | ra8 | rb8 | rr8
+					if inputs["ai"] == 1 {
+						qa1, qa2, qa3, qa4 = bus1, bus2, bus3, bus4
+						qa5, qa6, qa7, qa8 = bus5, bus6, bus7, bus8
+					}
+					if inputs["bi"] == 1 {
+						qb1, qb2, qb3, qb4 = bus1, bus2, bus3, bus4
+						qb5, qb6, qb7, qb8 = bus5, bus6, bus7, bus8
+					}
+					sum1 = qa1 + qb1 + inputs["cin"]
+					sum2 = qa2 + qb2 + sum1/2
+					sum3 = qa3 + qb3 + sum2/2
+					sum4 = qa4 + qb4 + sum3/2
+					sum5 = qa5 + qb5 + sum4/2
+					sum6 = qa6 + qb6 + sum5/2
+					sum7 = qa7 + qb7 + sum6/2
+					sum8 = qa8 + qb8 + sum7/2
+					if inputs["ri"] == 1 {
+						qr1, qr2, qr3, qr4 = sum1%2, sum2%2, sum3%2, sum4%2
+						qr5, qr6, qr7, qr8 = sum5%2, sum2%2, sum7%2, sum8%2
+					}
+				}
+				return []int{
+					bus1, qa1, ra1, qb1, rb1, qr1, rr1,
+					bus2, qa2, ra2, qb2, rb2, qr2, rr2,
+					bus3, qa3, ra3, qb3, rb3, qr3, rr3,
+					bus4, qa4, ra4, qb4, rb4, qr4, rr4,
+					bus5, qa5, ra5, qb5, rb5, qr5, rr5,
+					bus6, qa6, ra6, qb6, rb6, qr6, rr6,
+					bus7, qa7, ra7, qb7, rb7, qr7, rr7,
+					bus8, qa8, ra8, qb8, rb8, qr8, rr8,
+					sum8 / 2}
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
