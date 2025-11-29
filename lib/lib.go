@@ -329,28 +329,39 @@ func AluWithBus8(parent *group.Group, bus [8]*wire.Wire, ai, ao, bi, bo, ri, ro,
 
 func Ram(parent *group.Group, a, d, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("RAM(%v,%v)", a.Name, d.Name))
+	s := ramAddress(group, a)
+	rei, reo := ramEnable(group, s, ei, eo)
+	return ramRegisters(group, d, s, rei, reo)
+}
 
+func ramAddress(group *group.Group, a *wire.Wire) []*wire.Wire {
 	s1 := Not(group, a)
 	s1.Name = group.Name + "-s1"
 	s2 := Or(group, a, a)
 	s2.Name = group.Name + "-s2"
+	return []*wire.Wire{s1, s2}
+}
 
-	ei1 := And(group, ei, s1)
+func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.Wire, []*wire.Wire) {
+	ei1 := And(group, ei, s[0])
 	ei1.Name = group.Name + "-ei1"
-	ei2 := And(group, ei, s2)
+	ei2 := And(group, ei, s[1])
 	ei2.Name = group.Name + "-ei2"
 
-	eo1 := And(group, eo, s1)
+	eo1 := And(group, eo, s[0])
 	eo1.Name = group.Name + "-eo1"
-	eo2 := And(group, eo, s2)
+	eo2 := And(group, eo, s[1])
 	eo2.Name = group.Name + "-eo2"
 
-	r1 := Register(group, d, ei1, eo1)
-	r2 := Register(group, d, ei2, eo2)
+	return []*wire.Wire{ei1, ei2}, []*wire.Wire{eo1, eo2}
+}
 
+func ramRegisters(group *group.Group, d *wire.Wire, s, ei, eo []*wire.Wire) []*wire.Wire {
+	r1 := Register(group, d, ei[0], eo[0])
+	r2 := Register(group, d, ei[1], eo[1])
 	res := &wire.Wire{Name: group.Name}
 	group.JointWire(res, r1[1], r2[1])
-	return slices.Concat([]*wire.Wire{res, s1, ei1, eo1}, r1, []*wire.Wire{s2, ei2, eo2}, r2)
+	return slices.Concat([]*wire.Wire{res, s[0], ei[0], eo[0]}, r1, []*wire.Wire{s[1], ei[1], eo[1]}, r2)
 }
 
 func Example(c *circuit.Circuit, name string) []*wire.Wire {
