@@ -574,8 +574,7 @@ func TestOutputsCombinational(t *testing.T) {
 			" REG(SUM(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo),cin),ri,ro)" +
 			" CARRY(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo))",
 		want: []string{
-			"11011010=>11011111", "11100001=>11110101", "10000101=>11010101", "10100000=>11110101",
-			"00101101=>11111101", "11101000=>11111101", "10001000=>11011101", "01011101=>11011101",
+			"10000101=>11010101", "10100000=>11110101", "00101101=>11111101", "10001000=>11011101",
 			"10000010=>11010111",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
@@ -614,8 +613,8 @@ func TestOutputsCombinational(t *testing.T) {
 		want: []string{
 			"110110101=>111101011110101", "110000110=>110100011010111",
 			"000101101=>111111011111101", "000000010=>110101111010111",
-			"110111101=>111111011111101", "000100010=>111101111110111",
-			"000101110=>111110011111111", "100000101=>110101001010101",
+			"000100010=>111101111110111", "000101110=>111110011111111",
+			"100000101=>110101001010101",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
 			qa1, qb1, qr1 := 1, 1, 1
@@ -641,7 +640,7 @@ func TestOutputsCombinational(t *testing.T) {
 						qb1, qb2 = bus1, bus2
 					}
 					sum1 = qa1 + qb1 + inputs["cin"]
-					sum2 = qa1 + qb1 + sum1/2
+					sum2 = qa2 + qb2 + sum1/2
 					if inputs["ri"] == 1 {
 						qr1, qr2 = sum1%2, sum2%2
 					}
@@ -650,6 +649,79 @@ func TestOutputsCombinational(t *testing.T) {
 					bus1, qa1, ra1, qb1, rb1, qr1, rr1,
 					bus2, qa2, ra2, qb2, rb2, qr2, rr2,
 					sum2 / 2}
+			}
+		}(),
+	}, {
+		name: "AluWithBus4",
+		desc: "bus1 bus2 bus3 bus4 ai ao bi bo ri ro cin" +
+			" => BUS(bus1) reg(ALU-bus1-a,ai,ao) REG(ALU-bus1-a,ai,ao) reg(ALU-bus1-b,bi,bo) REG(ALU-bus1-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" REG(SUM(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" BUS(bus2) reg(ALU-bus2-a,ai,ao) REG(ALU-bus2-a,ai,ao) reg(ALU-bus2-b,bi,bo) REG(ALU-bus2-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),CARRY(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),CARRY(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" BUS(bus3) reg(ALU-bus3-a,ai,ao) REG(ALU-bus3-a,ai,ao) reg(ALU-bus3-b,bi,bo) REG(ALU-bus3-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo),CARRY(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo),CARRY(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))),ri,ro)" +
+			" BUS(bus4) reg(ALU-bus4-a,ai,ao) REG(ALU-bus4-a,ai,ao) reg(ALU-bus4-b,bi,bo) REG(ALU-bus4-b,bi,bo)" +
+			" reg(SUM(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo),CARRY(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo))),ri,ro)" +
+			" REG(SUM(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo),CARRY(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo))),ri,ro)" +
+			" CARRY(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo))",
+		want: []string{
+			"01101000000=>00010101101010110101000010101", "10001000100=>11010000001000000100000010001",
+			"01011010000=>00000001101000000000011010001", "01000101000=>00000001111100000000011111001",
+		},
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa1, qb1, qr1 := 1, 1, 1
+			qa2, qb2, qr2 := 1, 1, 1
+			qa3, qb3, qr3 := 1, 1, 1
+			qa4, qb4, qr4 := 1, 1, 1
+			return func(inputs map[string]int) []int {
+				ra1, rb1, rr1, bus1, sum1 := 0, 0, 0, 0, 0
+				ra2, rb2, rr2, bus2, sum2 := 0, 0, 0, 0, 0
+				ra3, rb3, rr3, bus3, sum3 := 0, 0, 0, 0, 0
+				ra4, rb4, rr4, bus4, sum4 := 0, 0, 0, 0, 0
+				for i := 0; i < 100; i++ {
+					ra1 = inputs["ao"] & qa1
+					rb1 = inputs["bo"] & qb1
+					rr1 = inputs["ro"] & qr1
+					bus1 = inputs["bus1"] | ra1 | rb1 | rr1
+
+					ra2 = inputs["ao"] & qa2
+					rb2 = inputs["bo"] & qb2
+					rr2 = inputs["ro"] & qr2
+					bus2 = inputs["bus2"] | ra2 | rb2 | rr2
+
+					ra3 = inputs["ao"] & qa3
+					rb3 = inputs["bo"] & qb3
+					rr3 = inputs["ro"] & qr3
+					bus3 = inputs["bus3"] | ra3 | rb3 | rr3
+
+					ra4 = inputs["ao"] & qa4
+					rb4 = inputs["bo"] & qb4
+					rr4 = inputs["ro"] & qr4
+					bus4 = inputs["bus4"] | ra4 | rb4 | rr4
+
+					if inputs["ai"] == 1 {
+						qa1, qa2, qa3, qa4 = bus1, bus2, bus3, bus4
+					}
+					if inputs["bi"] == 1 {
+						qb1, qb2, qb3, qb4 = bus1, bus2, bus3, bus4
+					}
+					sum1 = qa1 + qb1 + inputs["cin"]
+					sum2 = qa2 + qb2 + sum1/2
+					sum3 = qa3 + qb3 + sum2/2
+					sum4 = qa4 + qb4 + sum3/2
+					if inputs["ri"] == 1 {
+						qr1, qr2, qr3, qr4 = sum1%2, sum2%2, sum3%2, sum4%2
+					}
+				}
+				return []int{
+					bus1, qa1, ra1, qb1, rb1, qr1, rr1,
+					bus2, qa2, ra2, qb2, rb2, qr2, rr2,
+					bus3, qa3, ra3, qb3, rb3, qr3, rr3,
+					bus4, qa4, ra4, qb4, rb4, qr4, rr4,
+					sum4 / 2}
 			}
 		}(),
 	}}
@@ -670,11 +742,15 @@ func TestOutputsCombinational(t *testing.T) {
 				for i, input := range c.Inputs {
 					inputs[input.Name] = int(out[i] - '0')
 				}
+				outputs := map[string]int{}
+				for i, output := range c.Outputs {
+					outputs[output.Name] = int(out[len(c.Inputs)+len("=>")+i] - '0')
+				}
 				wants := in.isValidInt(inputs)
 				for i, want := range wants {
 					got := int(out[len(c.Inputs)+len("=>")+i] - '0')
 					if want != got {
-						t.Errorf("Simulate(%q) out %s output %s want %d got %#v", in.name, out, c.Outputs[i].Name, want, got)
+						t.Errorf("Simulate(%q) out %s output %s want %d got %#v\n\ninputs\n\n%#v\n\noutputs\n\n%#v\n\n", in.name, out, c.Outputs[i].Name, want, got, inputs, outputs)
 					}
 				}
 			}

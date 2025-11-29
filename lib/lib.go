@@ -295,9 +295,11 @@ func AluWithBus(parent *group.Group, bus, ai, ao, bi, bo, ri, ro, cin *wire.Wire
 	return slices.Concat(rbus, ra, rb, rr, []*wire.Wire{rs[1]})
 }
 
-func aluWithBusInputValidation(ai, bi, ri, ro *wire.Wire) func() bool {
+func aluWithBusInputValidation(ai, ao, bi, bo, ri, ro *wire.Wire) func() bool {
 	return func() bool {
-		return !(ri.Bit.Get(nil) && ro.Bit.Get(nil) && (ai.Bit.Get(nil) || bi.Bit.Get(nil)))
+		return !(ri.Bit.Get(nil) && ro.Bit.Get(nil) && (ai.Bit.Get(nil) || bi.Bit.Get(nil))) &&
+			!(ai.Bit.Get(nil) && ao.Bit.Get(nil)) &&
+			!(bi.Bit.Get(nil) && bo.Bit.Get(nil))
 	}
 }
 
@@ -306,6 +308,14 @@ func AluWithBus2(parent *group.Group, bus1, bus2, ai, ao, bi, bo, ri, ro, cin *w
 	alu1 := AluWithBus(group, bus1, ai, ao, bi, bo, ri, ro, cin)
 	last := len(alu1) - 1
 	alu2 := AluWithBus(group, bus2, ai, ao, bi, bo, ri, ro, alu1[last])
+	return slices.Concat(alu1[:last], alu2)
+}
+
+func AluWithBus4(parent *group.Group, bus [4]*wire.Wire, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
+	group := parent.Group("ALU-BUS4")
+	alu1 := AluWithBus2(group, bus[0], bus[1], ai, ao, bi, bo, ri, ro, cin)
+	last := len(alu1) - 1
+	alu2 := AluWithBus2(group, bus[2], bus[3], ai, ao, bi, bo, ri, ro, alu1[last])
 	return slices.Concat(alu1[:last], alu2)
 }
 
@@ -500,7 +510,7 @@ var (
 			bi, bo := c.In("bi"), c.In("bo")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("cin")
-			c.AddInputValidation(aluWithBusInputValidation(ai, bi, ri, ro))
+			c.AddInputValidation(aluWithBusInputValidation(ai, ao, bi, bo, ri, ro))
 			return AluWithBus(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"AluWithBus2": func(c *circuit.Circuit) []*wire.Wire {
@@ -509,8 +519,17 @@ var (
 			bi, bo := c.In("bi"), c.In("bo")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("cin")
-			c.AddInputValidation(aluWithBusInputValidation(ai, bi, ri, ro))
+			c.AddInputValidation(aluWithBusInputValidation(ai, ao, bi, bo, ri, ro))
 			return AluWithBus2(c.Group(""), bus1, bus2, ai, ao, bi, bo, ri, ro, cin)
+		},
+		"AluWithBus4": func(c *circuit.Circuit) []*wire.Wire {
+			bus := [4]*wire.Wire{c.In("bus1"), c.In("bus2"), c.In("bus3"), c.In("bus4")}
+			ai, ao := c.In("ai"), c.In("ao")
+			bi, bo := c.In("bi"), c.In("bo")
+			ri, ro := c.In("ri"), c.In("ro")
+			cin := c.In("cin")
+			c.AddInputValidation(aluWithBusInputValidation(ai, ao, bi, bo, ri, ro))
+			return AluWithBus4(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"": func(c *circuit.Circuit) []*wire.Wire {
 			return nil
