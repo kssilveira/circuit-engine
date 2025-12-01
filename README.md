@@ -7,7 +7,7 @@ Define and simulate circuits from transistors all the way to an 8-bit computer.
 ### Define
 
 ```go
-func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
+func HalfAdder(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 	group := parent.Group(fmt.Sprintf("SUM(%s,%s)", a.Name, b.Name))
 	res := Xor(group, a, b)
 	res.Name = group.Name
@@ -20,15 +20,15 @@ func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 ### Create
 
 ```go
-  "HalfSum": func(c *circuit.Circuit) []*wire.Wire {
-    return HalfSum(c.Group(""), c.In("a"), c.In("b"))
+  "HalfAdder": func(c *circuit.Circuit) []*wire.Wire {
+    return HalfAdder(c.Group(""), c.In("a"), c.In("b"))
   },
 ```
 
 ### Unit Test
 
 ```go
-  name: "HalfSum",
+  name: "HalfAdder",
   desc: "a b => SUM(a,b) CARRY(a,b)",
   want: []string{"00=>00", "01=>10", "10=>10", "11=>01"},
   isValidInt: func(inputs map[string]int) []int {
@@ -40,16 +40,16 @@ func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 ### Draw
 
 ```console
-$ go run main.go --example_name HalfSum --draw_graph --draw_single_graph | dot -Tsvg > doc/HalfSum.svg
-$ google-chrome doc/HalfSum.svg
+$ go run main.go --example_name HalfAdder --draw_graph --draw_single_graph | dot -Tsvg > doc/HalfAdder.svg
+$ google-chrome doc/HalfAdder.svg
 ```
 
-![HalfSum](doc/HalfSum.svg)
+![HalfAdder](doc/HalfAdder.svg)
 
 ### Print
 
 ```console
-$ go run main.go --example_name HalfSum
+$ go run main.go --example_name HalfAdder
 ```
 
 ```console
@@ -95,7 +95,7 @@ Components:
 ### Draw Multiple Graphs
 
 ```console
-$ go run main.go --example_name HalfSum --draw_graph
+$ go run main.go --example_name HalfAdder --draw_graph
 $ for file in *.dot; do dot -Tsvg "${file}" > "${file}".svg; done
 $ google-chrome *.svg
 ```
