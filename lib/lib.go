@@ -145,6 +145,18 @@ func Sum8(parent *group.Group, a [8]*wire.Wire, b [8]*wire.Wire, cin *wire.Wire)
 	return []*wire.Wire{s1[0], s1[1], s1[2], s1[3], s2[0], s2[1], s2[2], s2[3], s2[4]}
 }
 
+func SumN(parent *group.Group, an, bn []*wire.Wire, cin *wire.Wire) []*wire.Wire {
+	group := parent.Group(fmt.Sprintf("SUM%d", len(an)))
+	var s []*wire.Wire
+	carry := cin
+	for i, a := range an {
+		si := Sum(group, a, bn[i], carry)
+		s = append(s, si[0])
+		carry = si[1]
+	}
+	return append(s, carry)
+}
+
 func SRLatch(parent *group.Group, s, r *wire.Wire) []*wire.Wire {
 	q := &wire.Wire{Name: "q"}
 	return SRLatchRes(parent, q, s, r)
@@ -446,6 +458,13 @@ var (
 				[8]*wire.Wire{
 					c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"),
 				},
+				c.In("cin"))
+		},
+		"SumN": func(c *circuit.Circuit) []*wire.Wire {
+			return SumN(
+				c.Group(""),
+				[]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4")},
+				[]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4")},
 				c.In("cin"))
 		},
 		"SRLatch": func(c *circuit.Circuit) []*wire.Wire {

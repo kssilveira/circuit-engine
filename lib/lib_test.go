@@ -174,6 +174,23 @@ func TestOutputsCombinational(t *testing.T) {
 			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum5 % 2, sum6 % 2, sum7 % 2, sum8 % 2, sum8 / 2}
 		},
 	}, {
+		name: "SumN",
+		desc: "a1 a2 a3 a4 b1 b2 b3 b4 cin" +
+			" => SUM(a1,b1,cin) SUM(a2,b2,CARRY(a1,b1)) SUM(a3,b3,CARRY(a2,b2)) SUM(a4,b4,CARRY(a3,b3))" +
+			" CARRY(a4,b4)",
+		want: []string{
+			"110110101=>10001", "110000110=>11110", "000101101=>11110", "000000010=>00010",
+			"110111101=>11001", "000100010=>00001", "000101110=>01101", "110010110=>00001",
+			"100000101=>01100", "001101111=>11011",
+		},
+		isValidInt: func(inputs map[string]int) []int {
+			sum1 := inputs["a1"] + inputs["b1"] + inputs["cin"]
+			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
+			sum3 := sum2/2 + inputs["a3"] + inputs["b3"]
+			sum4 := sum3/2 + inputs["a4"] + inputs["b4"]
+			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum4 / 2}
+		},
+	}, {
 		name: "SRLatch",
 		desc: "s r => q nq",
 		want: []string{"00=>10", "01=>01", "10=>10", "11=>00"},
