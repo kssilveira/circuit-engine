@@ -860,14 +860,14 @@ func TestOutputsCombinational(t *testing.T) {
 			"1100=>00001010000", "1101=>00001010100", "1110=>00001011010", "1111=>10001011111",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
-			q1, q2 := true, true
+			q0, q1 := true, true
 			return func(inputs map[string]bool) []bool {
 				a, ei, eo := inputs["a"], inputs["ei"], inputs["eo"]
-				s1, s2 := !a, a
-				r1, r2 := false, false
-				q, r := &q1, &r1
-				if s2 {
-					q, r = &q2, &r2
+				s0, s1 := !a, a
+				r0, r1 := false, false
+				q, r := &q0, &r0
+				if s1 {
+					q, r = &q1, &r1
 				}
 				if ei {
 					*q = inputs["d"]
@@ -875,7 +875,7 @@ func TestOutputsCombinational(t *testing.T) {
 				if eo {
 					*r = *q
 				}
-				return []bool{*r, s1, s1 && ei, s1 && eo, q1, r1, s2, s2 && ei, s2 && eo, q2, r2}
+				return []bool{*r, s0, s0 && ei, s0 && eo, q0, r0, s1, s1 && ei, s1 && eo, q1, r1}
 			}
 		}(),
 	}, {
@@ -931,6 +931,52 @@ func TestOutputsCombinational(t *testing.T) {
 					res = append(res, si, si && ei, si && eo, q[i], r[i])
 				}
 				return res
+			}
+		}(),
+	}, {
+		name: "RAMb2",
+		desc: "a d0 d1 ei eo" +
+			" => RAM(a,d0) RAM(a,d0) RAM(a,d0)-s0 RAM(a,d0)-ei0 RAM(a,d0)-eo0" +
+			" reg(d0,RAM(a,d0)-ei0,RAM(a,d0)-eo0) REG(d0,RAM(a,d0)-ei0,RAM(a,d0)-eo0)" +
+			" reg(d1,RAM(a,d0)-ei0,RAM(a,d0)-eo0) REG(d1,RAM(a,d0)-ei0,RAM(a,d0)-eo0)" +
+			" RAM(a,d0)-s1 RAM(a,d0)-ei1 RAM(a,d0)-eo1" +
+			" reg(d0,RAM(a,d0)-ei1,RAM(a,d0)-eo1) REG(d0,RAM(a,d0)-ei1,RAM(a,d0)-eo1)" +
+			" reg(d1,RAM(a,d0)-ei1,RAM(a,d0)-eo1) REG(d1,RAM(a,d0)-ei1,RAM(a,d0)-eo1)",
+		want: []string{
+			"00000=>0010010100001010", "00001=>1110111110001010",
+			"00010=>0011000000001010", "00011=>0011100000001010",
+			"00100=>0010000000001010", "00101=>0010100000001010",
+			"00110=>0011000100001010", "00111=>0111100110001010",
+			"01000=>0010000100001010", "01001=>0110100110001010",
+			"01010=>0011010000001010", "01011=>1011111000001010",
+			"01100=>0010010000001010", "01101=>1010111000001010",
+			"01110=>0011010100001010", "01111=>1111111110001010",
+			"10000=>0000010101001010", "10001=>1100010101011111",
+			"10010=>0000010101100000", "10011=>0000010101110000",
+			"10100=>0000010101000000", "10101=>0000010101010000",
+			"10110=>0000010101100010", "10111=>0100010101110011",
+			"11000=>0000010101000010", "11001=>0100010101010011",
+			"11010=>0000010101101000", "11011=>1000010101111100",
+			"11100=>0000010101001000", "11101=>1000010101011100",
+			"11110=>0000010101101010", "11111=>1100010101111111",
+		},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q0, q1 := []bool{true, true}, []bool{true, true}
+			return func(inputs map[string]bool) []bool {
+				a, ei, eo := inputs["a"], inputs["ei"], inputs["eo"]
+				s0, s1 := !a, a
+				r0, r1 := []bool{false, false}, []bool{false, false}
+				q, r := &q0, &r0
+				if s1 {
+					q, r = &q1, &r1
+				}
+				if ei {
+					*q = []bool{inputs["d0"], inputs["d1"]}
+				}
+				if eo {
+					*r = *q
+				}
+				return []bool{(*r)[0], (*r)[1], s0, s0 && ei, s0 && eo, q0[0], r0[0], q0[1], r0[1], s1, s1 && ei, s1 && eo, q1[0], r1[0], q1[1], r1[1]}
 			}
 		}(),
 	}}

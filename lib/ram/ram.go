@@ -52,17 +52,26 @@ func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.W
 }
 
 func ramRegisters(group *group.Group, d, s, ei, eo []*wire.Wire) []*wire.Wire {
-	prev := &wire.Wire{}
-	prev.Bit.Set(false)
-	var res *wire.Wire
+	var prev []*wire.Wire
+	for range d {
+		one := &wire.Wire{}
+		one.Bit.Set(false)
+		prev = append(prev, one)
+	}
 	var all []*wire.Wire
 	for i, eii := range ei {
 		ri := reg.N(group, d, eii, eo[i])
-		res = &wire.Wire{}
-		group.JointWire(res, prev, ri[1])
-		prev = res
+		var next []*wire.Wire
+		for i := range d {
+			res := &wire.Wire{}
+			group.JointWire(res, prev[i], ri[2*i+1])
+			next = append(next, res)
+		}
+		prev = next
 		all = slices.Concat(all, []*wire.Wire{s[i], eii, eo[i]}, ri)
 	}
-	prev.Name = group.Name
-	return append([]*wire.Wire{prev}, all...)
+	for _, res := range prev {
+		res.Name = group.Name
+	}
+	return append(prev, all...)
 }
