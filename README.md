@@ -107,17 +107,3 @@ See [lib/lib.go](lib/lib.go).
 ### Unit Tests For Example Circuits
 
 See [lib/lib_test.go](lib/lib_test.go).
-
-## Development
-
-### Run Unit Tests
-
-```console
-$ while inotifywait -r . 2>/dev/null; do clear; go test ./... | grep -v "no test files"; done
-```
-
-### Format Go Files
-
-```console
-$ find . -name '*.go' | xargs -n 1 go fmt
-```
