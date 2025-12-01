@@ -849,10 +849,10 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "RAM",
 		desc: "a d ei eo" +
-			" => RAM(a,d) RAM(a,d)-s0 RAM(a,d)-ei0 RAM(a,d)-eo0" +
-			" reg(d,RAM(a,d)-ei0,RAM(a,d)-eo0) REG(d,RAM(a,d)-ei0,RAM(a,d)-eo0)" +
-			" RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
-			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)",
+			" => RAM RAM-s0 RAM-ei0 RAM-eo0" +
+			" reg(d,RAM-ei0,RAM-eo0) REG(d,RAM-ei0,RAM-eo0)" +
+			" RAM-s1 RAM-ei1 RAM-eo1" +
+			" reg(d,RAM-ei1,RAM-eo1) REG(d,RAM-ei1,RAM-eo1)",
 		want: []string{
 			"0000=>01001000010", "0001=>11011100010", "0010=>01100000010", "0011=>01110000010",
 			"0100=>01000000010", "0101=>01010000010", "0110=>01101000010", "0111=>11111100010",
@@ -881,14 +881,14 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "RAMa2",
 		desc: "a0 a1 d ei eo" +
-			" => RAM(a0,d) RAM(a0,d)-s0 RAM(a0,d)-ei0 RAM(a0,d)-eo0" +
-			" reg(d,RAM(a0,d)-ei0,RAM(a0,d)-eo0) REG(d,RAM(a0,d)-ei0,RAM(a0,d)-eo0)" +
-			" RAM(a0,d)-s1 RAM(a0,d)-ei1 RAM(a0,d)-eo1" +
-			" reg(d,RAM(a0,d)-ei1,RAM(a0,d)-eo1) REG(d,RAM(a0,d)-ei1,RAM(a0,d)-eo1)" +
-			" RAM(a0,d)-s2 RAM(a0,d)-ei2 RAM(a0,d)-eo2" +
-			" reg(d,RAM(a0,d)-ei2,RAM(a0,d)-eo2) REG(d,RAM(a0,d)-ei2,RAM(a0,d)-eo2)" +
-			" RAM(a0,d)-s3 RAM(a0,d)-ei3 RAM(a0,d)-eo3" +
-			" reg(d,RAM(a0,d)-ei3,RAM(a0,d)-eo3) REG(d,RAM(a0,d)-ei3,RAM(a0,d)-eo3)",
+			" => RAM RAM-s0 RAM-ei0 RAM-eo0" +
+			" reg(d,RAM-ei0,RAM-eo0) REG(d,RAM-ei0,RAM-eo0)" +
+			" RAM-s1 RAM-ei1 RAM-eo1" +
+			" reg(d,RAM-ei1,RAM-eo1) REG(d,RAM-ei1,RAM-eo1)" +
+			" RAM-s2 RAM-ei2 RAM-eo2" +
+			" reg(d,RAM-ei2,RAM-eo2) REG(d,RAM-ei2,RAM-eo2)" +
+			" RAM-s3 RAM-ei3 RAM-eo3" +
+			" reg(d,RAM-ei3,RAM-eo3) REG(d,RAM-ei3,RAM-eo3)",
 		want: []string{
 			"00000=>010010000100001000010", "00001=>110111000100001000010",
 			"00010=>011000000100001000010", "00011=>011100000100001000010",
@@ -936,12 +936,12 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "RAMb2",
 		desc: "a d0 d1 ei eo" +
-			" => RAM(a,d0) RAM(a,d0) RAM(a,d0)-s0 RAM(a,d0)-ei0 RAM(a,d0)-eo0" +
-			" reg(d0,RAM(a,d0)-ei0,RAM(a,d0)-eo0) REG(d0,RAM(a,d0)-ei0,RAM(a,d0)-eo0)" +
-			" reg(d1,RAM(a,d0)-ei0,RAM(a,d0)-eo0) REG(d1,RAM(a,d0)-ei0,RAM(a,d0)-eo0)" +
-			" RAM(a,d0)-s1 RAM(a,d0)-ei1 RAM(a,d0)-eo1" +
-			" reg(d0,RAM(a,d0)-ei1,RAM(a,d0)-eo1) REG(d0,RAM(a,d0)-ei1,RAM(a,d0)-eo1)" +
-			" reg(d1,RAM(a,d0)-ei1,RAM(a,d0)-eo1) REG(d1,RAM(a,d0)-ei1,RAM(a,d0)-eo1)",
+			" => RAM RAM RAM-s0 RAM-ei0 RAM-eo0" +
+			" reg(d0,RAM-ei0,RAM-eo0) REG(d0,RAM-ei0,RAM-eo0)" +
+			" reg(d1,RAM-ei0,RAM-eo0) REG(d1,RAM-ei0,RAM-eo0)" +
+			" RAM-s1 RAM-ei1 RAM-eo1" +
+			" reg(d0,RAM-ei1,RAM-eo1) REG(d0,RAM-ei1,RAM-eo1)" +
+			" reg(d1,RAM-ei1,RAM-eo1) REG(d1,RAM-ei1,RAM-eo1)",
 		want: []string{
 			"00000=>0010010100001010", "00001=>1110111110001010",
 			"00010=>0011000000001010", "00011=>0011100000001010",
@@ -982,18 +982,18 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "RAMa2b2",
 		desc: "a0 a1 d0 d1 ei eo" +
-			" => RAM(a0,d0) RAM(a0,d0) RAM(a0,d0)-s0 RAM(a0,d0)-ei0 RAM(a0,d0)-eo0" +
-			" reg(d0,RAM(a0,d0)-ei0,RAM(a0,d0)-eo0) REG(d0,RAM(a0,d0)-ei0,RAM(a0,d0)-eo0)" +
-			" reg(d1,RAM(a0,d0)-ei0,RAM(a0,d0)-eo0) REG(d1,RAM(a0,d0)-ei0,RAM(a0,d0)-eo0)" +
-			" RAM(a0,d0)-s1 RAM(a0,d0)-ei1 RAM(a0,d0)-eo1" +
-			" reg(d0,RAM(a0,d0)-ei1,RAM(a0,d0)-eo1) REG(d0,RAM(a0,d0)-ei1,RAM(a0,d0)-eo1)" +
-			" reg(d1,RAM(a0,d0)-ei1,RAM(a0,d0)-eo1) REG(d1,RAM(a0,d0)-ei1,RAM(a0,d0)-eo1)" +
-			" RAM(a0,d0)-s2 RAM(a0,d0)-ei2 RAM(a0,d0)-eo2" +
-			" reg(d0,RAM(a0,d0)-ei2,RAM(a0,d0)-eo2) REG(d0,RAM(a0,d0)-ei2,RAM(a0,d0)-eo2)" +
-			" reg(d1,RAM(a0,d0)-ei2,RAM(a0,d0)-eo2) REG(d1,RAM(a0,d0)-ei2,RAM(a0,d0)-eo2)" +
-			" RAM(a0,d0)-s3 RAM(a0,d0)-ei3 RAM(a0,d0)-eo3" +
-			" reg(d0,RAM(a0,d0)-ei3,RAM(a0,d0)-eo3) REG(d0,RAM(a0,d0)-ei3,RAM(a0,d0)-eo3)" +
-			" reg(d1,RAM(a0,d0)-ei3,RAM(a0,d0)-eo3) REG(d1,RAM(a0,d0)-ei3,RAM(a0,d0)-eo3)",
+			" => RAM RAM RAM-s0 RAM-ei0 RAM-eo0" +
+			" reg(d0,RAM-ei0,RAM-eo0) REG(d0,RAM-ei0,RAM-eo0)" +
+			" reg(d1,RAM-ei0,RAM-eo0) REG(d1,RAM-ei0,RAM-eo0)" +
+			" RAM-s1 RAM-ei1 RAM-eo1" +
+			" reg(d0,RAM-ei1,RAM-eo1) REG(d0,RAM-ei1,RAM-eo1)" +
+			" reg(d1,RAM-ei1,RAM-eo1) REG(d1,RAM-ei1,RAM-eo1)" +
+			" RAM-s2 RAM-ei2 RAM-eo2" +
+			" reg(d0,RAM-ei2,RAM-eo2) REG(d0,RAM-ei2,RAM-eo2)" +
+			" reg(d1,RAM-ei2,RAM-eo2) REG(d1,RAM-ei2,RAM-eo2)" +
+			" RAM-s3 RAM-ei3 RAM-eo3" +
+			" reg(d0,RAM-ei3,RAM-eo3) REG(d0,RAM-ei3,RAM-eo3)" +
+			" reg(d1,RAM-ei3,RAM-eo3) REG(d1,RAM-ei3,RAM-eo3)",
 		want: []string{
 			"000000=>001001010000101000010100001010", "000001=>111011111000101000010100001010",
 			"000010=>001100000000101000010100001010", "000011=>001110000000101000010100001010",
@@ -1145,10 +1145,10 @@ func TestOutputsSequential(t *testing.T) {
 	}, {
 		name: "RAM",
 		desc: "a d ei eo" +
-			" => RAM(a,d) RAM(a,d)-s0 RAM(a,d)-ei0 RAM(a,d)-eo0" +
-			" reg(d,RAM(a,d)-ei0,RAM(a,d)-eo0) REG(d,RAM(a,d)-ei0,RAM(a,d)-eo0)" +
-			" RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
-			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)",
+			" => RAM RAM-s0 RAM-ei0 RAM-eo0" +
+			" reg(d,RAM-ei0,RAM-eo0) REG(d,RAM-ei0,RAM-eo0)" +
+			" RAM-s1 RAM-ei1 RAM-eo1" +
+			" reg(d,RAM-ei1,RAM-eo1) REG(d,RAM-ei1,RAM-eo1)",
 		inputs: []string{"0000", "0001", "0010", "0001", "1001"},
 		want: []string{
 			// default to s0=q0=q1=1

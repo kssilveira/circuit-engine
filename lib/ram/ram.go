@@ -13,7 +13,7 @@ import (
 
 // RAM adds a random access memory.
 func RAM(parent *group.Group, a, d []*wire.Wire, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("RAM(%v,%v)", a[0].Name, d[0].Name))
+	group := parent.Group("RAM")
 	s := ramAddress(group, a)
 	rei, reo := ramEnable(group, s, ei, eo)
 	return ramRegisters(group, d, s, rei, reo)
