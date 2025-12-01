@@ -6,6 +6,8 @@ import (
 
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/group"
+	"github.com/kssilveira/circuit-engine/lib/alu"
+	"github.com/kssilveira/circuit-engine/lib/bus"
 	"github.com/kssilveira/circuit-engine/lib/gate"
 	"github.com/kssilveira/circuit-engine/lib/latch"
 	"github.com/kssilveira/circuit-engine/lib/reg"
@@ -13,133 +15,6 @@ import (
 	"github.com/kssilveira/circuit-engine/sfmt"
 	"github.com/kssilveira/circuit-engine/wire"
 )
-
-// Alu adds an artithmetic and logic unit.
-func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU")
-	ra := reg.Register(group, a, ai, ao)
-	rb := reg.Register(group, b, bi, bo)
-	rs := sum.Adder(group, ra[0], rb[0], cin)
-	rr := reg.Register(group, rs[0], ri, ro)
-	return slices.Concat(ra, rb, rr, []*wire.Wire{rs[1]})
-}
-
-// Alu2 adds a 2-bit arithmetic and logic unit.
-func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU2")
-	r1 := Alu(group, a1, ai, ao, b1, bi, bo, ri, ro, cin)
-	last := len(r1) - 1
-	r2 := Alu(group, a2, ai, ao, b2, bi, bo, ri, ro, r1[last])
-	return append(r1[:last], r2...)
-}
-
-// Alu4 adds a 4-bit arithmetic and logic unit.
-func Alu4(parent *group.Group, a [4]*wire.Wire, ai, ao *wire.Wire, b [4]*wire.Wire, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU4")
-	r1 := Alu2(group, a[0], a[1], ai, ao, b[0], b[1], bi, bo, ri, ro, cin)
-	last := len(r1) - 1
-	r2 := Alu2(group, a[2], a[3], ai, ao, b[2], b[3], bi, bo, ri, ro, r1[last])
-	return append(r1[:last], r2...)
-}
-
-func w4(w []*wire.Wire) [4]*wire.Wire {
-	return [4]*wire.Wire(w)
-}
-
-// Alu8 adds an 8-bit arithmetic and logic unit.
-func Alu8(parent *group.Group, a [8]*wire.Wire, ai, ao *wire.Wire, b [8]*wire.Wire, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU8")
-	r1 := Alu4(group, w4(a[:4]), ai, ao, w4(b[:4]), bi, bo, ri, ro, cin)
-	last := len(r1) - 1
-	r2 := Alu4(group, w4(a[4:]), ai, ao, w4(b[4:]), bi, bo, ri, ro, r1[last])
-	return append(r1[:last], r2...)
-}
-
-// Bus add a communication bus.
-func Bus(parent *group.Group, bus, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("BUS(%s)", bus.Name))
-	res := &wire.Wire{Name: group.Name}
-	wire1 := &wire.Wire{Name: sfmt.Sprintf("%s-wire1", res.Name)}
-	wire2 := &wire.Wire{Name: sfmt.Sprintf("%s-wire2", res.Name)}
-	group.JointWire(wire1, bus, a)
-	group.JointWire(wire2, wire1, b)
-	group.JointWire(res, wire2, r)
-	group.JointWire(wa, res, res)
-	group.JointWire(wb, res, res)
-	return []*wire.Wire{res}
-}
-
-// Bus2 adds a 2-bit communication bus.
-func Bus2(parent *group.Group, bus1, bus2, a1, a2, b1, b2, r1, r2, wa1, wa2, wb1, wb2 *wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("BUS2"))
-	rbus1 := Bus(group, bus1, a1, b1, r1, wa1, wb1)
-	rbus2 := Bus(group, bus2, a2, b2, r2, wa2, wb2)
-	return slices.Concat(rbus1, rbus2)
-}
-
-// Bus4 adds a 4-bit communication bus.
-func Bus4(parent *group.Group, bus, a, b, r, wa, wb [4]*wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("BUS2"))
-	rbus1 := Bus2(group, bus[0], bus[1], a[0], a[1], b[0], b[1], r[0], r[1], wa[0], wa[1], wb[0], wb[1])
-	rbus2 := Bus2(group, bus[2], bus[3], a[2], a[3], b[2], b[3], r[2], r[3], wa[2], wa[3], wb[2], wb[3])
-	return slices.Concat(rbus1, rbus2)
-}
-
-// Bus8 adds an 8-bit communication bus.
-func Bus8(parent *group.Group, bus, a, b, r, wa, wb [8]*wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("BUS2"))
-	rbus1 := Bus4(group, w4(bus[:4]), w4(a[:4]), w4(b[:4]), w4(r[:4]), w4(wa[:4]), w4(wb[:4]))
-	rbus2 := Bus4(group, w4(bus[4:]), w4(a[4:]), w4(b[4:]), w4(r[4:]), w4(wa[4:]), w4(wb[4:]))
-	return slices.Concat(rbus1, rbus2)
-}
-
-// AluWithBus adds an arithmetic logic unit with a communication bus.
-func AluWithBus(parent *group.Group, bus, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU-BUS")
-	a := &wire.Wire{Name: sfmt.Sprintf("ALU-%s-a", bus.Name)}
-	ra := reg.Register(group, a, ai, ao)
-	b := &wire.Wire{Name: sfmt.Sprintf("ALU-%s-b", bus.Name)}
-	rb := reg.Register(group, b, bi, bo)
-	rs := sum.Adder(group, ra[0], rb[0], cin)
-	rr := reg.Register(group, rs[0], ri, ro)
-	rbus := Bus(group, bus, ra[1], rb[1], rr[1], a, b)
-	return slices.Concat(rbus, ra, rb, rr, []*wire.Wire{rs[1]})
-}
-
-func aluWithBusInputValidation(ai, ao, bi, bo, ri, ro *wire.Wire) func() bool {
-	return func() bool {
-		return !(ri.Bit.Get(nil) && ro.Bit.Get(nil) && (ai.Bit.Get(nil) || bi.Bit.Get(nil))) &&
-			!(ai.Bit.Get(nil) && ao.Bit.Get(nil)) &&
-			!(bi.Bit.Get(nil) && bo.Bit.Get(nil))
-	}
-}
-
-// AluWithBus2 adds a 2-bit arithmetic logic unit with a communication bus.
-func AluWithBus2(parent *group.Group, bus1, bus2, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU-BUS2")
-	alu1 := AluWithBus(group, bus1, ai, ao, bi, bo, ri, ro, cin)
-	last := len(alu1) - 1
-	alu2 := AluWithBus(group, bus2, ai, ao, bi, bo, ri, ro, alu1[last])
-	return slices.Concat(alu1[:last], alu2)
-}
-
-// AluWithBus4 adds a 4-bit arithmetic logic unit with a communication bus.
-func AluWithBus4(parent *group.Group, bus [4]*wire.Wire, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU-BUS4")
-	alu1 := AluWithBus2(group, bus[0], bus[1], ai, ao, bi, bo, ri, ro, cin)
-	last := len(alu1) - 1
-	alu2 := AluWithBus2(group, bus[2], bus[3], ai, ao, bi, bo, ri, ro, alu1[last])
-	return slices.Concat(alu1[:last], alu2)
-}
-
-// AluWithBus8 adds an 8-bit arithmetic logic unit with a communication bus.
-func AluWithBus8(parent *group.Group, bus [8]*wire.Wire, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU-BUS8")
-	alu1 := AluWithBus4(group, w4(bus[:4]), ai, ao, bi, bo, ri, ro, cin)
-	last := len(alu1) - 1
-	alu2 := AluWithBus4(group, w4(bus[4:]), ai, ao, bi, bo, ri, ro, alu1[last])
-	return slices.Concat(alu1[:last], alu2)
-}
 
 // RAM adds a random access memory.
 func RAM(parent *group.Group, a, d, ei, eo *wire.Wire) []*wire.Wire {
@@ -239,24 +114,24 @@ var (
 		"Nor": func(c *circuit.Circuit) []*wire.Wire {
 			return []*wire.Wire{gate.Nor(c.Group(""), c.In("a"), c.In("b"))}
 		},
-		"HalfAdder": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.HalfAdder(c.Group(""), c.In("a"), c.In("b"))
+		"HalfSum": func(c *circuit.Circuit) []*wire.Wire {
+			return sum.HalfSum(c.Group(""), c.In("a"), c.In("b"))
 		},
-		"Adder": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.Adder(c.Group(""), c.In("a"), c.In("b"), c.In("cin"))
+		"Sum": func(c *circuit.Circuit) []*wire.Wire {
+			return sum.Sum(c.Group(""), c.In("a"), c.In("b"), c.In("cin"))
 		},
-		"Adder2": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.Adder2(c.Group(""), c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("cin"))
+		"Sum2": func(c *circuit.Circuit) []*wire.Wire {
+			return sum.Sum2(c.Group(""), c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("cin"))
 		},
-		"Adder4": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.Adder4(
+		"Sum4": func(c *circuit.Circuit) []*wire.Wire {
+			return sum.Sum4(
 				c.Group(""),
 				c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"),
 				c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"),
 				c.In("cin"))
 		},
-		"Adder8": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.Adder8(
+		"Sum8": func(c *circuit.Circuit) []*wire.Wire {
+			return sum.Sum8(
 				c.Group(""),
 				[8]*wire.Wire{
 					c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8"),
@@ -266,8 +141,8 @@ var (
 				},
 				c.In("cin"))
 		},
-		"AdderN": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.AdderN(
+		"SumN": func(c *circuit.Circuit) []*wire.Wire {
+			return sum.N(
 				c.Group(""),
 				[]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4")},
 				[]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4")},
@@ -299,28 +174,28 @@ var (
 				c.In("ei"), c.In("eo"))
 		},
 		"Alu": func(c *circuit.Circuit) []*wire.Wire {
-			return Alu(
+			return alu.Alu(
 				c.Group(""),
 				c.In("a"), c.In("ai"), c.In("ao"),
 				c.In("b"), c.In("bi"), c.In("bo"),
 				c.In("ri"), c.In("ro"), c.In("cin"))
 		},
 		"Alu2": func(c *circuit.Circuit) []*wire.Wire {
-			return Alu2(
+			return alu.Alu2(
 				c.Group(""),
 				c.In("a1"), c.In("a2"), c.In("ai"), c.In("ao"),
 				c.In("b1"), c.In("b2"), c.In("bi"), c.In("bo"),
 				c.In("ri"), c.In("ro"), c.In("cin"))
 		},
 		"Alu4": func(c *circuit.Circuit) []*wire.Wire {
-			return Alu4(
+			return alu.Alu4(
 				c.Group(""),
 				[4]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4")}, c.In("ai"), c.In("ao"),
 				[4]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4")}, c.In("bi"), c.In("bo"),
 				c.In("ri"), c.In("ro"), c.In("cin"))
 		},
 		"Alu8": func(c *circuit.Circuit) []*wire.Wire {
-			return Alu8(
+			return alu.Alu8(
 				c.Group(""),
 				[8]*wire.Wire{
 					c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8"),
@@ -332,12 +207,12 @@ var (
 		},
 		"Bus": func(c *circuit.Circuit) []*wire.Wire {
 			wa, wb := W("wa"), W("wb")
-			return append(Bus(c.Group(""), c.In("bus"), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
+			return append(bus.Bus(c.Group(""), c.In("bus"), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
 		},
 		"Bus2": func(c *circuit.Circuit) []*wire.Wire {
 			wa1, wa2 := W("wa1"), W("wa2")
 			wb1, wb2 := W("wb1"), W("wb2")
-			return append(Bus2(
+			return append(bus.Bus2(
 				c.Group(""), c.In("bus1"), c.In("bus2"),
 				c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("r1"), c.In("r2"),
 				wa1, wa2, wb1, wb2),
@@ -348,7 +223,7 @@ var (
 			wb1, wb2, wb3, wb4 := W("wb1"), W("wb2"), W("wb3"), W("wb4")
 			wa := [4]*wire.Wire{wa1, wa2, wa3, wa4}
 			wb := [4]*wire.Wire{wb1, wb2, wb3, wb4}
-			return slices.Concat(Bus4(
+			return slices.Concat(bus.Bus4(
 				c.Group(""), [4]*wire.Wire{c.In("bus1"), c.In("bus2"), c.In("bus3"), c.In("bus4")},
 				[4]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4")},
 				[4]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4")},
@@ -362,7 +237,7 @@ var (
 			wb5, wb6, wb7, wb8 := W("wb5"), W("wb6"), W("wb7"), W("wb8")
 			wa := [8]*wire.Wire{wa1, wa2, wa3, wa4, wa5, wa6, wa7, wa8}
 			wb := [8]*wire.Wire{wb1, wb2, wb3, wb4, wb5, wb6, wb7, wb8}
-			return slices.Concat(Bus8(
+			return slices.Concat(bus.Bus8(
 				c.Group(""),
 				[8]*wire.Wire{c.In("bus1"), c.In("bus2"), c.In("bus3"), c.In("bus4"),
 					c.In("bus5"), c.In("bus6"), c.In("bus7"), c.In("bus8")},
@@ -380,8 +255,8 @@ var (
 			bi, bo := c.In("bi"), c.In("bo")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("cin")
-			c.AddInputValidation(aluWithBusInputValidation(ai, ao, bi, bo, ri, ro))
-			return AluWithBus(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
+			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
+			return alu.WithBus(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"AluWithBus2": func(c *circuit.Circuit) []*wire.Wire {
 			bus1, bus2 := c.In("bus1"), c.In("bus2")
@@ -389,8 +264,8 @@ var (
 			bi, bo := c.In("bi"), c.In("bo")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("cin")
-			c.AddInputValidation(aluWithBusInputValidation(ai, ao, bi, bo, ri, ro))
-			return AluWithBus2(c.Group(""), bus1, bus2, ai, ao, bi, bo, ri, ro, cin)
+			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
+			return alu.WithBus2(c.Group(""), bus1, bus2, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"AluWithBus4": func(c *circuit.Circuit) []*wire.Wire {
 			bus := [4]*wire.Wire{c.In("bus1"), c.In("bus2"), c.In("bus3"), c.In("bus4")}
@@ -398,8 +273,8 @@ var (
 			bi, bo := c.In("bi"), c.In("bo")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("cin")
-			c.AddInputValidation(aluWithBusInputValidation(ai, ao, bi, bo, ri, ro))
-			return AluWithBus4(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
+			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
+			return alu.WithBus4(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"AluWithBus8": func(c *circuit.Circuit) []*wire.Wire {
 			bus := [8]*wire.Wire{
@@ -410,8 +285,8 @@ var (
 			bi, bo := c.In("bi"), c.In("bo")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("cin")
-			c.AddInputValidation(aluWithBusInputValidation(ai, ao, bi, bo, ri, ro))
-			return AluWithBus8(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
+			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
+			return alu.WithBus8(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"RAM": func(c *circuit.Circuit) []*wire.Wire {
 			return RAM(c.Group(""), c.In("a"), c.In("d"), c.In("ei"), c.In("eo"))

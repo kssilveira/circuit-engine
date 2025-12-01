@@ -93,7 +93,7 @@ func TestOutputsCombinational(t *testing.T) {
 			return []bool{!(inputs["a"] || inputs["b"])}
 		},
 	}, {
-		name: "HalfAdder",
+		name: "HalfSum",
 		desc: "a b => SUM(a,b) CARRY(a,b)",
 		want: []string{"00=>00", "01=>10", "10=>10", "11=>01"},
 		isValidInt: func(inputs map[string]int) []int {
@@ -101,7 +101,7 @@ func TestOutputsCombinational(t *testing.T) {
 			return []int{sum % 2, sum / 2}
 		},
 	}, {
-		name: "Adder",
+		name: "Sum",
 		desc: "a b cin => SUM(a,b,cin) CARRY(a,b)",
 		want: []string{"000=>00", "001=>10", "010=>10", "011=>01", "100=>10", "101=>01", "110=>01", "111=>11"},
 		isValidInt: func(inputs map[string]int) []int {
@@ -109,7 +109,7 @@ func TestOutputsCombinational(t *testing.T) {
 			return []int{sum % 2, sum / 2}
 		},
 	}, {
-		name: "Adder2",
+		name: "Sum2",
 		desc: "a1 a2 b1 b2 cin => SUM(a1,b1,cin) SUM(a2,b2,CARRY(a1,b1)) CARRY(a2,b2)",
 		want: []string{
 			"00000=>000", "00001=>100", "00010=>010", "00011=>110",
@@ -127,7 +127,7 @@ func TestOutputsCombinational(t *testing.T) {
 			return []int{sum1 % 2, sum2 % 2, sum2 / 2}
 		},
 	}, {
-		name: "Adder4",
+		name: "Sum4",
 		desc: "a1 a2 a3 a4 b1 b2 b3 b4 cin" +
 			" => SUM(a1,b1,cin) SUM(a2,b2,CARRY(a1,b1)) SUM(a3,b3,CARRY(a2,b2)) SUM(a4,b4,CARRY(a3,b3))" +
 			" CARRY(a4,b4)",
@@ -144,7 +144,7 @@ func TestOutputsCombinational(t *testing.T) {
 			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum4 / 2}
 		},
 	}, {
-		name: "Adder8",
+		name: "Sum8",
 		desc: "a1 a2 a3 a4 a5 a6 a7 a8" +
 			" b1 b2 b3 b4 b5 b6 b7 b8 cin" +
 			" => SUM(a1,b1,cin) SUM(a2,b2,CARRY(a1,b1)) SUM(a3,b3,CARRY(a2,b2)) SUM(a4,b4,CARRY(a3,b3))" +
@@ -174,7 +174,7 @@ func TestOutputsCombinational(t *testing.T) {
 			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum5 % 2, sum6 % 2, sum7 % 2, sum8 % 2, sum8 / 2}
 		},
 	}, {
-		name: "AdderN",
+		name: "SumN",
 		desc: "a1 a2 a3 a4 b1 b2 b3 b4 cin" +
 			" => SUM(a1,b1,cin) SUM(a2,b2,CARRY(a1,b1)) SUM(a3,b3,CARRY(a2,b2)) SUM(a4,b4,CARRY(a3,b3))" +
 			" CARRY(a4,b4)",

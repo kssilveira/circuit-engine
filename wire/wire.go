@@ -48,3 +48,8 @@ func BoolToString(a bool) string {
 	}
 	return "0"
 }
+
+// W4 creates an array with 4 wires.
+func W4(w []*Wire) [4]*Wire {
+	return [4]*Wire(w)
+}
