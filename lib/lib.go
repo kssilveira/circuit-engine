@@ -250,7 +250,7 @@ var (
 			return alu.WithBus8(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"RAM": func(c *circuit.Circuit) []*wire.Wire {
-			return ram.RAM(c.Group(""), c.In("a"), c.In("d"), c.In("ei"), c.In("eo"))
+			return ram.RAM(c.Group(""), []*wire.Wire{c.In("a")}, []*wire.Wire{c.In("d")}, c.In("ei"), c.In("eo"))
 		},
 		"": func(_ *circuit.Circuit) []*wire.Wire {
 			return nil

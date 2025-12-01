@@ -43,3 +43,13 @@ func Register8(parent *group.Group, d1, d2, d3, d4, d5, d6, d7, d8, ei, eo *wire
 	r2 := Register4(group, d5, d6, d7, d8, ei, eo)
 	return append(r1, r2...)
 }
+
+// N adds a N-bit register.
+func N(parent *group.Group, d []*wire.Wire, ei, eo *wire.Wire) []*wire.Wire {
+	group := parent.Group(sfmt.Sprintf("Register%d", len(d)))
+	var res []*wire.Wire
+	for _, di := range d {
+		res = append(res, Register(group, di, ei, eo)...)
+	}
+	return res
+}

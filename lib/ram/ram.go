@@ -12,39 +12,57 @@ import (
 )
 
 // RAM adds a random access memory.
-func RAM(parent *group.Group, a, d, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("RAM(%v,%v)", a.Name, d.Name))
+func RAM(parent *group.Group, a, d []*wire.Wire, ei, eo *wire.Wire) []*wire.Wire {
+	group := parent.Group(sfmt.Sprintf("RAM(%v,%v)", a[0].Name, d[0].Name))
 	s := ramAddress(group, a)
 	rei, reo := ramEnable(group, s, ei, eo)
 	return ramRegisters(group, d, s, rei, reo)
 }
 
-func ramAddress(group *group.Group, a *wire.Wire) []*wire.Wire {
-	s1 := gate.Not(group, a)
-	s1.Name = group.Name + "-s1"
-	s2 := gate.Or(group, a, a)
-	s2.Name = group.Name + "-s2"
-	return []*wire.Wire{s1, s2}
+func ramAddress(group *group.Group, a []*wire.Wire) []*wire.Wire {
+	var s []*wire.Wire
+	for address := 0; address < 1<<len(a); address++ {
+		si := &wire.Wire{}
+		si.Bit.Set(true)
+		for i, ai := range a {
+			if address>>i&1 == 1 {
+				si = gate.And(group, si, ai)
+			} else {
+				si = gate.And(group, si, gate.Not(group, ai))
+			}
+		}
+		si.Name = sfmt.Sprintf("%s-s%d", group.Name, address)
+		s = append(s, si)
+	}
+	return s
 }
 
 func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.Wire, []*wire.Wire) {
-	ei1 := gate.And(group, ei, s[0])
-	ei1.Name = group.Name + "-ei1"
-	ei2 := gate.And(group, ei, s[1])
-	ei2.Name = group.Name + "-ei2"
+	var rei, reo []*wire.Wire
+	for i, si := range s {
+		reii := gate.And(group, ei, si)
+		reii.Name = sfmt.Sprintf("%s-ei%d", group.Name, i)
+		rei = append(rei, reii)
 
-	eo1 := gate.And(group, eo, s[0])
-	eo1.Name = group.Name + "-eo1"
-	eo2 := gate.And(group, eo, s[1])
-	eo2.Name = group.Name + "-eo2"
-
-	return []*wire.Wire{ei1, ei2}, []*wire.Wire{eo1, eo2}
+		reoi := gate.And(group, eo, si)
+		reoi.Name = sfmt.Sprintf("%s-eo%d", group.Name, i)
+		reo = append(reo, reoi)
+	}
+	return rei, reo
 }
 
-func ramRegisters(group *group.Group, d *wire.Wire, s, ei, eo []*wire.Wire) []*wire.Wire {
-	r1 := reg.Register(group, d, ei[0], eo[0])
-	r2 := reg.Register(group, d, ei[1], eo[1])
-	res := &wire.Wire{Name: group.Name}
-	group.JointWire(res, r1[1], r2[1])
-	return slices.Concat([]*wire.Wire{res, s[0], ei[0], eo[0]}, r1, []*wire.Wire{s[1], ei[1], eo[1]}, r2)
+func ramRegisters(group *group.Group, d, s, ei, eo []*wire.Wire) []*wire.Wire {
+	prev := &wire.Wire{}
+	prev.Bit.Set(false)
+	var res *wire.Wire
+	var all []*wire.Wire
+	for i, eii := range ei {
+		ri := reg.N(group, d, eii, eo[i])
+		res = &wire.Wire{}
+		group.JointWire(res, prev, ri[1])
+		prev = res
+		all = slices.Concat(all, []*wire.Wire{s[i], eii, eo[i]}, ri)
+	}
+	prev.Name = group.Name
+	return append([]*wire.Wire{prev}, all...)
 }

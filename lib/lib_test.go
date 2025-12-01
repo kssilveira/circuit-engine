@@ -849,10 +849,10 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "RAM",
 		desc: "a d ei eo" +
-			" => RAM(a,d) RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
-			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)" +
-			" RAM(a,d)-s2 RAM(a,d)-ei2 RAM(a,d)-eo2" +
-			" reg(d,RAM(a,d)-ei2,RAM(a,d)-eo2) REG(d,RAM(a,d)-ei2,RAM(a,d)-eo2)",
+			" => RAM(a,d) RAM(a,d)-s0 RAM(a,d)-ei0 RAM(a,d)-eo0" +
+			" reg(d,RAM(a,d)-ei0,RAM(a,d)-eo0) REG(d,RAM(a,d)-ei0,RAM(a,d)-eo0)" +
+			" RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
+			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)",
 		want: []string{
 			"0000=>01001000010", "0001=>11011100010", "0010=>01100000010", "0011=>01110000010",
 			"0100=>01000000010", "0101=>01010000010", "0110=>01101000010", "0111=>11111100010",
@@ -968,21 +968,21 @@ func TestOutputsSequential(t *testing.T) {
 	}, {
 		name: "RAM",
 		desc: "a d ei eo" +
-			" => RAM(a,d) RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
-			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)" +
-			" RAM(a,d)-s2 RAM(a,d)-ei2 RAM(a,d)-eo2" +
-			" reg(d,RAM(a,d)-ei2,RAM(a,d)-eo2) REG(d,RAM(a,d)-ei2,RAM(a,d)-eo2)",
+			" => RAM(a,d) RAM(a,d)-s0 RAM(a,d)-ei0 RAM(a,d)-eo0" +
+			" reg(d,RAM(a,d)-ei0,RAM(a,d)-eo0) REG(d,RAM(a,d)-ei0,RAM(a,d)-eo0)" +
+			" RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
+			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)",
 		inputs: []string{"0000", "0001", "0010", "0001", "1001"},
 		want: []string{
-			// default to s1=q1=q2=1
+			// default to s0=q0=q1=1
 			"0000=>01001000010",
-			// eo=1 writes q1=1 to res
+			// eo=1 writes q0=1 to res
 			"0001=>11011100010",
-			// ei=1 reads d=0 to q1
+			// ei=1 reads d=0 to q0
 			"0010=>01100000010",
-			// eo=1 writes q1=0 to res
+			// eo=1 writes q0=0 to res
 			"0001=>01010000010",
-			// a=eo=1 writes q2=1 to res
+			// a=eo=1 writes q1=1 to res
 			"1001=>10000010111",
 		},
 	}}
