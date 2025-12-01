@@ -8,53 +8,19 @@ import (
 	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/lib/gate"
 	"github.com/kssilveira/circuit-engine/lib/latch"
+	"github.com/kssilveira/circuit-engine/lib/reg"
 	"github.com/kssilveira/circuit-engine/lib/sum"
 	"github.com/kssilveira/circuit-engine/sfmt"
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
-// Register adds a register.
-func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("REG(%s,%s,%s)", d.Name, ei.Name, eo.Name))
-	q := &wire.Wire{}
-	latch.DLatchRes(group, q, gate.Or(group, gate.And(group, q, gate.Not(group, ei)), gate.And(group, d, ei)), ei)
-	q.Name = "reg" + group.Name[3:]
-	res := gate.And(group, q, eo)
-	res.Name = group.Name
-	return []*wire.Wire{q, res}
-}
-
-// Register2 adds a 2-bit register.
-func Register2(parent *group.Group, d1, d2, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group("Register2")
-	r1 := Register(group, d1, ei, eo)
-	r2 := Register(group, d2, ei, eo)
-	return append(r1, r2...)
-}
-
-// Register4 adds a 4-bit register.
-func Register4(parent *group.Group, d1, d2, d3, d4, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group("Register4")
-	r1 := Register2(group, d1, d2, ei, eo)
-	r2 := Register2(group, d3, d4, ei, eo)
-	return append(r1, r2...)
-}
-
-// Register8 adds an 8-bit register.
-func Register8(parent *group.Group, d1, d2, d3, d4, d5, d6, d7, d8, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group("Register8")
-	r1 := Register4(group, d1, d2, d3, d4, ei, eo)
-	r2 := Register4(group, d5, d6, d7, d8, ei, eo)
-	return append(r1, r2...)
-}
-
 // Alu adds an artithmetic and logic unit.
 func Alu(parent *group.Group, a, ai, ao, b, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU")
-	ra := Register(group, a, ai, ao)
-	rb := Register(group, b, bi, bo)
+	ra := reg.Register(group, a, ai, ao)
+	rb := reg.Register(group, b, bi, bo)
 	rs := sum.Adder(group, ra[0], rb[0], cin)
-	rr := Register(group, rs[0], ri, ro)
+	rr := reg.Register(group, rs[0], ri, ro)
 	return slices.Concat(ra, rb, rr, []*wire.Wire{rs[1]})
 }
 
@@ -131,11 +97,11 @@ func Bus8(parent *group.Group, bus, a, b, r, wa, wb [8]*wire.Wire) []*wire.Wire 
 func AluWithBus(parent *group.Group, bus, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU-BUS")
 	a := &wire.Wire{Name: sfmt.Sprintf("ALU-%s-a", bus.Name)}
-	ra := Register(group, a, ai, ao)
+	ra := reg.Register(group, a, ai, ao)
 	b := &wire.Wire{Name: sfmt.Sprintf("ALU-%s-b", bus.Name)}
-	rb := Register(group, b, bi, bo)
+	rb := reg.Register(group, b, bi, bo)
 	rs := sum.Adder(group, ra[0], rb[0], cin)
-	rr := Register(group, rs[0], ri, ro)
+	rr := reg.Register(group, rs[0], ri, ro)
 	rbus := Bus(group, bus, ra[1], rb[1], rr[1], a, b)
 	return slices.Concat(rbus, ra, rb, rr, []*wire.Wire{rs[1]})
 }
@@ -206,8 +172,8 @@ func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.W
 }
 
 func ramRegisters(group *group.Group, d *wire.Wire, s, ei, eo []*wire.Wire) []*wire.Wire {
-	r1 := Register(group, d, ei[0], eo[0])
-	r2 := Register(group, d, ei[1], eo[1])
+	r1 := reg.Register(group, d, ei[0], eo[0])
+	r2 := reg.Register(group, d, ei[1], eo[1])
 	res := &wire.Wire{Name: group.Name}
 	group.JointWire(res, r1[1], r2[1])
 	return slices.Concat([]*wire.Wire{res, s[0], ei[0], eo[0]}, r1, []*wire.Wire{s[1], ei[1], eo[1]}, r2)
@@ -317,16 +283,16 @@ var (
 			return latch.DLatch(c.Group(""), c.In("d"), c.In("e"))
 		},
 		"Register": func(c *circuit.Circuit) []*wire.Wire {
-			return Register(c.Group(""), c.In("d"), c.In("ei"), c.In("eo"))
+			return reg.Register(c.Group(""), c.In("d"), c.In("ei"), c.In("eo"))
 		},
 		"Register2": func(c *circuit.Circuit) []*wire.Wire {
-			return Register2(c.Group(""), c.In("d1"), c.In("d2"), c.In("ei"), c.In("eo"))
+			return reg.Register2(c.Group(""), c.In("d1"), c.In("d2"), c.In("ei"), c.In("eo"))
 		},
 		"Register4": func(c *circuit.Circuit) []*wire.Wire {
-			return Register4(c.Group(""), c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("ei"), c.In("eo"))
+			return reg.Register4(c.Group(""), c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("ei"), c.In("eo"))
 		},
 		"Register8": func(c *circuit.Circuit) []*wire.Wire {
-			return Register8(
+			return reg.Register8(
 				c.Group(""),
 				c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"),
 				c.In("d5"), c.In("d6"), c.In("d7"), c.In("d8"),
