@@ -847,7 +847,7 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 		}(),
 	}, {
-		name: "Ram",
+		name: "RAM",
 		desc: "a d ei eo" +
 			" => RAM(a,d) RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
 			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)" +
@@ -966,7 +966,7 @@ func TestOutputsSequential(t *testing.T) {
 			"01001000=>11011101",
 		},
 	}, {
-		name: "Ram",
+		name: "RAM",
 		desc: "a d ei eo" +
 			" => RAM(a,d) RAM(a,d)-s1 RAM(a,d)-ei1 RAM(a,d)-eo1" +
 			" reg(d,RAM(a,d)-ei1,RAM(a,d)-eo1) REG(d,RAM(a,d)-ei1,RAM(a,d)-eo1)" +

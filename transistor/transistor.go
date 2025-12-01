@@ -1,3 +1,4 @@
+// Package transistor encapsulates transistors.
 package transistor
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
+// Transistor contains one transistor.
 type Transistor struct {
 	Base         *wire.Wire
 	Collector    *wire.Wire
@@ -16,6 +18,7 @@ type Transistor struct {
 	CollectorOut *wire.Wire
 }
 
+// Update updates the transistor.
 func (t *Transistor) Update() {
 	t.Emitter.Bit.Set(t.Base.Bit.Get(t) && t.Collector.Bit.Get(t))
 	if t.Collector.Bit.Get(t) {
@@ -32,7 +35,7 @@ func (t *Transistor) Update() {
 	}
 }
 
-func (t Transistor) String(depth int, cfg config.Config) string {
+func (t Transistor) String(depth int, _ config.Config) string {
 	var res []string
 	for _, wire := range []*wire.Wire{t.Base, t.Collector, t.Emitter, t.CollectorOut} {
 		one := sfmt.Sprintf("%v", *wire)
@@ -44,6 +47,7 @@ func (t Transistor) String(depth int, cfg config.Config) string {
 	return sfmt.Sprintf("%s%s", draw.StringPrefix(depth), strings.Join(res, "    "))
 }
 
+// Graph returns the graphviz graph.
 func (t Transistor) Graph(depth int, cfg config.Config) string {
 	if !cfg.DrawNodes {
 		return ""

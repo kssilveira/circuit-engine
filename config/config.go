@@ -1,5 +1,7 @@
+// Package config encapsulates configuration.
 package config
 
+// Config contains configuration.
 type Config struct {
 	MaxPrintDepth   int
 	DrawGraph       bool

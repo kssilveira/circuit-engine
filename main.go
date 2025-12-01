@@ -1,3 +1,4 @@
+// Package main simulates a given example circuit.
 package main
 
 import (

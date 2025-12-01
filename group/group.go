@@ -1,3 +1,4 @@
+// Package group encapsulates a group of components.
 package group
 
 import (
@@ -12,6 +13,7 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
+// Group contains a group of components.
 type Group struct {
 	Name       string
 	Vcc        *wire.Wire
@@ -20,22 +22,26 @@ type Group struct {
 	Components []component.Component
 }
 
+// Group creates a new group.
 func (g *Group) Group(name string) *Group {
 	res := &Group{Name: name, Vcc: g.Vcc, Gnd: g.Gnd, Unused: g.Unused}
 	g.Components = append(g.Components, res)
 	return res
 }
 
+// Update updates all components.
 func (g *Group) Update() {
 	for _, component := range g.Components {
 		component.Update()
 	}
 }
 
+// JointWire adds a joint wire.
 func (g *Group) JointWire(res, a, b *wire.Wire) {
 	g.jointWire(res, a, b, false /* isAnd */)
 }
 
+// JointWireIsAnd adds an AND joint wire.
 func (g *Group) JointWireIsAnd(res, a, b *wire.Wire) {
 	g.jointWire(res, a, b, true /* isAnd */)
 }
@@ -44,10 +50,12 @@ func (g *Group) jointWire(res, a, b *wire.Wire, isAnd bool) {
 	g.Components = append(g.Components, &jointwire.JointWire{Res: res, A: a, B: b, IsAnd: isAnd})
 }
 
+// Transistor adds a transistor.
 func (g *Group) Transistor(base, collector, emitter, collectorOut *wire.Wire) {
 	g.AddTransistor(&transistor.Transistor{Base: base, Collector: collector, Emitter: emitter, CollectorOut: collectorOut})
 }
 
+// AddTransistor adds a transistor.
 func (g *Group) AddTransistor(transistor *transistor.Transistor) {
 	if transistor.CollectorOut == nil {
 		transistor.CollectorOut = g.Unused
@@ -55,6 +63,7 @@ func (g *Group) AddTransistor(transistor *transistor.Transistor) {
 	g.Components = append(g.Components, transistor)
 }
 
+// AddTransistors adds multiple transistors.
 func (g *Group) AddTransistors(transistors []*transistor.Transistor) {
 	for _, transistor := range transistors {
 		g.AddTransistor(transistor)
@@ -85,6 +94,7 @@ func (g Group) String(depth int, cfg config.Config) string {
 	return strings.Join(res, "\n")
 }
 
+// Graph returns a graphviz graph.
 func (g Group) Graph(depth int, cfg config.Config) string {
 	if cfg.MaxPrintDepth >= 0 && depth >= cfg.MaxPrintDepth {
 		return ""

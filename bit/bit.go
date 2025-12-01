@@ -1,14 +1,17 @@
+// Package bit encapsulates individual bits.
 package bit
 
 import (
 	"github.com/kssilveira/circuit-engine/component"
 )
 
+// Bit contains a single bit.
 type Bit struct {
 	bit     bool
 	readers []component.Component
 }
 
+// Get returns the bit and updates the list of readers.
 func (b *Bit) Get(reader component.Component) bool {
 	if reader == nil {
 		return b.bit
@@ -27,6 +30,7 @@ func (b *Bit) Get(reader component.Component) bool {
 	return b.bit
 }
 
+// Set sets the bit and updates the readers.
 func (b *Bit) Set(v bool) {
 	if v != b.bit {
 		b.bit = v
@@ -36,6 +40,7 @@ func (b *Bit) Set(v bool) {
 	}
 }
 
+// SilentSet sets the bit without updating the readers.
 func (b *Bit) SilentSet(v bool) {
 	b.bit = v
 }

@@ -1,3 +1,4 @@
+// Package jointwire encapsulates joint wires.
 package jointwire
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
+// JointWire contains a single joint wire.
 type JointWire struct {
 	Res   *wire.Wire
 	A     *wire.Wire
@@ -16,6 +18,7 @@ type JointWire struct {
 	IsAnd bool
 }
 
+// Update updates this joint wire.
 func (w *JointWire) Update() {
 	if w.IsAnd {
 		w.Res.Bit.Set(w.A.Bit.Get(w) && w.B.Bit.Get(w))
@@ -24,7 +27,7 @@ func (w *JointWire) Update() {
 	w.Res.Bit.Set(w.A.Bit.Get(w) || w.B.Bit.Get(w))
 }
 
-func (w JointWire) String(depth int, cfg config.Config) string {
+func (w JointWire) String(depth int, _ config.Config) string {
 	var res []string
 	for _, wire := range []*wire.Wire{w.A, w.B, w.Res} {
 		one := sfmt.Sprintf("%v", *wire)
@@ -40,6 +43,7 @@ func (w JointWire) String(depth int, cfg config.Config) string {
 	return sfmt.Sprintf("%s%s %s", draw.StringPrefix(depth), name, strings.Join(res, "    "))
 }
 
+// Graph returns the graphviz graph.
 func (w JointWire) Graph(depth int, cfg config.Config) string {
 	if !cfg.DrawNodes {
 		return ""

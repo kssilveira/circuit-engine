@@ -1,3 +1,4 @@
+// Package circuit encapsulates circuits.
 package circuit
 
 import (
@@ -12,6 +13,7 @@ import (
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
+// Circuit contains a single circuit.
 type Circuit struct {
 	Config           config.Config
 	Vcc              *wire.Wire
@@ -23,6 +25,7 @@ type Circuit struct {
 	InputValidations []func() bool
 }
 
+// NewCircuit creates a new circuit.
 func NewCircuit(config config.Config) *Circuit {
 	vcc := bit.Bit{}
 	vcc.Set(true)
@@ -31,36 +34,43 @@ func NewCircuit(config config.Config) *Circuit {
 	return &Circuit{Config: config, Vcc: &wire.Wire{Name: "Vcc", Bit: vcc}, Gnd: &wire.Wire{Name: "Gnd", Gnd: gnd}, Unused: &wire.Wire{Name: "Unused"}}
 }
 
+// In adds an input.
 func (c *Circuit) In(name string) *wire.Wire {
 	res := &wire.Wire{Name: name}
 	c.Inputs = append(c.Inputs, res)
 	return res
 }
 
+// Group adds a group.
 func (c *Circuit) Group(name string) *group.Group {
 	res := &group.Group{Name: name, Vcc: c.Vcc, Gnd: c.Gnd, Unused: c.Unused}
 	c.Components = append(c.Components, res)
 	return res
 }
 
+// Out adds an output.
 func (c *Circuit) Out(res *wire.Wire) {
 	c.Outputs = append(c.Outputs, res)
 }
 
+// Outs adds multiple outputs.
 func (c *Circuit) Outs(outputs []*wire.Wire) {
 	c.Outputs = append(c.Outputs, outputs...)
 }
 
+// Update updates the components.
 func (c *Circuit) Update() {
 	for _, component := range c.Components {
 		component.Update()
 	}
 }
 
+// AddInputValidation adds input validation.
 func (c *Circuit) AddInputValidation(fn func() bool) {
 	c.InputValidations = append(c.InputValidations, fn)
 }
 
+// Description returns the circuit description.
 func (c *Circuit) Description() string {
 	var res []string
 	for _, input := range c.Inputs {
@@ -91,6 +101,7 @@ func (c Circuit) String() string {
 	return strings.Join(res, "\n")
 }
 
+// StringForUnitTest returns the circuit string for unit tests.
 func (c Circuit) StringForUnitTest() string {
 	var res []string
 	for _, input := range c.Inputs {
@@ -103,6 +114,7 @@ func (c Circuit) StringForUnitTest() string {
 	return strings.Join(res, "")
 }
 
+// Graph returns the graphviz graph.
 func (c Circuit) Graph() string {
 	res := []string{
 		"digraph {",
@@ -121,6 +133,7 @@ func (c Circuit) Graph() string {
 	return strings.Join(res, "\n")
 }
 
+// Simulate simulates the circuit.
 func (c *Circuit) Simulate() []string {
 	if !c.Config.DrawSingleGraph && len(c.Inputs) <= 7 {
 		return c.simulate(0)
@@ -139,6 +152,7 @@ func (c *Circuit) Simulate() []string {
 	return res
 }
 
+// SimulateInputs simulates the circuit for the given inputs.
 func (c *Circuit) SimulateInputs(allInputs []string) []string {
 	var res []string
 	for _, inputs := range allInputs {

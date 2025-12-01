@@ -1,3 +1,4 @@
+// Package wire encapsulates wires.
 package wire
 
 import (
@@ -7,6 +8,7 @@ import (
 	"github.com/kssilveira/circuit-engine/sfmt"
 )
 
+// Wire contains a single wire.
 type Wire struct {
 	Name string
 	Bit  bit.Bit
@@ -39,6 +41,7 @@ func (w Wire) String() string {
 	return strings.Join(res, "")
 }
 
+// BoolToString converts a bool to string.
 func BoolToString(a bool) string {
 	if a {
 		return "1"
