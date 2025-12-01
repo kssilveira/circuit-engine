@@ -1,10 +1,10 @@
 package wire
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/kssilveira/circuit-engine/bit"
+	"github.com/kssilveira/circuit-engine/sfmt"
 )
 
 type Wire struct {
@@ -27,7 +27,7 @@ func (w Wire) String() string {
 		list = append(list, "Gnd")
 	}
 	res := []string{
-		fmt.Sprintf("%v=", w.Name),
+		sfmt.Sprintf("%v=", w.Name),
 	}
 	if len(list) > 1 {
 		res = append(res, "{")

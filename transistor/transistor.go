@@ -1,11 +1,11 @@
 package transistor
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/kssilveira/circuit-engine/config"
 	"github.com/kssilveira/circuit-engine/draw"
+	"github.com/kssilveira/circuit-engine/sfmt"
 	"github.com/kssilveira/circuit-engine/wire"
 )
 
@@ -35,13 +35,13 @@ func (t *Transistor) Update() {
 func (t Transistor) String(depth int, cfg config.Config) string {
 	var res []string
 	for _, wire := range []*wire.Wire{t.Base, t.Collector, t.Emitter, t.CollectorOut} {
-		one := fmt.Sprintf("%v", *wire)
+		one := sfmt.Sprintf("%v", *wire)
 		if one == "" {
 			continue
 		}
 		res = append(res, one)
 	}
-	return fmt.Sprintf("%s%s", draw.StringPrefix(depth), strings.Join(res, "    "))
+	return sfmt.Sprintf("%s%s", draw.StringPrefix(depth), strings.Join(res, "    "))
 }
 
 func (t Transistor) Graph(depth int, cfg config.Config) string {
@@ -50,13 +50,13 @@ func (t Transistor) Graph(depth int, cfg config.Config) string {
 	}
 	prefix := draw.GraphPrefix(depth)
 	var res []string
-	res = append(res, fmt.Sprintf(`"%p" [label="𓇲";shape=invtriangle];`, &t))
+	res = append(res, sfmt.Sprintf(`"%p" [label="𓇲";shape=invtriangle];`, &t))
 	for _, wire := range []*wire.Wire{t.Base, t.Collector} {
 		if cfg.DrawShapePoint {
-			res = append(res, fmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *wire))
+			res = append(res, sfmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *wire))
 		}
 		if cfg.DrawEdges {
-			res = append(res, fmt.Sprintf(`%s"%v" -> "%p" %s;`, prefix, *wire, &t, draw.EdgeColor(wire, wire)))
+			res = append(res, sfmt.Sprintf(`%s"%v" -> "%p" %s;`, prefix, *wire, &t, draw.EdgeColor(wire, wire)))
 		}
 	}
 	for _, wire := range []*wire.Wire{t.Emitter, t.CollectorOut} {
@@ -64,10 +64,10 @@ func (t Transistor) Graph(depth int, cfg config.Config) string {
 			continue
 		}
 		if cfg.DrawShapePoint {
-			res = append(res, fmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *wire))
+			res = append(res, sfmt.Sprintf(`%s"%v" [label= "";shape=point];`, prefix, *wire))
 		}
 		if cfg.DrawEdges {
-			res = append(res, fmt.Sprintf(`%s"%p" -> "%v" %s;`, prefix, &t, *wire, draw.EdgeColor(wire, wire)))
+			res = append(res, sfmt.Sprintf(`%s"%p" -> "%v" %s;`, prefix, &t, *wire, draw.EdgeColor(wire, wire)))
 		}
 	}
 	return strings.Join(res, "\n")

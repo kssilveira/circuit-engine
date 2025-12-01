@@ -1,11 +1,11 @@
 package lib
 
 import (
-	"fmt"
 	"slices"
 
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/group"
+	"github.com/kssilveira/circuit-engine/sfmt"
 	"github.com/kssilveira/circuit-engine/transistor"
 	"github.com/kssilveira/circuit-engine/wire"
 )
@@ -34,16 +34,16 @@ func Transistor(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 }
 
 func Not(parent *group.Group, a *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("NOT(%s)", a.Name))
+	group := parent.Group(sfmt.Sprintf("NOT(%s)", a.Name))
 	res := &wire.Wire{Name: group.Name}
 	group.Transistor(a, group.Vcc, group.Gnd, res)
 	return res
 }
 
 func And(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("AND(%s,%s)", a.Name, b.Name))
+	group := parent.Group(sfmt.Sprintf("AND(%s,%s)", a.Name, b.Name))
 	res := &wire.Wire{Name: group.Name}
-	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
+	wire := &wire.Wire{Name: sfmt.Sprintf("%s-wire", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
 		{Base: a, Collector: group.Vcc, Emitter: wire},
 		{Base: b, Collector: wire, Emitter: res},
@@ -57,10 +57,10 @@ func Or(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 }
 
 func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("OR(%s,%s)", a.Name, b.Name))
+	group := parent.Group(sfmt.Sprintf("OR(%s,%s)", a.Name, b.Name))
 	res.Name = group.Name
-	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
-	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
+	wire1 := &wire.Wire{Name: sfmt.Sprintf("%s-wire1", res.Name)}
+	wire2 := &wire.Wire{Name: sfmt.Sprintf("%s-wire2", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
 		{Base: a, Collector: group.Vcc, Emitter: wire1},
 		{Base: b, Collector: group.Vcc, Emitter: wire2},
@@ -70,9 +70,9 @@ func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 }
 
 func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("NAND(%s,%s)", a.Name, b.Name))
+	group := parent.Group(sfmt.Sprintf("NAND(%s,%s)", a.Name, b.Name))
 	res := &wire.Wire{Name: group.Name}
-	wire := &wire.Wire{Name: fmt.Sprintf("%s-wire", res.Name)}
+	wire := &wire.Wire{Name: sfmt.Sprintf("%s-wire", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
 		{Base: a, Collector: group.Vcc, Emitter: wire, CollectorOut: res},
 		{Base: b, Collector: wire, Emitter: group.Gnd},
@@ -81,7 +81,7 @@ func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 }
 
 func Xor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("XOR(%s,%s)", a.Name, b.Name))
+	group := parent.Group(sfmt.Sprintf("XOR(%s,%s)", a.Name, b.Name))
 	res := And(group, Or(group, a, b), Nand(group, a, b))
 	res.Name = group.Name
 	return res
@@ -93,10 +93,10 @@ func Nor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 }
 
 func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(fmt.Sprintf("NOR(%s,%s)", a.Name, b.Name))
+	group := parent.Group(sfmt.Sprintf("NOR(%s,%s)", a.Name, b.Name))
 	res.Name = group.Name
-	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
-	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
+	wire1 := &wire.Wire{Name: sfmt.Sprintf("%s-wire1", res.Name)}
+	wire2 := &wire.Wire{Name: sfmt.Sprintf("%s-wire2", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
 		{Base: a, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire1},
 		{Base: b, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire2},
@@ -106,21 +106,21 @@ func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 }
 
 func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SUM(%s,%s)", a.Name, b.Name))
+	group := parent.Group(sfmt.Sprintf("SUM(%s,%s)", a.Name, b.Name))
 	res := Xor(group, a, b)
 	res.Name = group.Name
 	carry := And(group, a, b)
-	carry.Name = fmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
+	carry.Name = sfmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
 	return []*wire.Wire{res, carry}
 }
 
 func Sum(parent *group.Group, a, b, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SUM(%s,%s,%s)", a.Name, b.Name, cin.Name))
+	group := parent.Group(sfmt.Sprintf("SUM(%s,%s,%s)", a.Name, b.Name, cin.Name))
 	s1 := HalfSum(group, a, b)
 	s2 := HalfSum(group, s1[0], cin)
 	s2[0].Name = group.Name
 	carry := Or(group, s1[1], s2[1])
-	carry.Name = fmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
+	carry.Name = sfmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
 	return []*wire.Wire{s2[0], carry}
 }
 
@@ -146,7 +146,7 @@ func Sum8(parent *group.Group, a [8]*wire.Wire, b [8]*wire.Wire, cin *wire.Wire)
 }
 
 func SumN(parent *group.Group, an, bn []*wire.Wire, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SUM%d", len(an)))
+	group := parent.Group(sfmt.Sprintf("SUM%d", len(an)))
 	var s []*wire.Wire
 	carry := cin
 	for i, a := range an {
@@ -163,7 +163,7 @@ func SRLatch(parent *group.Group, s, r *wire.Wire) []*wire.Wire {
 }
 
 func SRLatchRes(parent *group.Group, q, s, r *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SRLATCH(%s,%s)", s.Name, r.Name))
+	group := parent.Group(sfmt.Sprintf("SRLATCH(%s,%s)", s.Name, r.Name))
 	nq := &wire.Wire{Name: "nq"}
 	name := q.Name
 	NorRes(group, q, r, nq)
@@ -179,7 +179,7 @@ func SRLatchWithEnable(parent *group.Group, s, r, e *wire.Wire) []*wire.Wire {
 }
 
 func SRLatchResWithEnable(parent *group.Group, q, s, r, e *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SRLATCHEN(%s,%s,%s)", s.Name, r.Name, e.Name))
+	group := parent.Group(sfmt.Sprintf("SRLATCHEN(%s,%s,%s)", s.Name, r.Name, e.Name))
 	return SRLatchRes(group, q, And(group, s, e), And(group, r, e))
 }
 
@@ -189,12 +189,12 @@ func DLatch(parent *group.Group, d, e *wire.Wire) []*wire.Wire {
 }
 
 func DLatchRes(parent *group.Group, q, d, e *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("DLATCH(%s,%s)", d.Name, e.Name))
+	group := parent.Group(sfmt.Sprintf("DLATCH(%s,%s)", d.Name, e.Name))
 	return SRLatchResWithEnable(group, q, d, Not(group, d), e)
 }
 
 func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("REG(%s,%s,%s)", d.Name, ei.Name, eo.Name))
+	group := parent.Group(sfmt.Sprintf("REG(%s,%s,%s)", d.Name, ei.Name, eo.Name))
 	q := &wire.Wire{}
 	DLatchRes(group, q, Or(group, And(group, q, Not(group, ei)), And(group, d, ei)), ei)
 	q.Name = "reg" + group.Name[3:]
@@ -262,10 +262,10 @@ func Alu8(parent *group.Group, a [8]*wire.Wire, ai, ao *wire.Wire, b [8]*wire.Wi
 }
 
 func Bus(parent *group.Group, bus, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("BUS(%s)", bus.Name))
+	group := parent.Group(sfmt.Sprintf("BUS(%s)", bus.Name))
 	res := &wire.Wire{Name: group.Name}
-	wire1 := &wire.Wire{Name: fmt.Sprintf("%s-wire1", res.Name)}
-	wire2 := &wire.Wire{Name: fmt.Sprintf("%s-wire2", res.Name)}
+	wire1 := &wire.Wire{Name: sfmt.Sprintf("%s-wire1", res.Name)}
+	wire2 := &wire.Wire{Name: sfmt.Sprintf("%s-wire2", res.Name)}
 	group.JointWire(wire1, bus, a)
 	group.JointWire(wire2, wire1, b)
 	group.JointWire(res, wire2, r)
@@ -275,21 +275,21 @@ func Bus(parent *group.Group, bus, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
 }
 
 func Bus2(parent *group.Group, bus1, bus2, a1, a2, b1, b2, r1, r2, wa1, wa2, wb1, wb2 *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("BUS2"))
+	group := parent.Group(sfmt.Sprintf("BUS2"))
 	rbus1 := Bus(group, bus1, a1, b1, r1, wa1, wb1)
 	rbus2 := Bus(group, bus2, a2, b2, r2, wa2, wb2)
 	return slices.Concat(rbus1, rbus2)
 }
 
 func Bus4(parent *group.Group, bus, a, b, r, wa, wb [4]*wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("BUS2"))
+	group := parent.Group(sfmt.Sprintf("BUS2"))
 	rbus1 := Bus2(group, bus[0], bus[1], a[0], a[1], b[0], b[1], r[0], r[1], wa[0], wa[1], wb[0], wb[1])
 	rbus2 := Bus2(group, bus[2], bus[3], a[2], a[3], b[2], b[3], r[2], r[3], wa[2], wa[3], wb[2], wb[3])
 	return slices.Concat(rbus1, rbus2)
 }
 
 func Bus8(parent *group.Group, bus, a, b, r, wa, wb [8]*wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("BUS2"))
+	group := parent.Group(sfmt.Sprintf("BUS2"))
 	rbus1 := Bus4(group, w4(bus[:4]), w4(a[:4]), w4(b[:4]), w4(r[:4]), w4(wa[:4]), w4(wb[:4]))
 	rbus2 := Bus4(group, w4(bus[4:]), w4(a[4:]), w4(b[4:]), w4(r[4:]), w4(wa[4:]), w4(wb[4:]))
 	return slices.Concat(rbus1, rbus2)
@@ -297,9 +297,9 @@ func Bus8(parent *group.Group, bus, a, b, r, wa, wb [8]*wire.Wire) []*wire.Wire 
 
 func AluWithBus(parent *group.Group, bus, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU-BUS")
-	a := &wire.Wire{Name: fmt.Sprintf("ALU-%s-a", bus.Name)}
+	a := &wire.Wire{Name: sfmt.Sprintf("ALU-%s-a", bus.Name)}
 	ra := Register(group, a, ai, ao)
-	b := &wire.Wire{Name: fmt.Sprintf("ALU-%s-b", bus.Name)}
+	b := &wire.Wire{Name: sfmt.Sprintf("ALU-%s-b", bus.Name)}
 	rb := Register(group, b, bi, bo)
 	rs := Sum(group, ra[0], rb[0], cin)
 	rr := Register(group, rs[0], ri, ro)
@@ -340,7 +340,7 @@ func AluWithBus8(parent *group.Group, bus [8]*wire.Wire, ai, ao, bi, bo, ri, ro,
 }
 
 func Ram(parent *group.Group, a, d, ei, eo *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("RAM(%v,%v)", a.Name, d.Name))
+	group := parent.Group(sfmt.Sprintf("RAM(%v,%v)", a.Name, d.Name))
 	s := ramAddress(group, a)
 	rei, reo := ramEnable(group, s, ei, eo)
 	return ramRegisters(group, d, s, rei, reo)

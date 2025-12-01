@@ -1,13 +1,13 @@
 package group
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/kssilveira/circuit-engine/component"
 	"github.com/kssilveira/circuit-engine/config"
 	"github.com/kssilveira/circuit-engine/draw"
 	"github.com/kssilveira/circuit-engine/jointwire"
+	"github.com/kssilveira/circuit-engine/sfmt"
 	"github.com/kssilveira/circuit-engine/transistor"
 	"github.com/kssilveira/circuit-engine/wire"
 )
@@ -92,10 +92,10 @@ func (g Group) Graph(depth int, cfg config.Config) string {
 	prefix := draw.GraphPrefix(depth)
 	nextPrefix := draw.GraphPrefix(depth + 1)
 	res := []string{
-		fmt.Sprintf("%ssubgraph cluster_%p {", prefix, &g),
-		fmt.Sprintf(`%slabel="%s";`, nextPrefix, g.Name),
-		fmt.Sprintf(`%sgraph[style=dotted];`, nextPrefix),
-		fmt.Sprintf(`%s"%p"[style=invis,shape=point];`, nextPrefix, &g),
+		sfmt.Sprintf("%ssubgraph cluster_%p {", prefix, &g),
+		sfmt.Sprintf(`%slabel="%s";`, nextPrefix, g.Name),
+		sfmt.Sprintf(`%sgraph[style=dotted];`, nextPrefix),
+		sfmt.Sprintf(`%s"%p"[style=invis,shape=point];`, nextPrefix, &g),
 	}
 	for _, component := range g.Components {
 		one := component.Graph(depth+1, cfg)
@@ -104,6 +104,6 @@ func (g Group) Graph(depth int, cfg config.Config) string {
 		}
 		res = append(res, one)
 	}
-	res = append(res, fmt.Sprintf("%s}", prefix))
+	res = append(res, sfmt.Sprintf("%s}", prefix))
 	return strings.Join(res, "\n")
 }
