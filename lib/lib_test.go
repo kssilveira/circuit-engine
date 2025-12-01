@@ -878,6 +878,61 @@ func TestOutputsCombinational(t *testing.T) {
 				return []bool{*r, s1, s1 && ei, s1 && eo, q1, r1, s2, s2 && ei, s2 && eo, q2, r2}
 			}
 		}(),
+	}, {
+		name: "RAMa2",
+		desc: "a0 a1 d ei eo" +
+			" => RAM(a0,d) RAM(a0,d)-s0 RAM(a0,d)-ei0 RAM(a0,d)-eo0" +
+			" reg(d,RAM(a0,d)-ei0,RAM(a0,d)-eo0) REG(d,RAM(a0,d)-ei0,RAM(a0,d)-eo0)" +
+			" RAM(a0,d)-s1 RAM(a0,d)-ei1 RAM(a0,d)-eo1" +
+			" reg(d,RAM(a0,d)-ei1,RAM(a0,d)-eo1) REG(d,RAM(a0,d)-ei1,RAM(a0,d)-eo1)" +
+			" RAM(a0,d)-s2 RAM(a0,d)-ei2 RAM(a0,d)-eo2" +
+			" reg(d,RAM(a0,d)-ei2,RAM(a0,d)-eo2) REG(d,RAM(a0,d)-ei2,RAM(a0,d)-eo2)" +
+			" RAM(a0,d)-s3 RAM(a0,d)-ei3 RAM(a0,d)-eo3" +
+			" reg(d,RAM(a0,d)-ei3,RAM(a0,d)-eo3) REG(d,RAM(a0,d)-ei3,RAM(a0,d)-eo3)",
+		want: []string{
+			"00000=>010010000100001000010", "00001=>110111000100001000010",
+			"00010=>011000000100001000010", "00011=>011100000100001000010",
+			"00100=>010000000100001000010", "00101=>010100000100001000010",
+			"00110=>011010000100001000010", "00111=>111111000100001000010",
+			"01000=>000010000101001000010", "01001=>100010000101011100010",
+			"01010=>000010000101100000010", "01011=>000010000101110000010",
+			"01100=>000010000101000000010", "01101=>000010000101010000010",
+			"01110=>000010000101101000010", "01111=>100010000101111100010",
+			"10000=>000010100100001000010", "10001=>100010101110001000010",
+			"10010=>000010110000001000010", "10011=>000010111000001000010",
+			"10100=>000010100000001000010", "10101=>000010101000001000010",
+			"10110=>000010110100001000010", "10111=>100010111110001000010",
+			"11000=>000010000100001010010", "11001=>100010000100001010111",
+			"11010=>000010000100001011000", "11011=>000010000100001011100",
+			"11100=>000010000100001010000", "11101=>000010000100001010100",
+			"11110=>000010000100001011010", "11111=>100010000100001011111",
+		},
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			q := []bool{true, true, true, true}
+			return func(inputs map[string]bool) []bool {
+				a0, a1, ei, eo := inputs["a0"], inputs["a1"], inputs["ei"], inputs["eo"]
+				s := []bool{!a0 && !a1, a0 && !a1, !a0 && a1, a0 && a1}
+				r := []bool{false, false, false, false}
+				index := 0
+				for i, si := range s {
+					if si {
+						index = i
+						break
+					}
+				}
+				if ei {
+					q[index] = inputs["d"]
+				}
+				if eo {
+					r[index] = q[index]
+				}
+				res := []bool{r[index]}
+				for i, si := range s {
+					res = append(res, si, si && ei, si && eo, q[i], r[i])
+				}
+				return res
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
