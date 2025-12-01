@@ -6,123 +6,17 @@ import (
 
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/group"
+	"github.com/kssilveira/circuit-engine/lib/gate"
 	"github.com/kssilveira/circuit-engine/sfmt"
-	"github.com/kssilveira/circuit-engine/transistor"
 	"github.com/kssilveira/circuit-engine/wire"
 )
-
-// TransistorEmitter adds a transitor-emitter.
-func TransistorEmitter(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
-	group := parent.Group("TransistorEmitter")
-	emitter := &wire.Wire{Name: "emitter"}
-	collectorOut := &wire.Wire{Name: "collector_out"}
-	group.Transistor(base, collector, emitter, collectorOut)
-	return []*wire.Wire{emitter}
-}
-
-// TransistorGnd adds a transistor-ground.
-func TransistorGnd(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
-	group := parent.Group("TransistorGnd")
-	collectorOut := &wire.Wire{Name: "collector_out"}
-	group.Transistor(base, collector, group.Gnd, collectorOut)
-	return []*wire.Wire{collectorOut}
-}
-
-// Transistor adds a transistor.
-func Transistor(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
-	group := parent.Group("Transistor")
-	emitter := &wire.Wire{Name: "emitter"}
-	collectorOut := &wire.Wire{Name: "collector_out"}
-	group.Transistor(base, collector, emitter, collectorOut)
-	return []*wire.Wire{emitter, collectorOut}
-}
-
-// Not adds a NOT gate.
-func Not(parent *group.Group, a *wire.Wire) *wire.Wire {
-	group := parent.Group(sfmt.Sprintf("NOT(%s)", a.Name))
-	res := &wire.Wire{Name: group.Name}
-	group.Transistor(a, group.Vcc, group.Gnd, res)
-	return res
-}
-
-// And adds an AND gate.
-func And(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(sfmt.Sprintf("AND(%s,%s)", a.Name, b.Name))
-	res := &wire.Wire{Name: group.Name}
-	wire := &wire.Wire{Name: sfmt.Sprintf("%s-wire", res.Name)}
-	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: wire},
-		{Base: b, Collector: wire, Emitter: res},
-	})
-	return res
-}
-
-// Or adds an OR gate.
-func Or(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	res := &wire.Wire{}
-	return OrRes(parent, res, a, b)
-}
-
-// OrRes adds an OR gate using the given result wire.
-func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(sfmt.Sprintf("OR(%s,%s)", a.Name, b.Name))
-	res.Name = group.Name
-	wire1 := &wire.Wire{Name: sfmt.Sprintf("%s-wire1", res.Name)}
-	wire2 := &wire.Wire{Name: sfmt.Sprintf("%s-wire2", res.Name)}
-	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: wire1},
-		{Base: b, Collector: group.Vcc, Emitter: wire2},
-	})
-	group.JointWire(res, wire1, wire2)
-	return res
-}
-
-// Nand adds a NAND gate.
-func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(sfmt.Sprintf("NAND(%s,%s)", a.Name, b.Name))
-	res := &wire.Wire{Name: group.Name}
-	wire := &wire.Wire{Name: sfmt.Sprintf("%s-wire", res.Name)}
-	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: wire, CollectorOut: res},
-		{Base: b, Collector: wire, Emitter: group.Gnd},
-	})
-	return res
-}
-
-// Xor adds a XOR gate.
-func Xor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(sfmt.Sprintf("XOR(%s,%s)", a.Name, b.Name))
-	res := And(group, Or(group, a, b), Nand(group, a, b))
-	res.Name = group.Name
-	return res
-}
-
-// Nor adds a NOR gate.
-func Nor(parent *group.Group, a, b *wire.Wire) *wire.Wire {
-	res := &wire.Wire{}
-	return NorRes(parent, res, a, b)
-}
-
-// NorRes adds a NOR gate with the given result parameter.
-func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
-	group := parent.Group(sfmt.Sprintf("NOR(%s,%s)", a.Name, b.Name))
-	res.Name = group.Name
-	wire1 := &wire.Wire{Name: sfmt.Sprintf("%s-wire1", res.Name)}
-	wire2 := &wire.Wire{Name: sfmt.Sprintf("%s-wire2", res.Name)}
-	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire1},
-		{Base: b, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire2},
-	})
-	group.JointWireIsAnd(res, wire1, wire2)
-	return res
-}
 
 // HalfSum adds a half adder.
 func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 	group := parent.Group(sfmt.Sprintf("SUM(%s,%s)", a.Name, b.Name))
-	res := Xor(group, a, b)
+	res := gate.Xor(group, a, b)
 	res.Name = group.Name
-	carry := And(group, a, b)
+	carry := gate.And(group, a, b)
 	carry.Name = sfmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
 	return []*wire.Wire{res, carry}
 }
@@ -133,7 +27,7 @@ func Sum(parent *group.Group, a, b, cin *wire.Wire) []*wire.Wire {
 	s1 := HalfSum(group, a, b)
 	s2 := HalfSum(group, s1[0], cin)
 	s2[0].Name = group.Name
-	carry := Or(group, s1[1], s2[1])
+	carry := gate.Or(group, s1[1], s2[1])
 	carry.Name = sfmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
 	return []*wire.Wire{s2[0], carry}
 }
@@ -186,8 +80,8 @@ func SRLatchRes(parent *group.Group, q, s, r *wire.Wire) []*wire.Wire {
 	group := parent.Group(sfmt.Sprintf("SRLATCH(%s,%s)", s.Name, r.Name))
 	nq := &wire.Wire{Name: "nq"}
 	name := q.Name
-	NorRes(group, q, r, nq)
-	NorRes(group, nq, s, q)
+	gate.NorRes(group, q, r, nq)
+	gate.NorRes(group, nq, s, q)
 	q.Name = name
 	nq.Name = "nq"
 	return []*wire.Wire{q, nq}
@@ -202,7 +96,7 @@ func SRLatchWithEnable(parent *group.Group, s, r, e *wire.Wire) []*wire.Wire {
 // SRLatchResWithEnable adds a set-reset latch with enable wrie using the result parameter.
 func SRLatchResWithEnable(parent *group.Group, q, s, r, e *wire.Wire) []*wire.Wire {
 	group := parent.Group(sfmt.Sprintf("SRLATCHEN(%s,%s,%s)", s.Name, r.Name, e.Name))
-	return SRLatchRes(group, q, And(group, s, e), And(group, r, e))
+	return SRLatchRes(group, q, gate.And(group, s, e), gate.And(group, r, e))
 }
 
 // DLatch adds a data latch.
@@ -214,16 +108,16 @@ func DLatch(parent *group.Group, d, e *wire.Wire) []*wire.Wire {
 // DLatchRes adds a data latch using the result parameter.
 func DLatchRes(parent *group.Group, q, d, e *wire.Wire) []*wire.Wire {
 	group := parent.Group(sfmt.Sprintf("DLATCH(%s,%s)", d.Name, e.Name))
-	return SRLatchResWithEnable(group, q, d, Not(group, d), e)
+	return SRLatchResWithEnable(group, q, d, gate.Not(group, d), e)
 }
 
 // Register adds a register.
 func Register(parent *group.Group, d, ei, eo *wire.Wire) []*wire.Wire {
 	group := parent.Group(sfmt.Sprintf("REG(%s,%s,%s)", d.Name, ei.Name, eo.Name))
 	q := &wire.Wire{}
-	DLatchRes(group, q, Or(group, And(group, q, Not(group, ei)), And(group, d, ei)), ei)
+	DLatchRes(group, q, gate.Or(group, gate.And(group, q, gate.Not(group, ei)), gate.And(group, d, ei)), ei)
 	q.Name = "reg" + group.Name[3:]
-	res := And(group, q, eo)
+	res := gate.And(group, q, eo)
 	res.Name = group.Name
 	return []*wire.Wire{q, res}
 }
@@ -388,22 +282,22 @@ func RAM(parent *group.Group, a, d, ei, eo *wire.Wire) []*wire.Wire {
 }
 
 func ramAddress(group *group.Group, a *wire.Wire) []*wire.Wire {
-	s1 := Not(group, a)
+	s1 := gate.Not(group, a)
 	s1.Name = group.Name + "-s1"
-	s2 := Or(group, a, a)
+	s2 := gate.Or(group, a, a)
 	s2.Name = group.Name + "-s2"
 	return []*wire.Wire{s1, s2}
 }
 
 func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.Wire, []*wire.Wire) {
-	ei1 := And(group, ei, s[0])
+	ei1 := gate.And(group, ei, s[0])
 	ei1.Name = group.Name + "-ei1"
-	ei2 := And(group, ei, s[1])
+	ei2 := gate.And(group, ei, s[1])
 	ei2.Name = group.Name + "-ei2"
 
-	eo1 := And(group, eo, s[0])
+	eo1 := gate.And(group, eo, s[0])
 	eo1.Name = group.Name + "-eo1"
-	eo2 := And(group, eo, s[1])
+	eo2 := gate.And(group, eo, s[1])
 	eo2.Name = group.Name + "-eo2"
 
 	return []*wire.Wire{ei1, ei2}, []*wire.Wire{eo1, eo2}
@@ -443,39 +337,39 @@ func W(name string) *wire.Wire {
 var (
 	examples = map[string]func(*circuit.Circuit) []*wire.Wire{
 		"TransistorEmitter": func(c *circuit.Circuit) []*wire.Wire {
-			return TransistorEmitter(c.Group(""), c.In("base"), c.In("collector"))
+			return gate.TransistorEmitter(c.Group(""), c.In("base"), c.In("collector"))
 		},
 		"TransistorGnd": func(c *circuit.Circuit) []*wire.Wire {
-			return TransistorGnd(c.Group(""), c.In("base"), c.In("collector"))
+			return gate.TransistorGnd(c.Group(""), c.In("base"), c.In("collector"))
 		},
 		"Transistor": func(c *circuit.Circuit) []*wire.Wire {
-			return Transistor(c.Group(""), c.In("base"), c.In("collector"))
+			return gate.Transistor(c.Group(""), c.In("base"), c.In("collector"))
 		},
 		"Not": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{Not(c.Group(""), c.In("a"))}
+			return []*wire.Wire{gate.Not(c.Group(""), c.In("a"))}
 		},
 		"And": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{And(c.Group(""), c.In("a"), c.In("b"))}
+			return []*wire.Wire{gate.And(c.Group(""), c.In("a"), c.In("b"))}
 		},
 		"Or": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{Or(c.Group(""), c.In("a"), c.In("b"))}
+			return []*wire.Wire{gate.Or(c.Group(""), c.In("a"), c.In("b"))}
 		},
 		"OrRes": func(c *circuit.Circuit) []*wire.Wire {
 			bOrRes := &wire.Wire{Name: "bOrRes"}
-			return []*wire.Wire{OrRes(c.Group(""), bOrRes, c.In("a"), bOrRes)}
+			return []*wire.Wire{gate.OrRes(c.Group(""), bOrRes, c.In("a"), bOrRes)}
 		},
 		"Nand": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{Nand(c.Group(""), c.In("a"), c.In("b"))}
+			return []*wire.Wire{gate.Nand(c.Group(""), c.In("a"), c.In("b"))}
 		},
 		"Nand(Nand)": func(c *circuit.Circuit) []*wire.Wire {
 			g := c.Group("")
-			return []*wire.Wire{Nand(g, c.In("a"), Nand(g, c.In("b"), c.In("c")))}
+			return []*wire.Wire{gate.Nand(g, c.In("a"), gate.Nand(g, c.In("b"), c.In("c")))}
 		},
 		"Xor": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{Xor(c.Group(""), c.In("a"), c.In("b"))}
+			return []*wire.Wire{gate.Xor(c.Group(""), c.In("a"), c.In("b"))}
 		},
 		"Nor": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{Nor(c.Group(""), c.In("a"), c.In("b"))}
+			return []*wire.Wire{gate.Nor(c.Group(""), c.In("a"), c.In("b"))}
 		},
 		"HalfSum": func(c *circuit.Circuit) []*wire.Wire {
 			return HalfSum(c.Group(""), c.In("a"), c.In("b"))
