@@ -204,9 +204,10 @@ func TestOutputsCombinational(t *testing.T) {
 			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum4 / 2}
 		},
 	}, {
-		name: "SRLatch",
-		desc: "s r => q nq",
-		want: []string{"00=>10", "01=>01", "10=>10", "11=>00"},
+		name:    "SRLatch",
+		desc:    "s r => q nq",
+		convert: true,
+		want:    []string{"s(0) r(0) => q(1) nq(0)", "s(0) r(1) => q(0) nq(1)", "s(1) r(0) => q(1) nq(0)", "s(1) r(1) => q(0) nq(0)"},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true
 			return func(inputs map[string]bool) []bool {
@@ -223,9 +224,13 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 		}(),
 	}, {
-		name: "SRLatchWithEnable",
-		desc: "s r e => q nq",
-		want: []string{"000=>10", "001=>10", "010=>10", "011=>01", "100=>01", "101=>10", "110=>10", "111=>00"},
+		name:    "SRLatchWithEnable",
+		desc:    "s r e => q nq",
+		convert: true,
+		want: []string{
+			"s(0) r(0) e(0) => q(1) nq(0)", "s(0) r(0) e(1) => q(1) nq(0)", "s(0) r(1) e(0) => q(1) nq(0)", "s(0) r(1) e(1) => q(0) nq(1)",
+			"s(1) r(0) e(0) => q(0) nq(1)", "s(1) r(0) e(1) => q(1) nq(0)", "s(1) r(1) e(0) => q(1) nq(0)", "s(1) r(1) e(1) => q(0) nq(0)",
+		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true
 			return func(inputs map[string]bool) []bool {
@@ -245,9 +250,10 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 		}(),
 	}, {
-		name: "DLatch",
-		desc: "d e => q nq",
-		want: []string{"00=>10", "01=>01", "10=>01", "11=>10"},
+		name:    "DLatch",
+		desc:    "d e => q nq",
+		convert: true,
+		want:    []string{"d(0) e(0) => q(1) nq(0)", "d(0) e(1) => q(0) nq(1)", "d(1) e(0) => q(0) nq(1)", "d(1) e(1) => q(1) nq(0)"},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true
 			return func(inputs map[string]bool) []bool {
