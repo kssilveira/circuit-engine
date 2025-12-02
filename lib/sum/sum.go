@@ -10,22 +10,22 @@ import (
 
 // HalfSum adds a half adder.
 func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("SUM(%s,%s)", a.Name, b.Name))
+	group := parent.Group(sfmt.Sprintf("S(%s,%s)", a.Name, b.Name))
 	res := gate.Xor(group, a, b)
 	res.Name = group.Name
 	carry := gate.And(group, a, b)
-	carry.Name = sfmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
+	carry.Name = sfmt.Sprintf("C(%s,%s)", a.Name, b.Name)
 	return []*wire.Wire{res, carry}
 }
 
 // Sum adds an adder.
 func Sum(parent *group.Group, a, b, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("SUM(%s,%s,%s)", a.Name, b.Name, cin.Name))
+	group := parent.Group(sfmt.Sprintf("S(%s,%s,%s)", a.Name, b.Name, cin.Name))
 	s1 := HalfSum(group, a, b)
 	s2 := HalfSum(group, s1[0], cin)
 	s2[0].Name = group.Name
 	carry := gate.Or(group, s1[1], s2[1])
-	carry.Name = sfmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
+	carry.Name = sfmt.Sprintf("C(%s,%s)", a.Name, b.Name)
 	return []*wire.Wire{s2[0], carry}
 }
 

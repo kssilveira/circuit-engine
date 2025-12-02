@@ -79,35 +79,17 @@ var (
 			return sum.HalfSum(c.Group(""), c.In("a"), c.In("b"))
 		},
 		"Sum": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.Sum(c.Group(""), c.In("a"), c.In("b"), c.In("cin"))
+			return sum.Sum(c.Group(""), c.In("a"), c.In("b"), c.In("c"))
 		},
 		"Sum2": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.Sum2(c.Group(""), c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("cin"))
-		},
-		"Sum4": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.Sum4(
-				c.Group(""),
-				c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"),
-				c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"),
-				c.In("cin"))
-		},
-		"Sum8": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.Sum8(
-				c.Group(""),
-				[8]*wire.Wire{
-					c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8"),
-				},
-				[8]*wire.Wire{
-					c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"),
-				},
-				c.In("cin"))
+			return sum.Sum2(c.Group(""), c.In("a0"), c.In("a1"), c.In("b0"), c.In("b1"), c.In("c"))
 		},
 		"SumN": func(c *circuit.Circuit) []*wire.Wire {
 			return sum.N(
 				c.Group(""),
 				[]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4")},
 				[]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4")},
-				c.In("cin"))
+				c.In("c"))
 		},
 		"SRLatch": func(c *circuit.Circuit) []*wire.Wire {
 			return latch.SRLatch(c.Group(""), c.In("s"), c.In("r"))
