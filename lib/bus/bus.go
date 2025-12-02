@@ -10,25 +10,25 @@ import (
 )
 
 // Bus add a communication bus.
-func Bus(parent *group.Group, bus, a, b, r, wa, wb *wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("B(%s)", bus.Name))
+func Bus(parent *group.Group, d, ar, br, r, aw, bw *wire.Wire) []*wire.Wire {
+	group := parent.Group(sfmt.Sprintf("B(%s)", d.Name))
 	res := &wire.Wire{Name: group.Name}
 	wire1 := &wire.Wire{Name: sfmt.Sprintf("%s-wire1", res.Name)}
 	wire2 := &wire.Wire{Name: sfmt.Sprintf("%s-wire2", res.Name)}
-	group.JointWire(wire1, bus, a)
-	group.JointWire(wire2, wire1, b)
+	group.JointWire(wire1, d, ar)
+	group.JointWire(wire2, wire1, br)
 	group.JointWire(res, wire2, r)
-	group.JointWire(wa, res, res)
-	group.JointWire(wb, res, res)
+	group.JointWire(aw, res, res)
+	group.JointWire(bw, res, res)
 	return []*wire.Wire{res}
 }
 
 // Bus2 adds a 2-bit communication bus.
-func Bus2(parent *group.Group, bus1, bus2, a1, a2, b1, b2, r1, r2, wa1, wa2, wb1, wb2 *wire.Wire) []*wire.Wire {
+func Bus2(parent *group.Group, d0, d1, ar0, ar1, br0, br1, r0, r1, aw0, aw1, bw0, bw1 *wire.Wire) []*wire.Wire {
 	group := parent.Group("BUS2")
-	rbus1 := Bus(group, bus1, a1, b1, r1, wa1, wb1)
-	rbus2 := Bus(group, bus2, a2, b2, r2, wa2, wb2)
-	return slices.Concat(rbus1, rbus2)
+	rbus0 := Bus(group, d0, ar0, br0, r0, aw0, bw0)
+	rbus1 := Bus(group, d1, ar1, br1, r1, aw1, bw1)
+	return slices.Concat(rbus0, rbus1)
 }
 
 // N adds an N-bit communication bus.
