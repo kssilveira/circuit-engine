@@ -2,8 +2,6 @@
 package ram
 
 import (
-	"fmt"
-
 	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/lib/gate"
 	"github.com/kssilveira/circuit-engine/lib/reg"
@@ -52,26 +50,12 @@ func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.W
 }
 
 func ramRegisters(group *group.Group, d, ei, eo []*wire.Wire) []*wire.Wire {
-	var prev []*wire.Wire
-	for range d {
-		one := &wire.Wire{}
-		one.Bit.Set(false)
-		prev = append(prev, one)
-	}
 	var all []*wire.Wire
 	for i, eii := range ei {
 		ri := reg.N(group, d, eii, eo[i])
-		var next []*wire.Wire
 		for i := range d {
-			res := &wire.Wire{}
-			group.JointWire(res, prev[i], ri[i])
-			next = append(next, res)
 			all = append(all, ri[i])
 		}
-		prev = next
 	}
-	for i, res := range prev {
-		res.Name = fmt.Sprintf("%s%d", group.Name, i)
-	}
-	return append(prev, all...)
+	return all
 }

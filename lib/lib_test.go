@@ -389,7 +389,7 @@ func TestOutputsCombinational(t *testing.T) {
 				if o {
 					*r = *q
 				}
-				return []bool{*r, r0, r1}
+				return []bool{r0, r1}
 			}
 		}(),
 	}, {
@@ -413,7 +413,7 @@ func TestOutputsCombinational(t *testing.T) {
 				if o {
 					r[index] = q[index]
 				}
-				res := []bool{r[index]}
+				var res []bool
 				for i := range s {
 					res = append(res, r[i])
 				}
@@ -438,7 +438,7 @@ func TestOutputsCombinational(t *testing.T) {
 				if o {
 					*r = *q
 				}
-				return slices.Concat(*r, r0, r1)
+				return slices.Concat(r0, r1)
 			}
 		}(),
 	}, {
@@ -463,7 +463,7 @@ func TestOutputsCombinational(t *testing.T) {
 				if o {
 					r[index] = q[index]
 				}
-				var res = r[index]
+				var res []bool
 				for i := range s {
 					res = append(res, r[i]...)
 				}
@@ -509,7 +509,7 @@ func TestOutputsCombinational(t *testing.T) {
 						qr = sum % 2
 					}
 				}
-				return []int{d, sum / 2, qa, qb, rr, qma, *rm, rm0, rm1}
+				return []int{d, sum / 2, qa, qb, rr, qma, rm0, rm1}
 			}
 		}(),
 	}}
@@ -623,19 +623,19 @@ func TestOutputsSequential(t *testing.T) {
 		},
 	}, {
 		name:   "RAM",
-		desc:   "a d i o => RAM0 R(d,i0,o0) R(d,i1,o1)",
+		desc:   "a d i o => R(d,i0,o0) R(d,i1,o1)",
 		inputs: []string{"0000", "0001", "0010", "0001", "1001"},
 		want: []string{
 			// default to s0=q0=q1=1
-			"a(0) d(0) i(0) o(0) => RAM0(0) R(d,i0,o0)(0) R(d,i1,o1)(0)",
+			"a(0) d(0) i(0) o(0) => R(d,i0,o0)(0) R(d,i1,o1)(0)",
 			// o=1 writes q0=1 to res
-			"a(0) d(0) i(0) o(1) => RAM0(1) R(d,i0,o0)(1) R(d,i1,o1)(0)",
+			"a(0) d(0) i(0) o(1) => R(d,i0,o0)(1) R(d,i1,o1)(0)",
 			// i=1 reads d=0 to q0
-			"a(0) d(0) i(1) o(0) => RAM0(0) R(d,i0,o0)(0) R(d,i1,o1)(0)",
+			"a(0) d(0) i(1) o(0) => R(d,i0,o0)(0) R(d,i1,o1)(0)",
 			// o=1 writes q0=0 to res
-			"a(0) d(0) i(0) o(1) => RAM0(0) R(d,i0,o0)(0) R(d,i1,o1)(0)",
+			"a(0) d(0) i(0) o(1) => R(d,i0,o0)(0) R(d,i1,o1)(0)",
 			// a=o=1 writes q1=1 to res
-			"a(1) d(0) i(0) o(1) => RAM0(1) R(d,i0,o0)(0) R(d,i1,o1)(1)",
+			"a(1) d(0) i(0) o(1) => R(d,i0,o0)(0) R(d,i1,o1)(1)",
 		},
 	}}
 	for _, in := range inputs {
