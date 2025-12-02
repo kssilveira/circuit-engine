@@ -7,12 +7,13 @@ Define and simulate circuits from transistors all the way to an 8-bit computer.
 ### Define
 
 ```go
+// HalfSum adds a half adder.
 func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
-	group := parent.Group(fmt.Sprintf("SUM(%s,%s)", a.Name, b.Name))
-	res := Xor(group, a, b)
+	group := parent.Group(sfmt.Sprintf("S(%s,%s)", a.Name, b.Name))
+	res := gate.Xor(group, a, b)
 	res.Name = group.Name
-	carry := And(group, a, b)
-	carry.Name = fmt.Sprintf("CARRY(%s,%s)", a.Name, b.Name)
+	carry := gate.And(group, a, b)
+	carry.Name = sfmt.Sprintf("C(%s,%s)", a.Name, b.Name)
 	return []*wire.Wire{res, carry}
 }
 ```
@@ -20,21 +21,28 @@ func HalfSum(parent *group.Group, a, b *wire.Wire) []*wire.Wire {
 ### Create
 
 ```go
-  "HalfSum": func(c *circuit.Circuit) []*wire.Wire {
-    return HalfSum(c.Group(""), c.In("a"), c.In("b"))
-  },
+    "HalfSum": func(c *circuit.Circuit) []*wire.Wire {
+        return sum.HalfSum(c.Group(""), c.In("a"), c.In("b"))
+    },
 ```
 
 ### Unit Test
 
 ```go
-  name: "HalfSum",
-  desc: "a b => SUM(a,b) CARRY(a,b)",
-  want: []string{"00=>00", "01=>10", "10=>10", "11=>01"},
-  isValidInt: func(inputs map[string]int) []int {
-    sum := inputs["a"] + inputs["b"]
-    return []int{sum % 2, sum / 2}
-  },
+    name: "HalfSum",
+    isValidInt: func(inputs map[string]int) []int {
+        sum := inputs["a"] + inputs["b"]
+        return []int{sum % 2, sum / 2}
+    },
+```
+
+```
+a b => S(a,b) C(a,b)
+
+a(0) b(0) => S(a,b)(0) C(a,b)(0)
+a(0) b(1) => S(a,b)(1) C(a,b)(0)
+a(1) b(0) => S(a,b)(1) C(a,b)(0)
+a(1) b(1) => S(a,b)(0) C(a,b)(1)
 ```
 
 ### Draw
@@ -55,12 +63,12 @@ $ go run main.go --example_name HalfSum
 ```console
 Inputs:   a=0  b=1
 Outputs:
-  SUM(a,b)=1
-  CARRY(a,b)=0
+  S(a,b)=1
+  C(a,b)=0
 Components:
 
 ----------
-|SUM(a,b)
+|S(a,b)
 |----------
 ||XOR(a,b)
 ||----------
@@ -78,13 +86,13 @@ Components:
 |||AND(OR(a,b),NAND(a,b))
 |||----------
 ||||OR(a,b)=1    Vcc    AND(OR(a,b),NAND(a,b))-wire=1
-||||NAND(a,b)=1    AND(OR(a,b),NAND(a,b))-wire=1    SUM(a,b)=1
+||||NAND(a,b)=1    AND(OR(a,b),NAND(a,b))-wire=1    S(a,b)=1
 |||----------
 ||----------
 ||AND(a,b)
 ||----------
 |||a=0    Vcc    AND(a,b)-wire=0
-|||b=1    AND(a,b)-wire=0    CARRY(a,b)=0
+|||b=1    AND(a,b)-wire=0    C(a,b)=0
 ||----------
 |----------
 ----------
