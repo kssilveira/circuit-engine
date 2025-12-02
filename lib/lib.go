@@ -137,6 +137,15 @@ var (
 				aw0, aw1, bw0, bw1),
 				aw0, aw1, bw0, bw1)
 		},
+		"BusN": func(c *circuit.Circuit) []*wire.Wire {
+			aw0, aw1 := W("aw0"), W("aw1")
+			bw0, bw1 := W("bw0"), W("bw1")
+			return append(bus.N(
+				c.Group(""), []*wire.Wire{c.In("d0"), c.In("d1")},
+				[]*wire.Wire{c.In("ar0"), c.In("ar1")}, []*wire.Wire{c.In("br0"), c.In("br1")}, []*wire.Wire{c.In("r0"), c.In("r1")},
+				[]*wire.Wire{aw0, aw1}, []*wire.Wire{bw0, bw1}),
+				aw0, aw1, bw0, bw1)
+		},
 		"AluWithBus": func(c *circuit.Circuit) []*wire.Wire {
 			bus := c.In("bus")
 			ai, ao := c.In("ai"), c.In("ao")
