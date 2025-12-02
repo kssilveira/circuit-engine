@@ -87,8 +87,8 @@ var (
 		"SumN": func(c *circuit.Circuit) []*wire.Wire {
 			return sum.N(
 				c.Group(""),
-				[]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4")},
-				[]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4")},
+				[]*wire.Wire{c.In("a0"), c.In("a1"), c.In("a2"), c.In("a3")},
+				[]*wire.Wire{c.In("b0"), c.In("b1"), c.In("b2"), c.In("b3")},
 				c.In("c"))
 		},
 		"SRLatch": func(c *circuit.Circuit) []*wire.Wire {

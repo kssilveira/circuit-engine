@@ -181,18 +181,26 @@ func TestOutputsCombinational(t *testing.T) {
 			return []int{sum1 % 2, sum2 % 2, sum2 / 2}
 		},
 	}, {
-		name: "SumN",
-		desc: "a1 a2 a3 a4 b1 b2 b3 b4 c => S(a1,b1,c) S(a2,b2,C(a1,b1)) S(a3,b3,C(a2,b2)) S(a4,b4,C(a3,b3)) C(a4,b4)",
+		name:    "SumN",
+		desc:    "a0 a1 a2 a3 b0 b1 b2 b3 c => S(a0,b0,c) S(a1,b1,C(a0,b0)) S(a2,b2,C(a1,b1)) S(a3,b3,C(a2,b2)) C(a3,b3)",
+		convert: true,
 		want: []string{
-			"110110101=>10001", "110000110=>11110", "000101101=>11110", "000000010=>00010",
-			"110111101=>11001", "000100010=>00001", "000101110=>01101", "110010110=>00001",
-			"100000101=>01100", "001101111=>11011",
+			"a0(1) a1(1) a2(0) a3(1) b0(1) b1(0) b2(1) b3(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
+			"a0(1) a1(1) a2(0) a3(0) b0(0) b1(0) b2(1) b3(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(1) S(a3,b3,C(a2,b2))(1) C(a3,b3)(0)",
+			"a0(0) a1(0) a2(0) a3(1) b0(0) b1(1) b2(1) b3(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(1) S(a3,b3,C(a2,b2))(1) C(a3,b3)(0)",
+			"a0(0) a1(0) a2(0) a3(0) b0(0) b1(0) b2(0) b3(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(1) C(a3,b3)(0)",
+			"a0(1) a1(1) a2(0) a3(1) b0(1) b1(1) b2(1) b3(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
+			"a0(0) a1(0) a2(0) a3(1) b0(0) b1(0) b2(0) b3(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
+			"a0(0) a1(0) a2(0) a3(1) b0(0) b1(1) b2(1) b3(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(1) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
+			"a0(1) a1(1) a2(0) a3(0) b0(1) b1(0) b2(1) b3(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
+			"a0(1) a1(0) a2(0) a3(0) b0(0) b1(0) b2(1) b3(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(1) S(a3,b3,C(a2,b2))(0) C(a3,b3)(0)",
+			"a0(0) a1(0) a2(1) a3(1) b0(0) b1(1) b2(1) b3(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(1) C(a3,b3)(1)",
 		},
 		isValidInt: func(inputs map[string]int) []int {
-			sum1 := inputs["a1"] + inputs["b1"] + inputs["c"]
-			sum2 := sum1/2 + inputs["a2"] + inputs["b2"]
-			sum3 := sum2/2 + inputs["a3"] + inputs["b3"]
-			sum4 := sum3/2 + inputs["a4"] + inputs["b4"]
+			sum1 := inputs["a0"] + inputs["b0"] + inputs["c"]
+			sum2 := sum1/2 + inputs["a1"] + inputs["b1"]
+			sum3 := sum2/2 + inputs["a2"] + inputs["b2"]
+			sum4 := sum3/2 + inputs["a3"] + inputs["b3"]
 			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum4 / 2}
 		},
 	}, {
