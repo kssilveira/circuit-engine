@@ -488,6 +488,7 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 			converted = append(converted, strings.Join(one, " "))
 		}
+		converted = append(converted, "")
 		if err := os.WriteFile(fmt.Sprintf("testdata/%s.txt", in.name), []byte(strings.Join(converted, "\n")), 0644); err != nil {
 			t.Errorf("WriteFile got err %v", err)
 		}
