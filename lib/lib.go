@@ -188,16 +188,16 @@ var (
 		},
 		"RAMa2": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
-				c.Group(""), WS(c.In("a0"), c.In("a1")), WS(c.In("d")), c.In("ei"), c.In("eo"))
+				c.Group(""), WS(c.In("a0"), c.In("a1")), WS(c.In("d")), c.In("i"), c.In("o"))
 		},
 		"RAMb2": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
-				c.Group(""), WS(c.In("a")), WS(c.In("d0"), c.In("d1")), c.In("ei"), c.In("eo"))
+				c.Group(""), WS(c.In("a")), WS(c.In("d0"), c.In("d1")), c.In("i"), c.In("o"))
 		},
 		"RAMa2b2": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
 				c.Group(""), WS(c.In("a0"), c.In("a1")), WS(c.In("d0"), c.In("d1")),
-				c.In("ei"), c.In("eo"))
+				c.In("i"), c.In("o"))
 		},
 		"": func(_ *circuit.Circuit) []*wire.Wire {
 			return nil

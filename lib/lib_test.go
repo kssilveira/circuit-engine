@@ -167,8 +167,8 @@ func TestOutputsCombinational(t *testing.T) {
 				if inputs["i"] {
 					q0, q1 = inputs["d0"], inputs["d1"]
 				}
-				eo := inputs["o"]
-				return []bool{eo && q0, eo && q1}
+				o := inputs["o"]
+				return []bool{o && q0, o && q1}
 			}
 		}(),
 	}, {
@@ -258,15 +258,15 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "Bus2",
 		isValidBool: func(inputs map[string]bool) []bool {
-			bus0 := inputs["d0"] || inputs["ar0"] || inputs["br0"] || inputs["r0"]
-			bus1 := inputs["d1"] || inputs["ar1"] || inputs["br1"] || inputs["r1"]
+			bus0 := inputs["d0"] || inputs["r0"]
+			bus1 := inputs["d1"] || inputs["r1"]
 			return []bool{bus0, bus1, bus0, bus1, bus0, bus1}
 		},
 	}, {
 		name: "BusN",
 		isValidBool: func(inputs map[string]bool) []bool {
-			bus0 := inputs["d0"] || inputs["ar0"] || inputs["br0"] || inputs["r0"]
-			bus1 := inputs["d1"] || inputs["ar1"] || inputs["br1"] || inputs["r1"]
+			bus0 := inputs["d0"] || inputs["r0"]
+			bus1 := inputs["d1"] || inputs["r1"]
 			return []bool{bus0, bus1, bus0, bus1, bus0, bus1}
 		},
 	}, {
@@ -397,7 +397,7 @@ func TestOutputsCombinational(t *testing.T) {
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := []bool{true, true, true, true}
 			return func(inputs map[string]bool) []bool {
-				a0, a1, ei, eo := inputs["a0"], inputs["a1"], inputs["ei"], inputs["eo"]
+				a0, a1, i, o := inputs["a0"], inputs["a1"], inputs["i"], inputs["o"]
 				s := []bool{!a0 && !a1, a0 && !a1, !a0 && a1, a0 && a1}
 				r := []bool{false, false, false, false}
 				index := 0
@@ -407,10 +407,10 @@ func TestOutputsCombinational(t *testing.T) {
 						break
 					}
 				}
-				if ei {
+				if i {
 					q[index] = inputs["d"]
 				}
-				if eo {
+				if o {
 					r[index] = q[index]
 				}
 				res := []bool{r[index]}
@@ -425,17 +425,17 @@ func TestOutputsCombinational(t *testing.T) {
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q0, q1 := []bool{true, true}, []bool{true, true}
 			return func(inputs map[string]bool) []bool {
-				a, ei, eo := inputs["a"], inputs["ei"], inputs["eo"]
+				a, i, o := inputs["a"], inputs["i"], inputs["o"]
 				s1 := a
 				r0, r1 := []bool{false, false}, []bool{false, false}
 				q, r := &q0, &r0
 				if s1 {
 					q, r = &q1, &r1
 				}
-				if ei {
+				if i {
 					*q = []bool{inputs["d0"], inputs["d1"]}
 				}
-				if eo {
+				if o {
 					*r = *q
 				}
 				return slices.Concat(*r, r0, r1)
@@ -446,7 +446,7 @@ func TestOutputsCombinational(t *testing.T) {
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := [][]bool{{true, true}, {true, true}, {true, true}, {true, true}}
 			return func(inputs map[string]bool) []bool {
-				a0, a1, ei, eo := inputs["a0"], inputs["a1"], inputs["ei"], inputs["eo"]
+				a0, a1, i, o := inputs["a0"], inputs["a1"], inputs["i"], inputs["o"]
 				s := []bool{!a0 && !a1, a0 && !a1, !a0 && a1, a0 && a1}
 				r := [][]bool{{false, false}, {false, false}, {false, false}, {false, false}}
 				index := 0
@@ -456,11 +456,11 @@ func TestOutputsCombinational(t *testing.T) {
 						break
 					}
 				}
-				if ei {
+				if i {
 					q[index][0] = inputs["d0"]
 					q[index][1] = inputs["d1"]
 				}
-				if eo {
+				if o {
 					r[index] = q[index]
 				}
 				var res = r[index]
