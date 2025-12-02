@@ -22,7 +22,7 @@ func TestOutputsCombinational(t *testing.T) {
 		name:    "TransistorEmitter",
 		desc:    "b c => e",
 		convert: true,
-		want:    []string{"b(0)c(0) => e(0)", "b(0)c(1) => e(0)", "b(1)c(0) => e(0)", "b(1)c(1) => e(1)"},
+		want:    []string{"b(0) c(0) => e(0)", "b(0) c(1) => e(0)", "b(1) c(0) => e(0)", "b(1) c(1) => e(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["b"] && inputs["c"]}
 		},
@@ -30,7 +30,7 @@ func TestOutputsCombinational(t *testing.T) {
 		name:    "TransistorGnd",
 		desc:    "b c => co",
 		convert: true,
-		want:    []string{"b(0)c(0) => co(0)", "b(0)c(1) => co(1)", "b(1)c(0) => co(0)", "b(1)c(1) => co(0)"},
+		want:    []string{"b(0) c(0) => co(0)", "b(0) c(1) => co(1)", "b(1) c(0) => co(0)", "b(1) c(1) => co(0)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!inputs["b"] && inputs["c"]}
 		},
@@ -38,7 +38,7 @@ func TestOutputsCombinational(t *testing.T) {
 		name:    "Transistor",
 		desc:    "b c => e co",
 		convert: true,
-		want:    []string{"b(0)c(0) => e(0)co(0)", "b(0)c(1) => e(0)co(1)", "b(1)c(0) => e(0)co(0)", "b(1)c(1) => e(1)co(1)"},
+		want:    []string{"b(0) c(0) => e(0) co(0)", "b(0) c(1) => e(0) co(1)", "b(1) c(0) => e(0) co(0)", "b(1) c(1) => e(1) co(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["b"] && inputs["c"], inputs["c"]}
 		},
@@ -54,7 +54,7 @@ func TestOutputsCombinational(t *testing.T) {
 		name:    "And",
 		desc:    "a b => AND(a,b)",
 		convert: true,
-		want:    []string{"a(0)b(0) => AND(a,b)(0)", "a(0)b(1) => AND(a,b)(0)", "a(1)b(0) => AND(a,b)(0)", "a(1)b(1) => AND(a,b)(1)"},
+		want:    []string{"a(0) b(0) => AND(a,b)(0)", "a(0) b(1) => AND(a,b)(0)", "a(1) b(0) => AND(a,b)(0)", "a(1) b(1) => AND(a,b)(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"] && inputs["b"]}
 		},
@@ -62,7 +62,7 @@ func TestOutputsCombinational(t *testing.T) {
 		name:    "Or",
 		desc:    "a b => OR(a,b)",
 		convert: true,
-		want:    []string{"a(0)b(0) => OR(a,b)(0)", "a(0)b(1) => OR(a,b)(1)", "a(1)b(0) => OR(a,b)(1)", "a(1)b(1) => OR(a,b)(1)"},
+		want:    []string{"a(0) b(0) => OR(a,b)(0)", "a(0) b(1) => OR(a,b)(1)", "a(1) b(0) => OR(a,b)(1)", "a(1) b(1) => OR(a,b)(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"] || inputs["b"]}
 		},
@@ -78,7 +78,7 @@ func TestOutputsCombinational(t *testing.T) {
 		name:    "Nand",
 		desc:    "a b => NAND(a,b)",
 		convert: true,
-		want:    []string{"a(0)b(0) => NAND(a,b)(1)", "a(0)b(1) => NAND(a,b)(1)", "a(1)b(0) => NAND(a,b)(1)", "a(1)b(1) => NAND(a,b)(0)"},
+		want:    []string{"a(0) b(0) => NAND(a,b)(1)", "a(0) b(1) => NAND(a,b)(1)", "a(1) b(0) => NAND(a,b)(1)", "a(1) b(1) => NAND(a,b)(0)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!(inputs["a"] && inputs["b"])}
 		},
@@ -87,10 +87,10 @@ func TestOutputsCombinational(t *testing.T) {
 		desc:    "a b c => NAND(a,NAND(b,c))",
 		convert: true,
 		want: []string{
-			"a(0)b(0)c(0) => NAND(a,NAND(b,c))(1)", "a(0)b(0)c(1) => NAND(a,NAND(b,c))(1)",
-			"a(0)b(1)c(0) => NAND(a,NAND(b,c))(1)", "a(0)b(1)c(1) => NAND(a,NAND(b,c))(1)",
-			"a(1)b(0)c(0) => NAND(a,NAND(b,c))(0)", "a(1)b(0)c(1) => NAND(a,NAND(b,c))(0)",
-			"a(1)b(1)c(0) => NAND(a,NAND(b,c))(0)", "a(1)b(1)c(1) => NAND(a,NAND(b,c))(1)",
+			"a(0) b(0) c(0) => NAND(a,NAND(b,c))(1)", "a(0) b(0) c(1) => NAND(a,NAND(b,c))(1)",
+			"a(0) b(1) c(0) => NAND(a,NAND(b,c))(1)", "a(0) b(1) c(1) => NAND(a,NAND(b,c))(1)",
+			"a(1) b(0) c(0) => NAND(a,NAND(b,c))(0)", "a(1) b(0) c(1) => NAND(a,NAND(b,c))(0)",
+			"a(1) b(1) c(0) => NAND(a,NAND(b,c))(0)", "a(1) b(1) c(1) => NAND(a,NAND(b,c))(1)",
 		},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!(inputs["a"] && !(inputs["b"] && inputs["c"]))}
@@ -99,7 +99,7 @@ func TestOutputsCombinational(t *testing.T) {
 		name:    "Xor",
 		desc:    "a b => XOR(a,b)",
 		convert: true,
-		want:    []string{"a(0)b(0) => XOR(a,b)(0)", "a(0)b(1) => XOR(a,b)(1)", "a(1)b(0) => XOR(a,b)(1)", "a(1)b(1) => XOR(a,b)(0)"},
+		want:    []string{"a(0) b(0) => XOR(a,b)(0)", "a(0) b(1) => XOR(a,b)(1)", "a(1) b(0) => XOR(a,b)(1)", "a(1) b(1) => XOR(a,b)(0)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"] != inputs["b"]}
 		},
@@ -107,7 +107,7 @@ func TestOutputsCombinational(t *testing.T) {
 		name:    "Nor",
 		desc:    "a b => NOR(a,b)",
 		convert: true,
-		want:    []string{"a(0)b(0) => NOR(a,b)(1)", "a(0)b(1) => NOR(a,b)(0)", "a(1)b(0) => NOR(a,b)(0)", "a(1)b(1) => NOR(a,b)(0)"},
+		want:    []string{"a(0) b(0) => NOR(a,b)(1)", "a(0) b(1) => NOR(a,b)(0)", "a(1) b(0) => NOR(a,b)(0)", "a(1) b(1) => NOR(a,b)(0)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!(inputs["a"] || inputs["b"])}
 		},
@@ -116,8 +116,8 @@ func TestOutputsCombinational(t *testing.T) {
 		desc:    "a b => S(a,b) C(a,b)",
 		convert: true,
 		want: []string{
-			"a(0)b(0) => S(a,b)(0)C(a,b)(0)", "a(0)b(1) => S(a,b)(1)C(a,b)(0)",
-			"a(1)b(0) => S(a,b)(1)C(a,b)(0)", "a(1)b(1) => S(a,b)(0)C(a,b)(1)",
+			"a(0) b(0) => S(a,b)(0) C(a,b)(0)", "a(0) b(1) => S(a,b)(1) C(a,b)(0)",
+			"a(1) b(0) => S(a,b)(1) C(a,b)(0)", "a(1) b(1) => S(a,b)(0) C(a,b)(1)",
 		},
 		isValidInt: func(inputs map[string]int) []int {
 			sum := inputs["a"] + inputs["b"]
@@ -128,10 +128,10 @@ func TestOutputsCombinational(t *testing.T) {
 		desc:    "a b c => S(a,b,c) C(a,b)",
 		convert: true,
 		want: []string{
-			"a(0)b(0)c(0) => S(a,b,c)(0)C(a,b)(0)", "a(0)b(0)c(1) => S(a,b,c)(1)C(a,b)(0)",
-			"a(0)b(1)c(0) => S(a,b,c)(1)C(a,b)(0)", "a(0)b(1)c(1) => S(a,b,c)(0)C(a,b)(1)",
-			"a(1)b(0)c(0) => S(a,b,c)(1)C(a,b)(0)", "a(1)b(0)c(1) => S(a,b,c)(0)C(a,b)(1)",
-			"a(1)b(1)c(0) => S(a,b,c)(0)C(a,b)(1)", "a(1)b(1)c(1) => S(a,b,c)(1)C(a,b)(1)",
+			"a(0) b(0) c(0) => S(a,b,c)(0) C(a,b)(0)", "a(0) b(0) c(1) => S(a,b,c)(1) C(a,b)(0)",
+			"a(0) b(1) c(0) => S(a,b,c)(1) C(a,b)(0)", "a(0) b(1) c(1) => S(a,b,c)(0) C(a,b)(1)",
+			"a(1) b(0) c(0) => S(a,b,c)(1) C(a,b)(0)", "a(1) b(0) c(1) => S(a,b,c)(0) C(a,b)(1)",
+			"a(1) b(1) c(0) => S(a,b,c)(0) C(a,b)(1)", "a(1) b(1) c(1) => S(a,b,c)(1) C(a,b)(1)",
 		},
 		isValidInt: func(inputs map[string]int) []int {
 			sum := inputs["a"] + inputs["b"] + inputs["c"]
@@ -142,38 +142,38 @@ func TestOutputsCombinational(t *testing.T) {
 		desc:    "a0 a1 b0 b1 c => S(a0,b0,c) S(a1,b1,C(a0,b0)) C(a1,b1)",
 		convert: true,
 		want: []string{
-			"a0(0)a1(0)b0(0)b1(0)c(0) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(0)C(a1,b1)(0)",
-			"a0(0)a1(0)b0(0)b1(0)c(1) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(0)C(a1,b1)(0)",
-			"a0(0)a1(0)b0(0)b1(1)c(0) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(0)a1(0)b0(0)b1(1)c(1) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(0)a1(0)b0(1)b1(0)c(0) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(0)C(a1,b1)(0)",
-			"a0(0)a1(0)b0(1)b1(0)c(1) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(0)a1(0)b0(1)b1(1)c(0) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(0)a1(0)b0(1)b1(1)c(1) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(0)a1(1)b0(0)b1(0)c(0) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(0)a1(1)b0(0)b1(0)c(1) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(0)a1(1)b0(0)b1(1)c(0) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(0)a1(1)b0(0)b1(1)c(1) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(0)a1(1)b0(1)b1(0)c(0) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(0)a1(1)b0(1)b1(0)c(1) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(0)a1(1)b0(1)b1(1)c(0) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(0)a1(1)b0(1)b1(1)c(1) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(1)C(a1,b1)(1)",
-			"a0(1)a1(0)b0(0)b1(0)c(0) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(0)C(a1,b1)(0)",
-			"a0(1)a1(0)b0(0)b1(0)c(1) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(1)a1(0)b0(0)b1(1)c(0) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(1)a1(0)b0(0)b1(1)c(1) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(1)a1(0)b0(1)b1(0)c(0) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(1)a1(0)b0(1)b1(0)c(1) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(1)a1(0)b0(1)b1(1)c(0) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(1)a1(0)b0(1)b1(1)c(1) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(1)a1(1)b0(0)b1(0)c(0) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(1)C(a1,b1)(0)",
-			"a0(1)a1(1)b0(0)b1(0)c(1) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(1)a1(1)b0(0)b1(1)c(0) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(1)a1(1)b0(0)b1(1)c(1) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(1)C(a1,b1)(1)",
-			"a0(1)a1(1)b0(1)b1(0)c(0) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(1)a1(1)b0(1)b1(0)c(1) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(0)C(a1,b1)(1)",
-			"a0(1)a1(1)b0(1)b1(1)c(0) => S(a0,b0,c)(0)S(a1,b1,C(a0,b0))(1)C(a1,b1)(1)",
-			"a0(1)a1(1)b0(1)b1(1)c(1) => S(a0,b0,c)(1)S(a1,b1,C(a0,b0))(1)C(a1,b1)(1)",
+			"a0(0) a1(0) b0(0) b1(0) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(0) b1(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(0) b1(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(0) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(1) b1(0) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(1) b1(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(1) b1(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(1) b1(1) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(0) b1(0) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(1) b0(0) b1(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(1) b0(0) b1(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(0) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(1) b1(0) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(1) b0(1) b1(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(1) b1(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(1) b1(1) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
+			"a0(1) a1(0) b0(0) b1(0) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(0) b1(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(0) b1(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(0) b1(1) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(0) b0(1) b1(0) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(1) b1(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(1) b1(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(0) b0(1) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(0) b1(0) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(1) b0(0) b1(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(0) b1(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(0) b1(1) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(1) b1(0) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(1) b1(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(1) b1(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(1) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
 		},
 		isValidInt: func(inputs map[string]int) []int {
 			sum1 := inputs["a0"] + inputs["b0"] + inputs["c"]
@@ -182,9 +182,7 @@ func TestOutputsCombinational(t *testing.T) {
 		},
 	}, {
 		name: "SumN",
-		desc: "a1 a2 a3 a4 b1 b2 b3 b4 c" +
-			" => S(a1,b1,c) S(a2,b2,C(a1,b1)) S(a3,b3,C(a2,b2)) S(a4,b4,C(a3,b3))" +
-			" C(a4,b4)",
+		desc: "a1 a2 a3 a4 b1 b2 b3 b4 c => S(a1,b1,c) S(a2,b2,C(a1,b1)) S(a3,b3,C(a2,b2)) S(a4,b4,C(a3,b3)) C(a4,b4)",
 		want: []string{
 			"110110101=>10001", "110000110=>11110", "000101101=>11110", "000000010=>00010",
 			"110111101=>11001", "000100010=>00001", "000101110=>01101", "110010110=>00001",
@@ -1072,17 +1070,17 @@ func TestOutputsCombinational(t *testing.T) {
 				for i, input := range c.Inputs {
 					one = append(one, sfmt.Sprintf("%s(%s)", input.Name, string(out[i])))
 				}
-				one = append(one, " => ")
+				one = append(one, "=>")
 				for i, output := range c.Outputs {
 					one = append(one, sfmt.Sprintf("%s(%s)", output.Name, string(out[i+len(c.Inputs)+len("=>")])))
 				}
-				converted = append(converted, strings.Join(one, ""))
+				converted = append(converted, strings.Join(one, " "))
 			}
 		} else {
 			converted = got
 		}
 		if diff := cmp.Diff(in.want, converted); diff != "" {
-			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, got, diff)
+			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, converted, diff)
 		}
 		if in.isValidInt != nil {
 			for _, out := range got {
