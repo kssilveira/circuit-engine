@@ -11,8 +11,8 @@ import (
 // TransistorEmitter adds a transitor-emitter.
 func TransistorEmitter(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 	group := parent.Group("TransistorEmitter")
-	emitter := &wire.Wire{Name: "emitter"}
-	collectorOut := &wire.Wire{Name: "collector_out"}
+	emitter := &wire.Wire{Name: "e"}
+	collectorOut := &wire.Wire{Name: "co"}
 	group.Transistor(base, collector, emitter, collectorOut)
 	return []*wire.Wire{emitter}
 }

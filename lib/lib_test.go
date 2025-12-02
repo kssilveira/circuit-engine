@@ -1,26 +1,30 @@
 package lib
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/config"
+	"github.com/kssilveira/circuit-engine/sfmt"
 )
 
 func TestOutputsCombinational(t *testing.T) {
 	inputs := []struct {
 		name        string
 		desc        string
+		convert     bool
 		want        []string
 		isValidInt  func(inputs map[string]int) []int
 		isValidBool func(inputs map[string]bool) []bool
 	}{{
-		name: "TransistorEmitter",
-		desc: "base collector => emitter",
-		want: []string{"00=>0", "01=>0", "10=>0", "11=>1"},
+		name:    "TransistorEmitter",
+		desc:    "b c => e",
+		convert: true,
+		want:    []string{"b(0)c(0) => e(0)", "b(0)c(1) => e(0)", "b(1)c(0) => e(0)", "b(1)c(1) => e(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
-			return []bool{inputs["base"] && inputs["collector"]}
+			return []bool{inputs["b"] && inputs["c"]}
 		},
 	}, {
 		name: "TransistorGnd",
@@ -1058,7 +1062,23 @@ func TestOutputsCombinational(t *testing.T) {
 			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.desc, gotDesc, diff)
 		}
 		got := c.Simulate()
-		if diff := cmp.Diff(in.want, got); diff != "" {
+		var converted []string
+		if in.convert {
+			for _, out := range got {
+				var one []string
+				for i, input := range c.Inputs {
+					one = append(one, sfmt.Sprintf("%s(%s)", input.Name, string(out[i])))
+				}
+				one = append(one, " => ")
+				for i, output := range c.Outputs {
+					one = append(one, sfmt.Sprintf("%s(%s)", output.Name, string(out[i+len(c.Inputs)+len("=>")])))
+				}
+				converted = append(converted, strings.Join(one, ""))
+			}
+		} else {
+			converted = got
+		}
+		if diff := cmp.Diff(in.want, converted); diff != "" {
 			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, got, diff)
 		}
 		if in.isValidInt != nil {

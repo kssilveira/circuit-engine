@@ -41,7 +41,7 @@ func W(name string) *wire.Wire {
 var (
 	examples = map[string]func(*circuit.Circuit) []*wire.Wire{
 		"TransistorEmitter": func(c *circuit.Circuit) []*wire.Wire {
-			return gate.TransistorEmitter(c.Group(""), c.In("base"), c.In("collector"))
+			return gate.TransistorEmitter(c.Group(""), c.In("b"), c.In("c"))
 		},
 		"TransistorGnd": func(c *circuit.Circuit) []*wire.Wire {
 			return gate.TransistorGnd(c.Group(""), c.In("base"), c.In("collector"))
