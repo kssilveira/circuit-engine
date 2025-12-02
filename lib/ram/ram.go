@@ -2,7 +2,7 @@
 package ram
 
 import (
-	"slices"
+	"fmt"
 
 	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/lib/gate"
@@ -16,7 +16,7 @@ func RAM(parent *group.Group, a, d []*wire.Wire, ei, eo *wire.Wire) []*wire.Wire
 	group := parent.Group("RAM")
 	s := ramAddress(group, a)
 	rei, reo := ramEnable(group, s, ei, eo)
-	return ramRegisters(group, d, s, rei, reo)
+	return ramRegisters(group, d, rei, reo)
 }
 
 func ramAddress(group *group.Group, a []*wire.Wire) []*wire.Wire {
@@ -41,17 +41,17 @@ func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.W
 	var rei, reo []*wire.Wire
 	for i, si := range s {
 		reii := gate.And(group, ei, si)
-		reii.Name = sfmt.Sprintf("%s-ei%d", group.Name, i)
+		reii.Name = sfmt.Sprintf("i%d", i)
 		rei = append(rei, reii)
 
 		reoi := gate.And(group, eo, si)
-		reoi.Name = sfmt.Sprintf("%s-eo%d", group.Name, i)
+		reoi.Name = sfmt.Sprintf("o%d", i)
 		reo = append(reo, reoi)
 	}
 	return rei, reo
 }
 
-func ramRegisters(group *group.Group, d, s, ei, eo []*wire.Wire) []*wire.Wire {
+func ramRegisters(group *group.Group, d, ei, eo []*wire.Wire) []*wire.Wire {
 	var prev []*wire.Wire
 	for range d {
 		one := &wire.Wire{}
@@ -66,12 +66,12 @@ func ramRegisters(group *group.Group, d, s, ei, eo []*wire.Wire) []*wire.Wire {
 			res := &wire.Wire{}
 			group.JointWire(res, prev[i], ri[2*i+1])
 			next = append(next, res)
+			all = append(all, ri[2*i+1])
 		}
 		prev = next
-		all = slices.Concat(all, []*wire.Wire{s[i], eii, eo[i]}, ri)
 	}
-	for _, res := range prev {
-		res.Name = group.Name
+	for i, res := range prev {
+		res.Name = fmt.Sprintf("%s%d", group.Name, i)
 	}
 	return append(prev, all...)
 }

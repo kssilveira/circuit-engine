@@ -41,8 +41,8 @@ func N(parent *group.Group, d, ar, br, r, aw, bw []*wire.Wire) []*wire.Wire {
 	return res
 }
 
-// Bion adds a communication bus with multiple inputs and outputs.
-func Bion(parent *group.Group, r, w []*wire.Wire) []*wire.Wire {
+// IOn adds a communication bus with multiple inputs and outputs.
+func IOn(parent *group.Group, r, w []*wire.Wire) []*wire.Wire {
 	group := parent.Group(sfmt.Sprintf("B(%s)", r[0].Name))
 	prev := &wire.Wire{Name: sfmt.Sprintf("%s-wire", group.Name)}
 	for _, ri := range r {
@@ -71,7 +71,7 @@ func BnIOn(parent *group.Group, r, w [][]*wire.Wire) []*wire.Wire {
 		for _, wi := range w {
 			wj = append(wj, wi[j])
 		}
-		res = append(res, Bion(group, rj, wj)...)
+		res = append(res, IOn(group, rj, wj)...)
 	}
 	return res
 }

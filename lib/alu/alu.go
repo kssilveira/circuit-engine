@@ -6,6 +6,7 @@ import (
 
 	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/lib/bus"
+	"github.com/kssilveira/circuit-engine/lib/ram"
 	"github.com/kssilveira/circuit-engine/lib/reg"
 	"github.com/kssilveira/circuit-engine/lib/sum"
 	"github.com/kssilveira/circuit-engine/sfmt"
@@ -90,4 +91,21 @@ func WithBusN(parent *group.Group, d []*wire.Wire, ai, ao, bi, bo, ri, ro, c *wi
 		res = append(res, alu[:last]...)
 	}
 	return append(res, prev)
+}
+
+// WithRAM adds an arithmetic logic unit with RAM.
+func WithRAM(parent *group.Group, d, ai, ao, bi, bo, ri, ro, c, mai, mao, mi, mo *wire.Wire) []*wire.Wire {
+	group := parent.Group("ALU-RAM")
+	a := &wire.Wire{Name: sfmt.Sprintf("%sa", d.Name)}
+	ra := reg.Register(group, a, ai, ao)
+	b := &wire.Wire{Name: sfmt.Sprintf("%sb", d.Name)}
+	rb := reg.Register(group, b, bi, bo)
+	r := sum.Sum(group, ra[0], rb[0], c)
+	rr := reg.Register(group, r[0], ri, ro)
+	ma := &wire.Wire{Name: sfmt.Sprintf("%sma", d.Name)}
+	rma := reg.Register(group, ma, mai, mao)
+	m := &wire.Wire{Name: sfmt.Sprintf("%sm", d.Name)}
+	rm := ram.RAM(group, []*wire.Wire{rma[1]}, []*wire.Wire{m}, mi, mo)
+	rd := bus.IOn(group, append([]*wire.Wire{d, ra[1], rb[1], rr[1], rma[1]}, rm...), []*wire.Wire{a, b, m, ma})
+	return slices.Concat(append(rd, r[1], ra[1], rb[1], rr[1], rma[1]), rm)
 }

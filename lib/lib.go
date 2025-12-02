@@ -153,7 +153,7 @@ var (
 		},
 		"BusIOn": func(c *circuit.Circuit) []*wire.Wire {
 			aw, bw := W("aw"), W("bw")
-			return append(bus.Bion(c.Group(""), WS(c.In("d"), c.In("ar"), c.In("br"), c.In("r")), WS(aw, bw)), aw, bw)
+			return append(bus.IOn(c.Group(""), WS(c.In("d"), c.In("ar"), c.In("br"), c.In("r")), WS(aw, bw)), aw, bw)
 		},
 		"BusBnIOn": func(c *circuit.Circuit) []*wire.Wire {
 			aw0, aw1 := W("aw0"), W("aw1")
@@ -193,7 +193,7 @@ var (
 		},
 		"RAM": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
-				c.Group(""), WS(c.In("a")), WS(c.In("d")), c.In("ei"), c.In("eo"))
+				c.Group(""), WS(c.In("a")), WS(c.In("d")), c.In("i"), c.In("o"))
 		},
 		"RAMa2": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
