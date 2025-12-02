@@ -150,6 +150,15 @@ var (
 			aw, bw := W("aw"), W("bw")
 			return append(bus.Bion(c.Group(""), []*wire.Wire{c.In("d"), c.In("ar"), c.In("br"), c.In("r")}, []*wire.Wire{aw, bw}), aw, bw)
 		},
+		"BUSbNioN": func(c *circuit.Circuit) []*wire.Wire {
+			aw0, aw1 := W("aw0"), W("aw1")
+			bw0, bw1 := W("bw0"), W("bw1")
+			return append(bus.BnIOn(
+				c.Group(""),
+				[][]*wire.Wire{{c.In("d0"), c.In("d1")}, {c.In("ar0"), c.In("ar1")}, {c.In("br0"), c.In("br1")}, {c.In("r0"), c.In("r1")}},
+				[][]*wire.Wire{{aw0, aw1}, {bw0, bw1}}),
+				aw0, aw1, bw0, bw1)
+		},
 		"AluWithBus": func(c *circuit.Circuit) []*wire.Wire {
 			bus := c.In("bus")
 			ai, ao := c.In("ai"), c.In("ao")

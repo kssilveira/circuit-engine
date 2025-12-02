@@ -570,6 +570,27 @@ func TestOutputsCombinational(t *testing.T) {
 			return []bool{bus, bus, bus}
 		},
 	}, {
+		name:    "BUSbNioN",
+		desc:    "d0 d1 ar0 ar1 br0 br1 r0 r1 => B(d0) B(d1) aw0 aw1 bw0 bw1",
+		convert: true,
+		want: []string{
+			"d0(1) d1(1) ar0(0) ar1(1) br0(1) br1(0) r0(1) r1(0) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(1) ar0(1) ar1(0) br0(0) br1(0) r0(0) r1(1) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(0) ar1(0) br0(0) br1(1) r0(0) r1(1) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(1) ar1(0) br0(0) br1(0) r0(0) r1(0) => B(d0)(1) B(d1)(0) aw0(1) aw1(0) bw0(1) bw1(0)",
+			"d0(0) d1(0) ar0(1) ar1(0) br0(1) br1(1) r0(0) r1(1) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(1) ar0(1) ar1(0) br0(1) br1(0) r0(0) r1(0) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(0) ar1(0) br0(1) br1(0) r0(0) r1(0) => B(d0)(1) B(d1)(0) aw0(1) aw1(0) bw0(1) bw1(0)",
+			"d0(0) d1(1) ar0(0) ar1(1) br0(1) br1(1) r0(0) r1(1) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(0) ar1(1) br0(0) br1(1) r0(1) r1(0) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(0) ar1(0) br0(0) br1(0) r0(1) r1(0) => B(d0)(1) B(d1)(0) aw0(1) aw1(0) bw0(1) bw1(0)",
+		},
+		isValidBool: func(inputs map[string]bool) []bool {
+			bus0 := inputs["d0"] || inputs["ar0"] || inputs["br0"] || inputs["r0"]
+			bus1 := inputs["d1"] || inputs["ar1"] || inputs["br1"] || inputs["r1"]
+			return []bool{bus0, bus1, bus0, bus1, bus0, bus1}
+		},
+	}, {
 		name: "AluWithBus",
 		desc: "bus ai ao bi bo ri ro cin" +
 			" => B(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +

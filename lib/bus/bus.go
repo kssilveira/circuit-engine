@@ -58,12 +58,20 @@ func Bion(parent *group.Group, r, w []*wire.Wire) []*wire.Wire {
 	return []*wire.Wire{res}
 }
 
-// NMO adds an N-bit communication bus with M inputs and O outputs.
-func i(parent *group.Group, d, ar, br, r, aw, bw []*wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("BUS%d", len(d)))
+// BnIOn adds an N-bit communication bus with multiple inputs and outputs
+func BnIOn(parent *group.Group, r, w [][]*wire.Wire) []*wire.Wire {
+	group := parent.Group(sfmt.Sprintf("B(%d,%d,%d)", len(r[0]), len(r), len(w)))
 	var res []*wire.Wire
-	for i, di := range d {
-		res = append(res, Bus(group, di, ar[i], br[i], r[i], aw[i], bw[i])...)
+	for j := range r[0] {
+		var rj []*wire.Wire
+		for _, ri := range r {
+			rj = append(rj, ri[j])
+		}
+		var wj []*wire.Wire
+		for _, wi := range w {
+			wj = append(wj, wi[j])
+		}
+		res = append(res, Bion(group, rj, wj)...)
 	}
 	return res
 }
