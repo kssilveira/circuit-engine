@@ -544,6 +544,32 @@ func TestOutputsCombinational(t *testing.T) {
 			return []bool{bus0, bus1, bus0, bus1, bus0, bus1}
 		},
 	}, {
+		name:    "BusIOn",
+		desc:    "d ar br r => B(d) aw bw",
+		convert: true,
+		want: []string{
+			"d(0) ar(0) br(0) r(0) => B(d)(0) aw(0) bw(0)",
+			"d(0) ar(0) br(0) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(0) br(1) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(0) br(1) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(1) br(0) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(1) br(0) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(1) br(1) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(1) br(1) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(0) br(0) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(0) br(0) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(0) br(1) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(0) br(1) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(1) br(0) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(1) br(0) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(1) br(1) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(1) br(1) r(1) => B(d)(1) aw(1) bw(1)",
+		},
+		isValidBool: func(inputs map[string]bool) []bool {
+			bus := inputs["d"] || inputs["ar"] || inputs["br"] || inputs["r"]
+			return []bool{bus, bus, bus}
+		},
+	}, {
 		name: "AluWithBus",
 		desc: "bus ai ao bi bo ri ro cin" +
 			" => B(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +
