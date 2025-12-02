@@ -37,22 +37,6 @@ func Sum2(parent *group.Group, a1, a2, b1, b2, cin *wire.Wire) []*wire.Wire {
 	return []*wire.Wire{s1[0], s2[0], s2[1]}
 }
 
-// Sum4 adds a 4-bit adder.
-func Sum4(parent *group.Group, a1, a2, a3, a4, b1, b2, b3, b4, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("SUM4")
-	s1 := Sum2(group, a1, a2, b1, b2, cin)
-	s2 := Sum2(group, a3, a4, b3, b4, s1[2])
-	return []*wire.Wire{s1[0], s1[1], s2[0], s2[1], s2[2]}
-}
-
-// Sum8 adds an 8-bit adder.
-func Sum8(parent *group.Group, a [8]*wire.Wire, b [8]*wire.Wire, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("SUM8")
-	s1 := Sum4(group, a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3], cin)
-	s2 := Sum4(group, a[4], a[5], a[6], a[7], b[4], b[5], b[6], b[7], s1[4])
-	return []*wire.Wire{s1[0], s1[1], s1[2], s1[3], s2[0], s2[1], s2[2], s2[3], s2[4]}
-}
-
 // N adds an N-bit adder.
 func N(parent *group.Group, an, bn []*wire.Wire, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group(sfmt.Sprintf("SUM%d", len(an)))

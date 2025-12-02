@@ -182,26 +182,46 @@ func TestOutputsCombinational(t *testing.T) {
 		},
 	}, {
 		name:    "SumN",
-		desc:    "a0 a1 a2 a3 b0 b1 b2 b3 c => S(a0,b0,c) S(a1,b1,C(a0,b0)) S(a2,b2,C(a1,b1)) S(a3,b3,C(a2,b2)) C(a3,b3)",
+		desc:    "a0 a1 b0 b1 c => S(a0,b0,c) S(a1,b1,C(a0,b0)) C(a1,b1)",
 		convert: true,
 		want: []string{
-			"a0(1) a1(1) a2(0) a3(1) b0(1) b1(0) b2(1) b3(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
-			"a0(1) a1(1) a2(0) a3(0) b0(0) b1(0) b2(1) b3(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(1) S(a3,b3,C(a2,b2))(1) C(a3,b3)(0)",
-			"a0(0) a1(0) a2(0) a3(1) b0(0) b1(1) b2(1) b3(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(1) S(a3,b3,C(a2,b2))(1) C(a3,b3)(0)",
-			"a0(0) a1(0) a2(0) a3(0) b0(0) b1(0) b2(0) b3(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(1) C(a3,b3)(0)",
-			"a0(1) a1(1) a2(0) a3(1) b0(1) b1(1) b2(1) b3(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
-			"a0(0) a1(0) a2(0) a3(1) b0(0) b1(0) b2(0) b3(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
-			"a0(0) a1(0) a2(0) a3(1) b0(0) b1(1) b2(1) b3(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(1) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
-			"a0(1) a1(1) a2(0) a3(0) b0(1) b1(0) b2(1) b3(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(0) C(a3,b3)(1)",
-			"a0(1) a1(0) a2(0) a3(0) b0(0) b1(0) b2(1) b3(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(1) S(a3,b3,C(a2,b2))(0) C(a3,b3)(0)",
-			"a0(0) a1(0) a2(1) a3(1) b0(0) b1(1) b2(1) b3(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) S(a2,b2,C(a1,b1))(0) S(a3,b3,C(a2,b2))(1) C(a3,b3)(1)",
+			"a0(0) a1(0) b0(0) b1(0) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(0) b1(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(0) b1(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(0) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(1) b1(0) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(1) b1(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(1) b1(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(0) b0(1) b1(1) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(0) b1(0) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(1) b0(0) b1(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(1) b0(0) b1(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(0) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(1) b1(0) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(0) a1(1) b0(1) b1(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(1) b1(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) b0(1) b1(1) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
+			"a0(1) a1(0) b0(0) b1(0) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(0) b1(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(0) b1(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(0) b1(1) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(0) b0(1) b1(0) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(1) b1(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(0) b0(1) b1(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(0) b0(1) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(0) b1(0) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(0)",
+			"a0(1) a1(1) b0(0) b1(0) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(0) b1(1) c(0) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(0) b1(1) c(1) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(1) b1(0) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(1) b1(0) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(0) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(1) b1(1) c(0) => S(a0,b0,c)(0) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
+			"a0(1) a1(1) b0(1) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
 		},
 		isValidInt: func(inputs map[string]int) []int {
 			sum1 := inputs["a0"] + inputs["b0"] + inputs["c"]
 			sum2 := sum1/2 + inputs["a1"] + inputs["b1"]
-			sum3 := sum2/2 + inputs["a2"] + inputs["b2"]
-			sum4 := sum3/2 + inputs["a3"] + inputs["b3"]
-			return []int{sum1 % 2, sum2 % 2, sum3 % 2, sum4 % 2, sum4 / 2}
+			return []int{sum1 % 2, sum2 % 2, sum2 / 2}
 		},
 	}, {
 		name:    "SRLatch",
@@ -284,81 +304,67 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 		}(),
 	}, {
-		name: "Register2",
-		desc: "d1 d2 ei eo => r(d1,ei,eo) R(d1,ei,eo) r(d2,ei,eo) R(d2,ei,eo)",
+		name:    "Register2",
+		desc:    "d0 d1 ei eo => r(d0,ei,eo) R(d0,ei,eo) r(d1,ei,eo) R(d1,ei,eo)",
+		convert: true,
 		want: []string{
-			"0000=>1010", "0001=>1111", "0010=>0000", "0011=>0000",
-			"0100=>0000", "0101=>0000", "0110=>0010", "0111=>0011",
-			"1000=>0010", "1001=>0011", "1010=>1000", "1011=>1100",
-			"1100=>1000", "1101=>1100", "1110=>1010", "1111=>1111",
+			"d0(0) d1(0) ei(0) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
+			"d0(0) d1(0) ei(0) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
+			"d0(0) d1(0) ei(1) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(0) d1(0) ei(1) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(0) d1(1) ei(0) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(0) d1(1) ei(0) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(0) d1(1) ei(1) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
+			"d0(0) d1(1) ei(1) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
+			"d0(1) d1(0) ei(0) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
+			"d0(1) d1(0) ei(0) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
+			"d0(1) d1(0) ei(1) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(1) d1(0) ei(1) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(1) d1(1) ei(0) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(1) d1(1) ei(0) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(1) d1(1) ei(1) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
+			"d0(1) d1(1) ei(1) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q1, q2 := true, true
 			return func(inputs map[string]bool) []bool {
 				if inputs["ei"] {
-					q1, q2 = inputs["d1"], inputs["d2"]
+					q1, q2 = inputs["d0"], inputs["d1"]
 				}
 				eo := inputs["eo"]
 				return []bool{q1, eo && q1, q2, eo && q2}
 			}
 		}(),
 	}, {
-		name: "Register4",
-		desc: "d1 d2 d3 d4 ei eo" +
-			" => r(d1,ei,eo) R(d1,ei,eo) r(d2,ei,eo) R(d2,ei,eo)" +
-			" r(d3,ei,eo) R(d3,ei,eo) r(d4,ei,eo) R(d4,ei,eo)",
+		name:    "RegisterN",
+		desc:    "d0 d1 ei eo => r(d0,ei,eo) R(d0,ei,eo) r(d1,ei,eo) R(d1,ei,eo)",
+		convert: true,
 		want: []string{
-			"000000=>10101010", "000001=>11111111", "000010=>00000000", "000011=>00000000",
-			"000100=>00000000", "000101=>00000000", "000110=>00000010", "000111=>00000011",
-			"001000=>00000010", "001001=>00000011", "001010=>00001000", "001011=>00001100",
-			"001100=>00001000", "001101=>00001100", "001110=>00001010", "001111=>00001111",
-			"010000=>00001010", "010001=>00001111", "010010=>00100000", "010011=>00110000",
-			"010100=>00100000", "010101=>00110000", "010110=>00100010", "010111=>00110011",
-			"011000=>00100010", "011001=>00110011", "011010=>00101000", "011011=>00111100",
-			"011100=>00101000", "011101=>00111100", "011110=>00101010", "011111=>00111111",
-			"100000=>00101010", "100001=>00111111", "100010=>10000000", "100011=>11000000",
-			"100100=>10000000", "100101=>11000000", "100110=>10000010", "100111=>11000011",
-			"101000=>10000010", "101001=>11000011", "101010=>10001000", "101011=>11001100",
-			"101100=>10001000", "101101=>11001100", "101110=>10001010", "101111=>11001111",
-			"110000=>10001010", "110001=>11001111", "110010=>10100000", "110011=>11110000",
-			"110100=>10100000", "110101=>11110000", "110110=>10100010", "110111=>11110011",
-			"111000=>10100010", "111001=>11110011", "111010=>10101000", "111011=>11111100",
-			"111100=>10101000", "111101=>11111100", "111110=>10101010", "111111=>11111111",
+			"d0(0) d1(0) ei(0) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
+			"d0(0) d1(0) ei(0) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
+			"d0(0) d1(0) ei(1) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(0) d1(0) ei(1) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(0) d1(1) ei(0) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(0) d1(1) ei(0) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(0) d1(1) ei(1) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
+			"d0(0) d1(1) ei(1) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
+			"d0(1) d1(0) ei(0) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
+			"d0(1) d1(0) ei(0) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
+			"d0(1) d1(0) ei(1) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(1) d1(0) ei(1) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(1) d1(1) ei(0) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(1) d1(1) ei(0) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
+			"d0(1) d1(1) ei(1) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
+			"d0(1) d1(1) ei(1) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
-			q1, q2, q3, q4 := true, true, true, true
+			q1, q2 := true, true
 			return func(inputs map[string]bool) []bool {
 				if inputs["ei"] {
-					q1, q2, q3, q4 = inputs["d1"], inputs["d2"], inputs["d3"], inputs["d4"]
+					q1, q2 = inputs["d0"], inputs["d1"]
 				}
 				eo := inputs["eo"]
-				return []bool{q1, eo && q1, q2, eo && q2, q3, eo && q3, q4, eo && q4}
-			}
-		}(),
-	}, {
-		name: "Register8",
-		desc: "d1 d2 d3 d4 d5 d6 d7 d8 ei eo" +
-			" => r(d1,ei,eo) R(d1,ei,eo) r(d2,ei,eo) R(d2,ei,eo)" +
-			" r(d3,ei,eo) R(d3,ei,eo) r(d4,ei,eo) R(d4,ei,eo)" +
-			" r(d5,ei,eo) R(d5,ei,eo) r(d6,ei,eo) R(d6,ei,eo)" +
-			" r(d7,ei,eo) R(d7,ei,eo) r(d8,ei,eo) R(d8,ei,eo)",
-		want: []string{
-			"1101101011=>1111001111001100", "1000011000=>1010001010001000",
-			"0101101000=>1010001010001000", "0000101101=>1111001111001100",
-			"1110100010=>1010100010000000", "0010000101=>1111110011000000",
-			"1101100101=>1111110011000000", "1010000010=>1000100000000000",
-			"1001101111=>1100001111001111", "1110110100=>1000001010001010",
-		},
-		isValidBool: func() func(inputs map[string]bool) []bool {
-			q1, q2, q3, q4 := true, true, true, true
-			q5, q6, q7, q8 := true, true, true, true
-			return func(inputs map[string]bool) []bool {
-				if inputs["ei"] {
-					q1, q2, q3, q4 = inputs["d1"], inputs["d2"], inputs["d3"], inputs["d4"]
-					q5, q6, q7, q8 = inputs["d5"], inputs["d6"], inputs["d7"], inputs["d8"]
-				}
-				eo := inputs["eo"]
-				return []bool{q1, eo && q1, q2, eo && q2, q3, eo && q3, q4, eo && q4, q5, eo && q5, q6, eo && q6, q7, eo && q7, q8, eo && q8}
+				return []bool{q1, eo && q1, q2, eo && q2}
 			}
 		}(),
 	}, {

@@ -85,11 +85,7 @@ var (
 			return sum.Sum2(c.Group(""), c.In("a0"), c.In("a1"), c.In("b0"), c.In("b1"), c.In("c"))
 		},
 		"SumN": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.N(
-				c.Group(""),
-				[]*wire.Wire{c.In("a0"), c.In("a1"), c.In("a2"), c.In("a3")},
-				[]*wire.Wire{c.In("b0"), c.In("b1"), c.In("b2"), c.In("b3")},
-				c.In("c"))
+			return sum.N(c.Group(""), []*wire.Wire{c.In("a0"), c.In("a1")}, []*wire.Wire{c.In("b0"), c.In("b1")}, c.In("c"))
 		},
 		"SRLatch": func(c *circuit.Circuit) []*wire.Wire {
 			return latch.SRLatch(c.Group(""), c.In("s"), c.In("r"))
@@ -104,17 +100,10 @@ var (
 			return reg.Register(c.Group(""), c.In("d"), c.In("i"), c.In("o"))
 		},
 		"Register2": func(c *circuit.Circuit) []*wire.Wire {
-			return reg.Register2(c.Group(""), c.In("d1"), c.In("d2"), c.In("ei"), c.In("eo"))
+			return reg.Register2(c.Group(""), c.In("d0"), c.In("d1"), c.In("ei"), c.In("eo"))
 		},
-		"Register4": func(c *circuit.Circuit) []*wire.Wire {
-			return reg.Register4(c.Group(""), c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"), c.In("ei"), c.In("eo"))
-		},
-		"Register8": func(c *circuit.Circuit) []*wire.Wire {
-			return reg.Register8(
-				c.Group(""),
-				c.In("d1"), c.In("d2"), c.In("d3"), c.In("d4"),
-				c.In("d5"), c.In("d6"), c.In("d7"), c.In("d8"),
-				c.In("ei"), c.In("eo"))
+		"RegisterN": func(c *circuit.Circuit) []*wire.Wire {
+			return reg.N(c.Group(""), []*wire.Wire{c.In("d0"), c.In("d1")}, c.In("ei"), c.In("eo"))
 		},
 		"Alu": func(c *circuit.Circuit) []*wire.Wire {
 			return alu.Alu(
