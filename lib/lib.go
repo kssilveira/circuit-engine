@@ -101,7 +101,7 @@ var (
 			return latch.DLatch(c.Group(""), c.In("d"), c.In("e"))
 		},
 		"Register": func(c *circuit.Circuit) []*wire.Wire {
-			return reg.Register(c.Group(""), c.In("d"), c.In("ei"), c.In("eo"))
+			return reg.Register(c.Group(""), c.In("d"), c.In("i"), c.In("o"))
 		},
 		"Register2": func(c *circuit.Circuit) []*wire.Wire {
 			return reg.Register2(c.Group(""), c.In("d1"), c.In("d2"), c.In("ei"), c.In("eo"))

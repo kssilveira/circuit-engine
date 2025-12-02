@@ -265,21 +265,27 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 		}(),
 	}, {
-		name: "Register",
-		desc: "d ei eo => reg(d,ei,eo) REG(d,ei,eo)",
-		want: []string{"000=>10", "001=>11", "010=>00", "011=>00", "100=>00", "101=>00", "110=>10", "111=>11"},
+		name:    "Register",
+		desc:    "d i o => r(d,i,o) R(d,i,o)",
+		convert: true,
+		want: []string{
+			"d(0) i(0) o(0) => r(d,i,o)(1) R(d,i,o)(0)", "d(0) i(0) o(1) => r(d,i,o)(1) R(d,i,o)(1)",
+			"d(0) i(1) o(0) => r(d,i,o)(0) R(d,i,o)(0)", "d(0) i(1) o(1) => r(d,i,o)(0) R(d,i,o)(0)",
+			"d(1) i(0) o(0) => r(d,i,o)(0) R(d,i,o)(0)", "d(1) i(0) o(1) => r(d,i,o)(0) R(d,i,o)(0)",
+			"d(1) i(1) o(0) => r(d,i,o)(1) R(d,i,o)(0)", "d(1) i(1) o(1) => r(d,i,o)(1) R(d,i,o)(1)",
+		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true
 			return func(inputs map[string]bool) []bool {
-				if inputs["ei"] {
+				if inputs["i"] {
 					q = inputs["d"]
 				}
-				return []bool{q, inputs["eo"] && q}
+				return []bool{q, inputs["o"] && q}
 			}
 		}(),
 	}, {
 		name: "Register2",
-		desc: "d1 d2 ei eo => reg(d1,ei,eo) REG(d1,ei,eo) reg(d2,ei,eo) REG(d2,ei,eo)",
+		desc: "d1 d2 ei eo => r(d1,ei,eo) R(d1,ei,eo) r(d2,ei,eo) R(d2,ei,eo)",
 		want: []string{
 			"0000=>1010", "0001=>1111", "0010=>0000", "0011=>0000",
 			"0100=>0000", "0101=>0000", "0110=>0010", "0111=>0011",
@@ -299,8 +305,8 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "Register4",
 		desc: "d1 d2 d3 d4 ei eo" +
-			" => reg(d1,ei,eo) REG(d1,ei,eo) reg(d2,ei,eo) REG(d2,ei,eo)" +
-			" reg(d3,ei,eo) REG(d3,ei,eo) reg(d4,ei,eo) REG(d4,ei,eo)",
+			" => r(d1,ei,eo) R(d1,ei,eo) r(d2,ei,eo) R(d2,ei,eo)" +
+			" r(d3,ei,eo) R(d3,ei,eo) r(d4,ei,eo) R(d4,ei,eo)",
 		want: []string{
 			"000000=>10101010", "000001=>11111111", "000010=>00000000", "000011=>00000000",
 			"000100=>00000000", "000101=>00000000", "000110=>00000010", "000111=>00000011",
@@ -332,10 +338,10 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "Register8",
 		desc: "d1 d2 d3 d4 d5 d6 d7 d8 ei eo" +
-			" => reg(d1,ei,eo) REG(d1,ei,eo) reg(d2,ei,eo) REG(d2,ei,eo)" +
-			" reg(d3,ei,eo) REG(d3,ei,eo) reg(d4,ei,eo) REG(d4,ei,eo)" +
-			" reg(d5,ei,eo) REG(d5,ei,eo) reg(d6,ei,eo) REG(d6,ei,eo)" +
-			" reg(d7,ei,eo) REG(d7,ei,eo) reg(d8,ei,eo) REG(d8,ei,eo)",
+			" => r(d1,ei,eo) R(d1,ei,eo) r(d2,ei,eo) R(d2,ei,eo)" +
+			" r(d3,ei,eo) R(d3,ei,eo) r(d4,ei,eo) R(d4,ei,eo)" +
+			" r(d5,ei,eo) R(d5,ei,eo) r(d6,ei,eo) R(d6,ei,eo)" +
+			" r(d7,ei,eo) R(d7,ei,eo) r(d8,ei,eo) R(d8,ei,eo)",
 		want: []string{
 			"1101101011=>1111001111001100", "1000011000=>1010001010001000",
 			"0101101000=>1010001010001000", "0000101101=>1111001111001100",
@@ -358,9 +364,9 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "Alu",
 		desc: "a ai ao b bi bo ri ro cin" +
-			" => reg(a,ai,ao) REG(a,ai,ao) reg(b,bi,bo) REG(b,bi,bo)" +
-			" reg(S(reg(a,ai,ao),reg(b,bi,bo),cin),ri,ro) REG(S(reg(a,ai,ao),reg(b,bi,bo),cin),ri,ro)" +
-			" C(reg(a,ai,ao),reg(b,bi,bo))",
+			" => r(a,ai,ao) R(a,ai,ao) r(b,bi,bo) R(b,bi,bo)" +
+			" r(S(r(a,ai,ao),r(b,bi,bo),cin),ri,ro) R(S(r(a,ai,ao),r(b,bi,bo),cin),ri,ro)" +
+			" C(r(a,ai,ao),r(b,bi,bo))",
 		want: []string{
 			"110110101=>1010101", "110000110=>1010001", "000101101=>1011101", "000000010=>1010111",
 			"110111101=>1011101", "000100010=>1010111", "000101110=>1011001", "110010110=>1000110",
@@ -385,12 +391,12 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "Alu2",
 		desc: "a1 a2 ai ao b1 b2 bi bo ri ro cin" +
-			" => reg(a1,ai,ao) REG(a1,ai,ao) reg(b1,bi,bo) REG(b1,bi,bo)" +
-			" reg(S(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro) REG(S(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro)" +
-			" reg(a2,ai,ao) REG(a2,ai,ao) reg(b2,bi,bo) REG(b2,bi,bo)" +
-			" reg(S(reg(a2,ai,ao),reg(b2,bi,bo),C(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
-			" REG(S(reg(a2,ai,ao),reg(b2,bi,bo),C(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
-			" C(reg(a2,ai,ao),reg(b2,bi,bo))",
+			" => r(a1,ai,ao) R(a1,ai,ao) r(b1,bi,bo) R(b1,bi,bo)" +
+			" r(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro) R(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro)" +
+			" r(a2,ai,ao) R(a2,ai,ao) r(b2,bi,bo) R(b2,bi,bo)" +
+			" r(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
+			" R(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
+			" C(r(a2,ai,ao),r(b2,bi,bo))",
 		want: []string{
 			"11011010111=>1110111100001", "00001100001=>1010101000001",
 			"01101000000=>0010101000000", "01011011110=>0011111100110",
@@ -423,18 +429,18 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "Alu4",
 		desc: "a1 a2 a3 a4 ai ao b1 b2 b3 b4 bi bo ri ro cin" +
-			" => reg(a1,ai,ao) REG(a1,ai,ao) reg(b1,bi,bo) REG(b1,bi,bo)" +
-			" reg(S(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro) REG(S(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro)" +
-			" reg(a2,ai,ao) REG(a2,ai,ao) reg(b2,bi,bo) REG(b2,bi,bo)" +
-			" reg(S(reg(a2,ai,ao),reg(b2,bi,bo),C(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
-			" REG(S(reg(a2,ai,ao),reg(b2,bi,bo),C(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
-			" reg(a3,ai,ao) REG(a3,ai,ao) reg(b3,bi,bo) REG(b3,bi,bo)" +
-			" reg(S(reg(a3,ai,ao),reg(b3,bi,bo),C(reg(a2,ai,ao),reg(b2,bi,bo))),ri,ro)" +
-			" REG(S(reg(a3,ai,ao),reg(b3,bi,bo),C(reg(a2,ai,ao),reg(b2,bi,bo))),ri,ro)" +
-			" reg(a4,ai,ao) REG(a4,ai,ao) reg(b4,bi,bo) REG(b4,bi,bo)" +
-			" reg(S(reg(a4,ai,ao),reg(b4,bi,bo),C(reg(a3,ai,ao),reg(b3,bi,bo))),ri,ro)" +
-			" REG(S(reg(a4,ai,ao),reg(b4,bi,bo),C(reg(a3,ai,ao),reg(b3,bi,bo))),ri,ro)" +
-			" C(reg(a4,ai,ao),reg(b4,bi,bo))",
+			" => r(a1,ai,ao) R(a1,ai,ao) r(b1,bi,bo) R(b1,bi,bo)" +
+			" r(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro) R(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro)" +
+			" r(a2,ai,ao) R(a2,ai,ao) r(b2,bi,bo) R(b2,bi,bo)" +
+			" r(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
+			" R(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
+			" r(a3,ai,ao) R(a3,ai,ao) r(b3,bi,bo) R(b3,bi,bo)" +
+			" r(S(r(a3,ai,ao),r(b3,bi,bo),C(r(a2,ai,ao),r(b2,bi,bo))),ri,ro)" +
+			" R(S(r(a3,ai,ao),r(b3,bi,bo),C(r(a2,ai,ao),r(b2,bi,bo))),ri,ro)" +
+			" r(a4,ai,ao) R(a4,ai,ao) r(b4,bi,bo) R(b4,bi,bo)" +
+			" r(S(r(a4,ai,ao),r(b4,bi,bo),C(r(a3,ai,ao),r(b3,bi,bo))),ri,ro)" +
+			" R(S(r(a4,ai,ao),r(b4,bi,bo),C(r(a3,ai,ao),r(b3,bi,bo))),ri,ro)" +
+			" C(r(a4,ai,ao),r(b4,bi,bo))",
 		want: []string{
 			"110110101110000=>1010101000100010101010101",
 			"110000101101000=>1011101000100011101011101",
@@ -478,30 +484,30 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "Alu8",
 		desc: "a1 a2 a3 a4 a5 a6 a7 a8 ai ao b1 b2 b3 b4 b5 b6 b7 b8 bi bo ri ro cin" +
-			" => reg(a1,ai,ao) REG(a1,ai,ao) reg(b1,bi,bo) REG(b1,bi,bo)" +
-			" reg(S(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro) REG(S(reg(a1,ai,ao),reg(b1,bi,bo),cin),ri,ro)" +
-			" reg(a2,ai,ao) REG(a2,ai,ao) reg(b2,bi,bo) REG(b2,bi,bo)" +
-			" reg(S(reg(a2,ai,ao),reg(b2,bi,bo),C(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
-			" REG(S(reg(a2,ai,ao),reg(b2,bi,bo),C(reg(a1,ai,ao),reg(b1,bi,bo))),ri,ro)" +
-			" reg(a3,ai,ao) REG(a3,ai,ao) reg(b3,bi,bo) REG(b3,bi,bo)" +
-			" reg(S(reg(a3,ai,ao),reg(b3,bi,bo),C(reg(a2,ai,ao),reg(b2,bi,bo))),ri,ro)" +
-			" REG(S(reg(a3,ai,ao),reg(b3,bi,bo),C(reg(a2,ai,ao),reg(b2,bi,bo))),ri,ro)" +
-			" reg(a4,ai,ao) REG(a4,ai,ao) reg(b4,bi,bo) REG(b4,bi,bo)" +
-			" reg(S(reg(a4,ai,ao),reg(b4,bi,bo),C(reg(a3,ai,ao),reg(b3,bi,bo))),ri,ro)" +
-			" REG(S(reg(a4,ai,ao),reg(b4,bi,bo),C(reg(a3,ai,ao),reg(b3,bi,bo))),ri,ro)" +
-			" reg(a5,ai,ao) REG(a5,ai,ao) reg(b5,bi,bo) REG(b5,bi,bo)" +
-			" reg(S(reg(a5,ai,ao),reg(b5,bi,bo),C(reg(a4,ai,ao),reg(b4,bi,bo))),ri,ro)" +
-			" REG(S(reg(a5,ai,ao),reg(b5,bi,bo),C(reg(a4,ai,ao),reg(b4,bi,bo))),ri,ro)" +
-			" reg(a6,ai,ao) REG(a6,ai,ao) reg(b6,bi,bo) REG(b6,bi,bo)" +
-			" reg(S(reg(a6,ai,ao),reg(b6,bi,bo),C(reg(a5,ai,ao),reg(b5,bi,bo))),ri,ro)" +
-			" REG(S(reg(a6,ai,ao),reg(b6,bi,bo),C(reg(a5,ai,ao),reg(b5,bi,bo))),ri,ro)" +
-			" reg(a7,ai,ao) REG(a7,ai,ao) reg(b7,bi,bo) REG(b7,bi,bo)" +
-			" reg(S(reg(a7,ai,ao),reg(b7,bi,bo),C(reg(a6,ai,ao),reg(b6,bi,bo))),ri,ro)" +
-			" REG(S(reg(a7,ai,ao),reg(b7,bi,bo),C(reg(a6,ai,ao),reg(b6,bi,bo))),ri,ro)" +
-			" reg(a8,ai,ao) REG(a8,ai,ao) reg(b8,bi,bo) REG(b8,bi,bo)" +
-			" reg(S(reg(a8,ai,ao),reg(b8,bi,bo),C(reg(a7,ai,ao),reg(b7,bi,bo))),ri,ro)" +
-			" REG(S(reg(a8,ai,ao),reg(b8,bi,bo),C(reg(a7,ai,ao),reg(b7,bi,bo))),ri,ro)" +
-			" C(reg(a8,ai,ao),reg(b8,bi,bo))",
+			" => r(a1,ai,ao) R(a1,ai,ao) r(b1,bi,bo) R(b1,bi,bo)" +
+			" r(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro) R(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro)" +
+			" r(a2,ai,ao) R(a2,ai,ao) r(b2,bi,bo) R(b2,bi,bo)" +
+			" r(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
+			" R(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
+			" r(a3,ai,ao) R(a3,ai,ao) r(b3,bi,bo) R(b3,bi,bo)" +
+			" r(S(r(a3,ai,ao),r(b3,bi,bo),C(r(a2,ai,ao),r(b2,bi,bo))),ri,ro)" +
+			" R(S(r(a3,ai,ao),r(b3,bi,bo),C(r(a2,ai,ao),r(b2,bi,bo))),ri,ro)" +
+			" r(a4,ai,ao) R(a4,ai,ao) r(b4,bi,bo) R(b4,bi,bo)" +
+			" r(S(r(a4,ai,ao),r(b4,bi,bo),C(r(a3,ai,ao),r(b3,bi,bo))),ri,ro)" +
+			" R(S(r(a4,ai,ao),r(b4,bi,bo),C(r(a3,ai,ao),r(b3,bi,bo))),ri,ro)" +
+			" r(a5,ai,ao) R(a5,ai,ao) r(b5,bi,bo) R(b5,bi,bo)" +
+			" r(S(r(a5,ai,ao),r(b5,bi,bo),C(r(a4,ai,ao),r(b4,bi,bo))),ri,ro)" +
+			" R(S(r(a5,ai,ao),r(b5,bi,bo),C(r(a4,ai,ao),r(b4,bi,bo))),ri,ro)" +
+			" r(a6,ai,ao) R(a6,ai,ao) r(b6,bi,bo) R(b6,bi,bo)" +
+			" r(S(r(a6,ai,ao),r(b6,bi,bo),C(r(a5,ai,ao),r(b5,bi,bo))),ri,ro)" +
+			" R(S(r(a6,ai,ao),r(b6,bi,bo),C(r(a5,ai,ao),r(b5,bi,bo))),ri,ro)" +
+			" r(a7,ai,ao) R(a7,ai,ao) r(b7,bi,bo) R(b7,bi,bo)" +
+			" r(S(r(a7,ai,ao),r(b7,bi,bo),C(r(a6,ai,ao),r(b6,bi,bo))),ri,ro)" +
+			" R(S(r(a7,ai,ao),r(b7,bi,bo),C(r(a6,ai,ao),r(b6,bi,bo))),ri,ro)" +
+			" r(a8,ai,ao) R(a8,ai,ao) r(b8,bi,bo) R(b8,bi,bo)" +
+			" r(S(r(a8,ai,ao),r(b8,bi,bo),C(r(a7,ai,ao),r(b7,bi,bo))),ri,ro)" +
+			" R(S(r(a8,ai,ao),r(b8,bi,bo),C(r(a7,ai,ao),r(b7,bi,bo))),ri,ro)" +
+			" C(r(a8,ai,ao),r(b8,bi,bo))",
 		want: []string{
 			"11011010111000011000010=>1110111110110010111110111110110010111110110010111",
 			"11010000000101101111010=>1000111011110000111011111011110000111011110011111",
@@ -605,10 +611,10 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "AluWithBus",
 		desc: "bus ai ao bi bo ri ro cin" +
-			" => BUS(bus) reg(ALU-bus-a,ai,ao) REG(ALU-bus-a,ai,ao) reg(ALU-bus-b,bi,bo) REG(ALU-bus-b,bi,bo)" +
-			" reg(S(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo),cin),ri,ro)" +
-			" REG(S(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo),cin),ri,ro)" +
-			" C(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo))",
+			" => BUS(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +
+			" r(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
+			" R(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
+			" C(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo))",
 		want: []string{
 			"10000101=>11010101", "10100000=>11110101", "00101101=>11111101", "10001000=>11011101",
 			"10000010=>11010111",
@@ -645,13 +651,13 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "AluWithBus2",
 		desc: "bus1 bus2 ai ao bi bo ri ro cin" +
-			" => BUS(bus1) reg(ALU-bus1-a,ai,ao) REG(ALU-bus1-a,ai,ao) reg(ALU-bus1-b,bi,bo) REG(ALU-bus1-b,bi,bo)" +
-			" reg(S(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" REG(S(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" BUS(bus2) reg(ALU-bus2-a,ai,ao) REG(ALU-bus2-a,ai,ao) reg(ALU-bus2-b,bi,bo) REG(ALU-bus2-b,bi,bo)" +
-			" reg(S(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),C(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),C(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" C(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))",
+			" => BUS(bus1) r(ALU-bus1-a,ai,ao) R(ALU-bus1-a,ai,ao) r(ALU-bus1-b,bi,bo) R(ALU-bus1-b,bi,bo)" +
+			" r(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" R(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" BUS(bus2) r(ALU-bus2-a,ai,ao) R(ALU-bus2-a,ai,ao) r(ALU-bus2-b,bi,bo) R(ALU-bus2-b,bi,bo)" +
+			" r(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))",
 		want: []string{
 			"110110101=>111101011110101", "110000110=>110100011010111",
 			"000101101=>111111011111101", "000000010=>110101111010111",
@@ -697,19 +703,19 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "AluWithBus4",
 		desc: "bus1 bus2 bus3 bus4 ai ao bi bo ri ro cin" +
-			" => BUS(bus1) reg(ALU-bus1-a,ai,ao) REG(ALU-bus1-a,ai,ao) reg(ALU-bus1-b,bi,bo) REG(ALU-bus1-b,bi,bo)" +
-			" reg(S(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" REG(S(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" BUS(bus2) reg(ALU-bus2-a,ai,ao) REG(ALU-bus2-a,ai,ao) reg(ALU-bus2-b,bi,bo) REG(ALU-bus2-b,bi,bo)" +
-			" reg(S(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),C(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),C(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" BUS(bus3) reg(ALU-bus3-a,ai,ao) REG(ALU-bus3-a,ai,ao) reg(ALU-bus3-b,bi,bo) REG(ALU-bus3-b,bi,bo)" +
-			" reg(S(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo),C(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo),C(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))),ri,ro)" +
-			" BUS(bus4) reg(ALU-bus4-a,ai,ao) REG(ALU-bus4-a,ai,ao) reg(ALU-bus4-b,bi,bo) REG(ALU-bus4-b,bi,bo)" +
-			" reg(S(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo),C(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo),C(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo))),ri,ro)" +
-			" C(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo))",
+			" => BUS(bus1) r(ALU-bus1-a,ai,ao) R(ALU-bus1-a,ai,ao) r(ALU-bus1-b,bi,bo) R(ALU-bus1-b,bi,bo)" +
+			" r(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" R(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" BUS(bus2) r(ALU-bus2-a,ai,ao) R(ALU-bus2-a,ai,ao) r(ALU-bus2-b,bi,bo) R(ALU-bus2-b,bi,bo)" +
+			" r(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" BUS(bus3) r(ALU-bus3-a,ai,ao) R(ALU-bus3-a,ai,ao) r(ALU-bus3-b,bi,bo) R(ALU-bus3-b,bi,bo)" +
+			" r(S(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo),C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo),C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))),ri,ro)" +
+			" BUS(bus4) r(ALU-bus4-a,ai,ao) R(ALU-bus4-a,ai,ao) r(ALU-bus4-b,bi,bo) R(ALU-bus4-b,bi,bo)" +
+			" r(S(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo),C(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo),C(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo))),ri,ro)" +
+			" C(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo))",
 		want: []string{
 			"01101000000=>00010101101010110101000010101", "10001000100=>11010000001000000100000010001",
 			"01011010000=>00000001101000000000011010001", "01000101000=>00000001111100000000011111001",
@@ -763,31 +769,31 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "AluWithBus8",
 		desc: "bus1 bus2 bus3 bus4 bus5 bus6 bus7 bus8 ai ao bi bo ri ro cin" +
-			" => BUS(bus1) reg(ALU-bus1-a,ai,ao) REG(ALU-bus1-a,ai,ao) reg(ALU-bus1-b,bi,bo) REG(ALU-bus1-b,bi,bo)" +
-			" reg(S(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" REG(S(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" BUS(bus2) reg(ALU-bus2-a,ai,ao) REG(ALU-bus2-a,ai,ao) reg(ALU-bus2-b,bi,bo) REG(ALU-bus2-b,bi,bo)" +
-			" reg(S(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),C(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo),C(reg(ALU-bus1-a,ai,ao),reg(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" BUS(bus3) reg(ALU-bus3-a,ai,ao) REG(ALU-bus3-a,ai,ao) reg(ALU-bus3-b,bi,bo) REG(ALU-bus3-b,bi,bo)" +
-			" reg(S(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo),C(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo),C(reg(ALU-bus2-a,ai,ao),reg(ALU-bus2-b,bi,bo))),ri,ro)" +
-			" BUS(bus4) reg(ALU-bus4-a,ai,ao) REG(ALU-bus4-a,ai,ao) reg(ALU-bus4-b,bi,bo) REG(ALU-bus4-b,bi,bo)" +
-			" reg(S(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo),C(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo),C(reg(ALU-bus3-a,ai,ao),reg(ALU-bus3-b,bi,bo))),ri,ro)" +
-			" BUS(bus5) reg(ALU-bus5-a,ai,ao) REG(ALU-bus5-a,ai,ao) reg(ALU-bus5-b,bi,bo) REG(ALU-bus5-b,bi,bo)" +
-			" reg(S(reg(ALU-bus5-a,ai,ao),reg(ALU-bus5-b,bi,bo),C(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus5-a,ai,ao),reg(ALU-bus5-b,bi,bo),C(reg(ALU-bus4-a,ai,ao),reg(ALU-bus4-b,bi,bo))),ri,ro)" +
-			" BUS(bus6) reg(ALU-bus6-a,ai,ao) REG(ALU-bus6-a,ai,ao) reg(ALU-bus6-b,bi,bo) REG(ALU-bus6-b,bi,bo)" +
-			" reg(S(reg(ALU-bus6-a,ai,ao),reg(ALU-bus6-b,bi,bo),C(reg(ALU-bus5-a,ai,ao),reg(ALU-bus5-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus6-a,ai,ao),reg(ALU-bus6-b,bi,bo),C(reg(ALU-bus5-a,ai,ao),reg(ALU-bus5-b,bi,bo))),ri,ro)" +
-			" BUS(bus7) reg(ALU-bus7-a,ai,ao) REG(ALU-bus7-a,ai,ao) reg(ALU-bus7-b,bi,bo) REG(ALU-bus7-b,bi,bo)" +
-			" reg(S(reg(ALU-bus7-a,ai,ao),reg(ALU-bus7-b,bi,bo),C(reg(ALU-bus6-a,ai,ao),reg(ALU-bus6-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus7-a,ai,ao),reg(ALU-bus7-b,bi,bo),C(reg(ALU-bus6-a,ai,ao),reg(ALU-bus6-b,bi,bo))),ri,ro)" +
-			" BUS(bus8) reg(ALU-bus8-a,ai,ao) REG(ALU-bus8-a,ai,ao) reg(ALU-bus8-b,bi,bo) REG(ALU-bus8-b,bi,bo)" +
-			" reg(S(reg(ALU-bus8-a,ai,ao),reg(ALU-bus8-b,bi,bo),C(reg(ALU-bus7-a,ai,ao),reg(ALU-bus7-b,bi,bo))),ri,ro)" +
-			" REG(S(reg(ALU-bus8-a,ai,ao),reg(ALU-bus8-b,bi,bo),C(reg(ALU-bus7-a,ai,ao),reg(ALU-bus7-b,bi,bo))),ri,ro)" +
-			" C(reg(ALU-bus8-a,ai,ao),reg(ALU-bus8-b,bi,bo))",
+			" => BUS(bus1) r(ALU-bus1-a,ai,ao) R(ALU-bus1-a,ai,ao) r(ALU-bus1-b,bi,bo) R(ALU-bus1-b,bi,bo)" +
+			" r(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" R(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
+			" BUS(bus2) r(ALU-bus2-a,ai,ao) R(ALU-bus2-a,ai,ao) r(ALU-bus2-b,bi,bo) R(ALU-bus2-b,bi,bo)" +
+			" r(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
+			" BUS(bus3) r(ALU-bus3-a,ai,ao) R(ALU-bus3-a,ai,ao) r(ALU-bus3-b,bi,bo) R(ALU-bus3-b,bi,bo)" +
+			" r(S(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo),C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo),C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))),ri,ro)" +
+			" BUS(bus4) r(ALU-bus4-a,ai,ao) R(ALU-bus4-a,ai,ao) r(ALU-bus4-b,bi,bo) R(ALU-bus4-b,bi,bo)" +
+			" r(S(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo),C(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo),C(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo))),ri,ro)" +
+			" BUS(bus5) r(ALU-bus5-a,ai,ao) R(ALU-bus5-a,ai,ao) r(ALU-bus5-b,bi,bo) R(ALU-bus5-b,bi,bo)" +
+			" r(S(r(ALU-bus5-a,ai,ao),r(ALU-bus5-b,bi,bo),C(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus5-a,ai,ao),r(ALU-bus5-b,bi,bo),C(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo))),ri,ro)" +
+			" BUS(bus6) r(ALU-bus6-a,ai,ao) R(ALU-bus6-a,ai,ao) r(ALU-bus6-b,bi,bo) R(ALU-bus6-b,bi,bo)" +
+			" r(S(r(ALU-bus6-a,ai,ao),r(ALU-bus6-b,bi,bo),C(r(ALU-bus5-a,ai,ao),r(ALU-bus5-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus6-a,ai,ao),r(ALU-bus6-b,bi,bo),C(r(ALU-bus5-a,ai,ao),r(ALU-bus5-b,bi,bo))),ri,ro)" +
+			" BUS(bus7) r(ALU-bus7-a,ai,ao) R(ALU-bus7-a,ai,ao) r(ALU-bus7-b,bi,bo) R(ALU-bus7-b,bi,bo)" +
+			" r(S(r(ALU-bus7-a,ai,ao),r(ALU-bus7-b,bi,bo),C(r(ALU-bus6-a,ai,ao),r(ALU-bus6-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus7-a,ai,ao),r(ALU-bus7-b,bi,bo),C(r(ALU-bus6-a,ai,ao),r(ALU-bus6-b,bi,bo))),ri,ro)" +
+			" BUS(bus8) r(ALU-bus8-a,ai,ao) R(ALU-bus8-a,ai,ao) r(ALU-bus8-b,bi,bo) R(ALU-bus8-b,bi,bo)" +
+			" r(S(r(ALU-bus8-a,ai,ao),r(ALU-bus8-b,bi,bo),C(r(ALU-bus7-a,ai,ao),r(ALU-bus7-b,bi,bo))),ri,ro)" +
+			" R(S(r(ALU-bus8-a,ai,ao),r(ALU-bus8-b,bi,bo),C(r(ALU-bus7-a,ai,ao),r(ALU-bus7-b,bi,bo))),ri,ro)" +
+			" C(r(ALU-bus8-a,ai,ao),r(ALU-bus8-b,bi,bo))",
 		want: []string{
 			"000100010000101=>010101001010100101010110101001010100101010010101011010101",
 			"110110010110100=>111100011110101111010111101011110101111010111101011110101",
@@ -868,8 +874,8 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "RAM",
 		desc: "a d ei eo" +
-			" => RAM RAM-s0 RAM-ei0 RAM-eo0 reg(d,RAM-ei0,RAM-eo0) REG(d,RAM-ei0,RAM-eo0)" +
-			" RAM-s1 RAM-ei1 RAM-eo1 reg(d,RAM-ei1,RAM-eo1) REG(d,RAM-ei1,RAM-eo1)",
+			" => RAM RAM-s0 RAM-ei0 RAM-eo0 r(d,RAM-ei0,RAM-eo0) R(d,RAM-ei0,RAM-eo0)" +
+			" RAM-s1 RAM-ei1 RAM-eo1 r(d,RAM-ei1,RAM-eo1) R(d,RAM-ei1,RAM-eo1)",
 		want: []string{
 			"0000=>01001000010", "0001=>11011100010", "0010=>01100000010", "0011=>01110000010",
 			"0100=>01000000010", "0101=>01010000010", "0110=>01101000010", "0111=>11111100010",
@@ -898,10 +904,10 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "RAMa2",
 		desc: "a0 a1 d ei eo" +
-			" => RAM RAM-s0 RAM-ei0 RAM-eo0 reg(d,RAM-ei0,RAM-eo0) REG(d,RAM-ei0,RAM-eo0)" +
-			" RAM-s1 RAM-ei1 RAM-eo1 reg(d,RAM-ei1,RAM-eo1) REG(d,RAM-ei1,RAM-eo1)" +
-			" RAM-s2 RAM-ei2 RAM-eo2 reg(d,RAM-ei2,RAM-eo2) REG(d,RAM-ei2,RAM-eo2)" +
-			" RAM-s3 RAM-ei3 RAM-eo3 reg(d,RAM-ei3,RAM-eo3) REG(d,RAM-ei3,RAM-eo3)",
+			" => RAM RAM-s0 RAM-ei0 RAM-eo0 r(d,RAM-ei0,RAM-eo0) R(d,RAM-ei0,RAM-eo0)" +
+			" RAM-s1 RAM-ei1 RAM-eo1 r(d,RAM-ei1,RAM-eo1) R(d,RAM-ei1,RAM-eo1)" +
+			" RAM-s2 RAM-ei2 RAM-eo2 r(d,RAM-ei2,RAM-eo2) R(d,RAM-ei2,RAM-eo2)" +
+			" RAM-s3 RAM-ei3 RAM-eo3 r(d,RAM-ei3,RAM-eo3) R(d,RAM-ei3,RAM-eo3)",
 		want: []string{
 			"00000=>010010000100001000010", "00001=>110111000100001000010",
 			"00010=>011000000100001000010", "00011=>011100000100001000010",
@@ -950,11 +956,11 @@ func TestOutputsCombinational(t *testing.T) {
 		name: "RAMb2",
 		desc: "a d0 d1 ei eo" +
 			" => RAM RAM RAM-s0 RAM-ei0 RAM-eo0" +
-			" reg(d0,RAM-ei0,RAM-eo0) REG(d0,RAM-ei0,RAM-eo0)" +
-			" reg(d1,RAM-ei0,RAM-eo0) REG(d1,RAM-ei0,RAM-eo0)" +
+			" r(d0,RAM-ei0,RAM-eo0) R(d0,RAM-ei0,RAM-eo0)" +
+			" r(d1,RAM-ei0,RAM-eo0) R(d1,RAM-ei0,RAM-eo0)" +
 			" RAM-s1 RAM-ei1 RAM-eo1" +
-			" reg(d0,RAM-ei1,RAM-eo1) REG(d0,RAM-ei1,RAM-eo1)" +
-			" reg(d1,RAM-ei1,RAM-eo1) REG(d1,RAM-ei1,RAM-eo1)",
+			" r(d0,RAM-ei1,RAM-eo1) R(d0,RAM-ei1,RAM-eo1)" +
+			" r(d1,RAM-ei1,RAM-eo1) R(d1,RAM-ei1,RAM-eo1)",
 		want: []string{
 			"00000=>0010010100001010", "00001=>1110111110001010",
 			"00010=>0011000000001010", "00011=>0011100000001010",
@@ -996,17 +1002,17 @@ func TestOutputsCombinational(t *testing.T) {
 		name: "RAMa2b2",
 		desc: "a0 a1 d0 d1 ei eo" +
 			" => RAM RAM RAM-s0 RAM-ei0 RAM-eo0" +
-			" reg(d0,RAM-ei0,RAM-eo0) REG(d0,RAM-ei0,RAM-eo0)" +
-			" reg(d1,RAM-ei0,RAM-eo0) REG(d1,RAM-ei0,RAM-eo0)" +
+			" r(d0,RAM-ei0,RAM-eo0) R(d0,RAM-ei0,RAM-eo0)" +
+			" r(d1,RAM-ei0,RAM-eo0) R(d1,RAM-ei0,RAM-eo0)" +
 			" RAM-s1 RAM-ei1 RAM-eo1" +
-			" reg(d0,RAM-ei1,RAM-eo1) REG(d0,RAM-ei1,RAM-eo1)" +
-			" reg(d1,RAM-ei1,RAM-eo1) REG(d1,RAM-ei1,RAM-eo1)" +
+			" r(d0,RAM-ei1,RAM-eo1) R(d0,RAM-ei1,RAM-eo1)" +
+			" r(d1,RAM-ei1,RAM-eo1) R(d1,RAM-ei1,RAM-eo1)" +
 			" RAM-s2 RAM-ei2 RAM-eo2" +
-			" reg(d0,RAM-ei2,RAM-eo2) REG(d0,RAM-ei2,RAM-eo2)" +
-			" reg(d1,RAM-ei2,RAM-eo2) REG(d1,RAM-ei2,RAM-eo2)" +
+			" r(d0,RAM-ei2,RAM-eo2) R(d0,RAM-ei2,RAM-eo2)" +
+			" r(d1,RAM-ei2,RAM-eo2) R(d1,RAM-ei2,RAM-eo2)" +
 			" RAM-s3 RAM-ei3 RAM-eo3" +
-			" reg(d0,RAM-ei3,RAM-eo3) REG(d0,RAM-ei3,RAM-eo3)" +
-			" reg(d1,RAM-ei3,RAM-eo3) REG(d1,RAM-ei3,RAM-eo3)",
+			" r(d0,RAM-ei3,RAM-eo3) R(d0,RAM-ei3,RAM-eo3)" +
+			" r(d1,RAM-ei3,RAM-eo3) R(d1,RAM-ei3,RAM-eo3)",
 		want: []string{
 			"000000=>001001010000101000010100001010", "000001=>111011111000101000010100001010",
 			"000010=>001100000000101000010100001010", "000011=>001110000000101000010100001010",
@@ -1152,10 +1158,10 @@ func TestOutputsSequential(t *testing.T) {
 	}, {
 		name: "AluWithBus",
 		desc: "bus ai ao bi bo ri ro cin" +
-			" => BUS(bus) reg(ALU-bus-a,ai,ao) REG(ALU-bus-a,ai,ao) reg(ALU-bus-b,bi,bo) REG(ALU-bus-b,bi,bo)" +
-			" reg(S(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo),cin),ri,ro)" +
-			" REG(S(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo),cin),ri,ro)" +
-			" C(reg(ALU-bus-a,ai,ao),reg(ALU-bus-b,bi,bo))",
+			" => BUS(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +
+			" r(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
+			" R(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
+			" C(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo))",
 		inputs: []string{"00000000", "10000000", "01000000", "00100000", "00001000", "01001000"},
 		want: []string{
 			// default to a=1 b=1 r=1 sum=0 cout=1
@@ -1175,9 +1181,9 @@ func TestOutputsSequential(t *testing.T) {
 		name: "RAM",
 		desc: "a d ei eo" +
 			" => RAM RAM-s0 RAM-ei0 RAM-eo0" +
-			" reg(d,RAM-ei0,RAM-eo0) REG(d,RAM-ei0,RAM-eo0)" +
+			" r(d,RAM-ei0,RAM-eo0) R(d,RAM-ei0,RAM-eo0)" +
 			" RAM-s1 RAM-ei1 RAM-eo1" +
-			" reg(d,RAM-ei1,RAM-eo1) REG(d,RAM-ei1,RAM-eo1)",
+			" r(d,RAM-ei1,RAM-eo1) R(d,RAM-ei1,RAM-eo1)",
 		inputs: []string{"0000", "0001", "0010", "0001", "1001"},
 		want: []string{
 			// default to s0=q0=q1=1
