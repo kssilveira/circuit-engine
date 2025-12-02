@@ -1,0 +1,6 @@
+d ai ao bi bo ri ro c => B(d) R(da,ai,ao) R(db,bi,bo) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro) C(r(da,ai,ao),r(db,bi,bo))
+d(1) ai(0) ao(0) bi(0) bo(0) ri(1) ro(0) c(1) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)
+d(1) ai(0) ao(1) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(1) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)
+d(0) ai(0) ao(1) bi(0) bo(1) ri(1) ro(0) c(1) => B(d)(1) R(da,ai,ao)(1) R(db,bi,bo)(1) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)
+d(1) ai(0) ao(0) bi(0) bo(1) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(1) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)
+d(1) ai(0) ao(0) bi(0) bo(0) ri(0) ro(1) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(1) C(r(da,ai,ao),r(db,bi,bo))(1)
