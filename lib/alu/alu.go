@@ -33,6 +33,20 @@ func Alu2(parent *group.Group, a1, a2, ai, ao, b1, b2, bi, bo, ri, ro, cin *wire
 	return append(r1[:last], r2...)
 }
 
+// N adds an N-bit arithmetic and logic unit.
+func N(parent *group.Group, a []*wire.Wire, ai, ao *wire.Wire, b []*wire.Wire, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
+	group := parent.Group(sfmt.Sprintf("ALU%d", len(a)))
+	var res []*wire.Wire
+	c := cin
+	for j, aj := range a {
+		ri := Alu(group, aj, ai, ao, b[j], bi, bo, ri, ro, c)
+		last := len(ri) - 1
+		res = append(res, ri[:last]...)
+		c = ri[last]
+	}
+	return append(res, c)
+}
+
 // WithBus adds an arithmetic logic unit with a communication bus.
 func WithBus(parent *group.Group, busa, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU-BUS")

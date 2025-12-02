@@ -119,6 +119,13 @@ var (
 				c.In("b0"), c.In("b1"), c.In("bi"), c.In("bo"),
 				c.In("ri"), c.In("ro"), c.In("c"))
 		},
+		"AluN": func(c *circuit.Circuit) []*wire.Wire {
+			return alu.N(
+				c.Group(""),
+				[]*wire.Wire{c.In("a0"), c.In("a1")}, c.In("ai"), c.In("ao"),
+				[]*wire.Wire{c.In("b0"), c.In("b1")}, c.In("bi"), c.In("bo"),
+				c.In("ri"), c.In("ro"), c.In("c"))
+		},
 		"Bus": func(c *circuit.Circuit) []*wire.Wire {
 			wa, wb := W("wa"), W("wb")
 			return append(bus.Bus(c.Group(""), c.In("bus"), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
