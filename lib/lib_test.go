@@ -305,78 +305,83 @@ func TestOutputsCombinational(t *testing.T) {
 		}(),
 	}, {
 		name:    "Register2",
-		desc:    "d0 d1 ei eo => r(d0,ei,eo) R(d0,ei,eo) r(d1,ei,eo) R(d1,ei,eo)",
+		desc:    "d0 d1 i o => r(d0,i,o) R(d0,i,o) r(d1,i,o) R(d1,i,o)",
 		convert: true,
 		want: []string{
-			"d0(0) d1(0) ei(0) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
-			"d0(0) d1(0) ei(0) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
-			"d0(0) d1(0) ei(1) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(0) d1(0) ei(1) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(0) d1(1) ei(0) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(0) d1(1) ei(0) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(0) d1(1) ei(1) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
-			"d0(0) d1(1) ei(1) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
-			"d0(1) d1(0) ei(0) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
-			"d0(1) d1(0) ei(0) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
-			"d0(1) d1(0) ei(1) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(1) d1(0) ei(1) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(1) d1(1) ei(0) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(1) d1(1) ei(0) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(1) d1(1) ei(1) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
-			"d0(1) d1(1) ei(1) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
+			"d0(0) d1(0) i(0) o(0) => r(d0,i,o)(1) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(0)",
+			"d0(0) d1(0) i(0) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(1) R(d1,i,o)(1)",
+			"d0(0) d1(0) i(1) o(0) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(0) d1(0) i(1) o(1) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(0) d1(1) i(0) o(0) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(0) d1(1) i(0) o(1) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(0) d1(1) i(1) o(0) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(0)",
+			"d0(0) d1(1) i(1) o(1) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(1)",
+			"d0(1) d1(0) i(0) o(0) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(0)",
+			"d0(1) d1(0) i(0) o(1) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(1)",
+			"d0(1) d1(0) i(1) o(0) => r(d0,i,o)(1) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(1) d1(0) i(1) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(1) d1(1) i(0) o(0) => r(d0,i,o)(1) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(1) d1(1) i(0) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(1) d1(1) i(1) o(0) => r(d0,i,o)(1) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(0)",
+			"d0(1) d1(1) i(1) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(1) R(d1,i,o)(1)",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q1, q2 := true, true
 			return func(inputs map[string]bool) []bool {
-				if inputs["ei"] {
+				if inputs["i"] {
 					q1, q2 = inputs["d0"], inputs["d1"]
 				}
-				eo := inputs["eo"]
+				eo := inputs["o"]
 				return []bool{q1, eo && q1, q2, eo && q2}
 			}
 		}(),
 	}, {
 		name:    "RegisterN",
-		desc:    "d0 d1 ei eo => r(d0,ei,eo) R(d0,ei,eo) r(d1,ei,eo) R(d1,ei,eo)",
+		desc:    "d0 d1 i o => r(d0,i,o) R(d0,i,o) r(d1,i,o) R(d1,i,o)",
 		convert: true,
 		want: []string{
-			"d0(0) d1(0) ei(0) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
-			"d0(0) d1(0) ei(0) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
-			"d0(0) d1(0) ei(1) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(0) d1(0) ei(1) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(0) d1(1) ei(0) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(0) d1(1) ei(0) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(0) d1(1) ei(1) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
-			"d0(0) d1(1) ei(1) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
-			"d0(1) d1(0) ei(0) eo(0) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
-			"d0(1) d1(0) ei(0) eo(1) => r(d0,ei,eo)(0) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
-			"d0(1) d1(0) ei(1) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(1) d1(0) ei(1) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(1) d1(1) ei(0) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(1) d1(1) ei(0) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(0) R(d1,ei,eo)(0)",
-			"d0(1) d1(1) ei(1) eo(0) => r(d0,ei,eo)(1) R(d0,ei,eo)(0) r(d1,ei,eo)(1) R(d1,ei,eo)(0)",
-			"d0(1) d1(1) ei(1) eo(1) => r(d0,ei,eo)(1) R(d0,ei,eo)(1) r(d1,ei,eo)(1) R(d1,ei,eo)(1)",
+			"d0(0) d1(0) i(0) o(0) => r(d0,i,o)(1) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(0)",
+			"d0(0) d1(0) i(0) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(1) R(d1,i,o)(1)",
+			"d0(0) d1(0) i(1) o(0) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(0) d1(0) i(1) o(1) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(0) d1(1) i(0) o(0) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(0) d1(1) i(0) o(1) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(0) d1(1) i(1) o(0) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(0)",
+			"d0(0) d1(1) i(1) o(1) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(1)",
+			"d0(1) d1(0) i(0) o(0) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(0)",
+			"d0(1) d1(0) i(0) o(1) => r(d0,i,o)(0) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(1)",
+			"d0(1) d1(0) i(1) o(0) => r(d0,i,o)(1) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(1) d1(0) i(1) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(1) d1(1) i(0) o(0) => r(d0,i,o)(1) R(d0,i,o)(0) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(1) d1(1) i(0) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(0) R(d1,i,o)(0)",
+			"d0(1) d1(1) i(1) o(0) => r(d0,i,o)(1) R(d0,i,o)(0) r(d1,i,o)(1) R(d1,i,o)(0)",
+			"d0(1) d1(1) i(1) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(1) R(d1,i,o)(1)",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q1, q2 := true, true
 			return func(inputs map[string]bool) []bool {
-				if inputs["ei"] {
+				if inputs["i"] {
 					q1, q2 = inputs["d0"], inputs["d1"]
 				}
-				eo := inputs["eo"]
-				return []bool{q1, eo && q1, q2, eo && q2}
+				o := inputs["o"]
+				return []bool{q1, o && q1, q2, o && q2}
 			}
 		}(),
 	}, {
-		name: "Alu",
-		desc: "a ai ao b bi bo ri ro cin" +
-			" => r(a,ai,ao) R(a,ai,ao) r(b,bi,bo) R(b,bi,bo)" +
-			" r(S(r(a,ai,ao),r(b,bi,bo),cin),ri,ro) R(S(r(a,ai,ao),r(b,bi,bo),cin),ri,ro)" +
-			" C(r(a,ai,ao),r(b,bi,bo))",
+		name:    "Alu",
+		desc:    "a ai ao b bi bo ri ro c => R(a,ai,ao) R(b,bi,bo) R(S(a,b)) C(a,b)",
+		convert: true,
 		want: []string{
-			"110110101=>1010101", "110000110=>1010001", "000101101=>1011101", "000000010=>1010111",
-			"110111101=>1011101", "000100010=>1010111", "000101110=>1011001", "110010110=>1000110",
-			"100000101=>1000001", "001101111=>1100001",
+			"a(1) ai(1) ao(0) b(1) bi(1) bo(0) ri(1) ro(0) c(1) => R(a,ai,ao)(0) R(b,bi,bo)(0) R(S(a,b))(0) C(a,b)(1)",
+			"a(1) ai(1) ao(0) b(0) bi(0) bo(0) ri(1) ro(1) c(0) => R(a,ai,ao)(0) R(b,bi,bo)(0) R(S(a,b))(0) C(a,b)(1)",
+			"a(0) ai(0) ao(0) b(1) bi(0) bo(1) ri(1) ro(0) c(1) => R(a,ai,ao)(0) R(b,bi,bo)(1) R(S(a,b))(0) C(a,b)(1)",
+			"a(0) ai(0) ao(0) b(0) bi(0) bo(0) ri(0) ro(1) c(0) => R(a,ai,ao)(0) R(b,bi,bo)(0) R(S(a,b))(1) C(a,b)(1)",
+			"a(1) ai(1) ao(0) b(1) bi(1) bo(1) ri(1) ro(0) c(1) => R(a,ai,ao)(0) R(b,bi,bo)(1) R(S(a,b))(0) C(a,b)(1)",
+			"a(0) ai(0) ao(0) b(1) bi(0) bo(0) ri(0) ro(1) c(0) => R(a,ai,ao)(0) R(b,bi,bo)(0) R(S(a,b))(1) C(a,b)(1)",
+			"a(0) ai(0) ao(0) b(1) bi(0) bo(1) ri(1) ro(1) c(0) => R(a,ai,ao)(0) R(b,bi,bo)(1) R(S(a,b))(0) C(a,b)(1)",
+			"a(1) ai(1) ao(0) b(0) bi(1) bo(0) ri(1) ro(1) c(0) => R(a,ai,ao)(0) R(b,bi,bo)(0) R(S(a,b))(1) C(a,b)(0)",
+			"a(1) ai(0) ao(0) b(0) bi(0) bo(0) ri(1) ro(0) c(1) => R(a,ai,ao)(0) R(b,bi,bo)(0) R(S(a,b))(0) C(a,b)(1)",
+			"a(0) ai(0) ao(1) b(1) bi(0) bo(1) ri(1) ro(1) c(1) => R(a,ai,ao)(1) R(b,bi,bo)(0) R(S(a,b))(0) C(a,b)(1)",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
 			qa, qb, qr := 1, 1, 1
@@ -387,185 +392,48 @@ func TestOutputsCombinational(t *testing.T) {
 				if inputs["bi"] == 1 {
 					qb = inputs["b"]
 				}
-				sum := qa + qb + inputs["cin"]
+				sum := qa + qb + inputs["c"]
 				if inputs["ri"] == 1 {
 					qr = sum % 2
 				}
-				return []int{qa, inputs["ao"] & qa, qb, inputs["bo"] & qb, qr, inputs["ro"] & qr, sum / 2}
+				return []int{inputs["ao"] & qa, inputs["bo"] & qb, inputs["ro"] & qr, sum / 2}
 			}
 		}(),
 	}, {
-		name: "Alu2",
-		desc: "a1 a2 ai ao b1 b2 bi bo ri ro cin" +
-			" => r(a1,ai,ao) R(a1,ai,ao) r(b1,bi,bo) R(b1,bi,bo)" +
-			" r(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro) R(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro)" +
-			" r(a2,ai,ao) R(a2,ai,ao) r(b2,bi,bo) R(b2,bi,bo)" +
-			" r(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
-			" R(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
-			" C(r(a2,ai,ao),r(b2,bi,bo))",
+		name:    "Alu2",
+		desc:    "a0 a1 ai ao b0 b1 bi bo ri ro c => R(a0,ai,ao) R(b0,bi,bo) R(S(a0,b0)) R(a1,ai,ao) R(b1,bi,bo) R(S(a1,b1)) C(a1,b1)",
+		convert: true,
 		want: []string{
-			"11011010111=>1110111100001", "00001100001=>1010101000001",
-			"01101000000=>0010101000000", "01011011110=>0011111100110",
-			"10001000100=>0010101000100", "00101110110=>0010110010110",
-			"01011010000=>0010100000100", "01010011011=>0000110000110",
-			"11111011010=>1111111100111", "01000101000=>1011101000101",
+			"a0(1) a1(1) ai(0) ao(1) b0(1) b1(0) bi(1) bo(0) ri(1) ro(1) c(1) => R(a0,ai,ao)(1) R(b0,bi,bo)(0) R(S(a0,b0))(1) R(a1,ai,ao)(1) R(b1,bi,bo)(0) R(S(a1,b1))(0) C(a1,b1)(1)",
+			"a0(0) a1(0) ai(0) ao(0) b0(1) b1(1) bi(0) bo(0) ri(0) ro(0) c(1) => R(a0,ai,ao)(0) R(b0,bi,bo)(0) R(S(a0,b0))(0) R(a1,ai,ao)(0) R(b1,bi,bo)(0) R(S(a1,b1))(0) C(a1,b1)(1)",
+			"a0(0) a1(1) ai(1) ao(0) b0(1) b1(0) bi(0) bo(0) ri(0) ro(0) c(0) => R(a0,ai,ao)(0) R(b0,bi,bo)(0) R(S(a0,b0))(0) R(a1,ai,ao)(0) R(b1,bi,bo)(0) R(S(a1,b1))(0) C(a1,b1)(0)",
+			"a0(0) a1(1) ai(0) ao(1) b0(1) b1(0) bi(1) bo(1) ri(1) ro(1) c(0) => R(a0,ai,ao)(0) R(b0,bi,bo)(1) R(S(a0,b0))(1) R(a1,ai,ao)(1) R(b1,bi,bo)(0) R(S(a1,b1))(1) C(a1,b1)(0)",
+			"a0(1) a1(0) ai(0) ao(0) b0(1) b1(0) bi(0) bo(0) ri(1) ro(0) c(0) => R(a0,ai,ao)(0) R(b0,bi,bo)(0) R(S(a0,b0))(0) R(a1,ai,ao)(0) R(b1,bi,bo)(0) R(S(a1,b1))(0) C(a1,b1)(0)",
+			"a0(0) a1(0) ai(1) ao(0) b0(1) b1(1) bi(1) bo(0) ri(1) ro(1) c(0) => R(a0,ai,ao)(0) R(b0,bi,bo)(0) R(S(a0,b0))(1) R(a1,ai,ao)(0) R(b1,bi,bo)(0) R(S(a1,b1))(1) C(a1,b1)(0)",
+			"a0(0) a1(1) ai(0) ao(1) b0(1) b1(0) bi(1) bo(0) ri(0) ro(0) c(0) => R(a0,ai,ao)(0) R(b0,bi,bo)(0) R(S(a0,b0))(0) R(a1,ai,ao)(0) R(b1,bi,bo)(0) R(S(a1,b1))(0) C(a1,b1)(0)",
+			"a0(0) a1(1) ai(0) ao(1) b0(0) b1(0) bi(1) bo(1) ri(0) ro(1) c(1) => R(a0,ai,ao)(0) R(b0,bi,bo)(0) R(S(a0,b0))(1) R(a1,ai,ao)(0) R(b1,bi,bo)(0) R(S(a1,b1))(1) C(a1,b1)(0)",
+			"a0(1) a1(1) ai(1) ao(1) b0(1) b1(0) bi(1) bo(1) ri(0) ro(1) c(0) => R(a0,ai,ao)(1) R(b0,bi,bo)(1) R(S(a0,b0))(1) R(a1,ai,ao)(1) R(b1,bi,bo)(0) R(S(a1,b1))(1) C(a1,b1)(1)",
+			"a0(0) a1(1) ai(0) ao(0) b0(0) b1(1) bi(0) bo(1) ri(0) ro(0) c(0) => R(a0,ai,ao)(0) R(b0,bi,bo)(1) R(S(a0,b0))(0) R(a1,ai,ao)(0) R(b1,bi,bo)(0) R(S(a1,b1))(0) C(a1,b1)(1)",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
 			qa1, qb1, qr1 := 1, 1, 1
 			qa2, qb2, qr2 := 1, 1, 1
 			return func(inputs map[string]int) []int {
 				if inputs["ai"] == 1 {
-					qa1, qa2 = inputs["a1"], inputs["a2"]
+					qa1, qa2 = inputs["a0"], inputs["a1"]
 				}
 				if inputs["bi"] == 1 {
-					qb1, qb2 = inputs["b1"], inputs["b2"]
+					qb1, qb2 = inputs["b0"], inputs["b1"]
 				}
-				sum1 := qa1 + qb1 + inputs["cin"]
+				sum1 := qa1 + qb1 + inputs["c"]
 				sum2 := qa2 + qb2 + sum1/2
 				if inputs["ri"] == 1 {
 					qr1, qr2 = sum1%2, sum2%2
 				}
 				return []int{
-					qa1, inputs["ao"] & qa1, qb1, inputs["bo"] & qb1, qr1, inputs["ro"] & qr1,
-					qa2, inputs["ao"] & qa2, qb2, inputs["bo"] & qb2, qr2, inputs["ro"] & qr2,
+					inputs["ao"] & qa1, inputs["bo"] & qb1, inputs["ro"] & qr1,
+					inputs["ao"] & qa2, inputs["bo"] & qb2, inputs["ro"] & qr2,
 					sum2 / 2,
-				}
-			}
-		}(),
-	}, {
-		name: "Alu4",
-		desc: "a1 a2 a3 a4 ai ao b1 b2 b3 b4 bi bo ri ro cin" +
-			" => r(a1,ai,ao) R(a1,ai,ao) r(b1,bi,bo) R(b1,bi,bo)" +
-			" r(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro) R(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro)" +
-			" r(a2,ai,ao) R(a2,ai,ao) r(b2,bi,bo) R(b2,bi,bo)" +
-			" r(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
-			" R(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
-			" r(a3,ai,ao) R(a3,ai,ao) r(b3,bi,bo) R(b3,bi,bo)" +
-			" r(S(r(a3,ai,ao),r(b3,bi,bo),C(r(a2,ai,ao),r(b2,bi,bo))),ri,ro)" +
-			" R(S(r(a3,ai,ao),r(b3,bi,bo),C(r(a2,ai,ao),r(b2,bi,bo))),ri,ro)" +
-			" r(a4,ai,ao) R(a4,ai,ao) r(b4,bi,bo) R(b4,bi,bo)" +
-			" r(S(r(a4,ai,ao),r(b4,bi,bo),C(r(a3,ai,ao),r(b3,bi,bo))),ri,ro)" +
-			" R(S(r(a4,ai,ao),r(b4,bi,bo),C(r(a3,ai,ao),r(b3,bi,bo))),ri,ro)" +
-			" C(r(a4,ai,ao),r(b4,bi,bo))",
-		want: []string{
-			"110110101110000=>1010101000100010101010101",
-			"110000101101000=>1011101000100011101011101",
-			"000010110111101=>0011000011000000100011100",
-			"000100010000101=>0010000010000000100010100",
-			"110110010110100=>1000101010000000101010001",
-			"000101001101111=>1100001111110000111111001",
-			"111011010010001=>1100001110101100100000000",
-			"010001001111100=>1100101100101111000011001",
-			"001010101011100=>0011100000001011000000100",
-			"011010011100110=>0010111000111010000000110",
-		},
-		isValidInt: func() func(inputs map[string]int) []int {
-			qa1, qb1, qr1 := 1, 1, 1
-			qa2, qb2, qr2 := 1, 1, 1
-			qa3, qb3, qr3 := 1, 1, 1
-			qa4, qb4, qr4 := 1, 1, 1
-			return func(inputs map[string]int) []int {
-				if inputs["ai"] == 1 {
-					qa1, qa2, qa3, qa4 = inputs["a1"], inputs["a2"], inputs["a3"], inputs["a4"]
-				}
-				if inputs["bi"] == 1 {
-					qb1, qb2, qb3, qb4 = inputs["b1"], inputs["b2"], inputs["b3"], inputs["b4"]
-				}
-				sum1 := qa1 + qb1 + inputs["cin"]
-				sum2 := qa2 + qb2 + sum1/2
-				sum3 := qa3 + qb3 + sum2/2
-				sum4 := qa4 + qb4 + sum3/2
-				if inputs["ri"] == 1 {
-					qr1, qr2, qr3, qr4 = sum1%2, sum2%2, sum3%2, sum4%2
-				}
-				return []int{
-					qa1, inputs["ao"] & qa1, qb1, inputs["bo"] & qb1, qr1, inputs["ro"] & qr1,
-					qa2, inputs["ao"] & qa2, qb2, inputs["bo"] & qb2, qr2, inputs["ro"] & qr2,
-					qa3, inputs["ao"] & qa3, qb3, inputs["bo"] & qb3, qr3, inputs["ro"] & qr3,
-					qa4, inputs["ao"] & qa4, qb4, inputs["bo"] & qb4, qr4, inputs["ro"] & qr4,
-					sum4 / 2,
-				}
-			}
-		}(),
-	}, {
-		name: "Alu8",
-		desc: "a1 a2 a3 a4 a5 a6 a7 a8 ai ao b1 b2 b3 b4 b5 b6 b7 b8 bi bo ri ro cin" +
-			" => r(a1,ai,ao) R(a1,ai,ao) r(b1,bi,bo) R(b1,bi,bo)" +
-			" r(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro) R(S(r(a1,ai,ao),r(b1,bi,bo),cin),ri,ro)" +
-			" r(a2,ai,ao) R(a2,ai,ao) r(b2,bi,bo) R(b2,bi,bo)" +
-			" r(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
-			" R(S(r(a2,ai,ao),r(b2,bi,bo),C(r(a1,ai,ao),r(b1,bi,bo))),ri,ro)" +
-			" r(a3,ai,ao) R(a3,ai,ao) r(b3,bi,bo) R(b3,bi,bo)" +
-			" r(S(r(a3,ai,ao),r(b3,bi,bo),C(r(a2,ai,ao),r(b2,bi,bo))),ri,ro)" +
-			" R(S(r(a3,ai,ao),r(b3,bi,bo),C(r(a2,ai,ao),r(b2,bi,bo))),ri,ro)" +
-			" r(a4,ai,ao) R(a4,ai,ao) r(b4,bi,bo) R(b4,bi,bo)" +
-			" r(S(r(a4,ai,ao),r(b4,bi,bo),C(r(a3,ai,ao),r(b3,bi,bo))),ri,ro)" +
-			" R(S(r(a4,ai,ao),r(b4,bi,bo),C(r(a3,ai,ao),r(b3,bi,bo))),ri,ro)" +
-			" r(a5,ai,ao) R(a5,ai,ao) r(b5,bi,bo) R(b5,bi,bo)" +
-			" r(S(r(a5,ai,ao),r(b5,bi,bo),C(r(a4,ai,ao),r(b4,bi,bo))),ri,ro)" +
-			" R(S(r(a5,ai,ao),r(b5,bi,bo),C(r(a4,ai,ao),r(b4,bi,bo))),ri,ro)" +
-			" r(a6,ai,ao) R(a6,ai,ao) r(b6,bi,bo) R(b6,bi,bo)" +
-			" r(S(r(a6,ai,ao),r(b6,bi,bo),C(r(a5,ai,ao),r(b5,bi,bo))),ri,ro)" +
-			" R(S(r(a6,ai,ao),r(b6,bi,bo),C(r(a5,ai,ao),r(b5,bi,bo))),ri,ro)" +
-			" r(a7,ai,ao) R(a7,ai,ao) r(b7,bi,bo) R(b7,bi,bo)" +
-			" r(S(r(a7,ai,ao),r(b7,bi,bo),C(r(a6,ai,ao),r(b6,bi,bo))),ri,ro)" +
-			" R(S(r(a7,ai,ao),r(b7,bi,bo),C(r(a6,ai,ao),r(b6,bi,bo))),ri,ro)" +
-			" r(a8,ai,ao) R(a8,ai,ao) r(b8,bi,bo) R(b8,bi,bo)" +
-			" r(S(r(a8,ai,ao),r(b8,bi,bo),C(r(a7,ai,ao),r(b7,bi,bo))),ri,ro)" +
-			" R(S(r(a8,ai,ao),r(b8,bi,bo),C(r(a7,ai,ao),r(b7,bi,bo))),ri,ro)" +
-			" C(r(a8,ai,ao),r(b8,bi,bo))",
-		want: []string{
-			"11011010111000011000010=>1110111110110010111110111110110010111110110010111",
-			"11010000000101101111010=>1000111011110000111011111011110000111011110011111",
-			"00100010000101110110010=>1000111010110000111010111010110010111000110010111",
-			"11010000010100110111111=>1100001111110000111100111111000011001100000011001",
-			"10110100100010100010011=>1000000000111010111000110010001000000000000000000",
-			"11100001010101011100011=>1100000000111110111100110010001100000000000000000",
-			"01001110011000011100100=>1100100000001110001100000010001100000000100000000",
-			"11000011000100001000001=>1000100000001010001000000010001000000000100000000",
-			"00101101010010011010101=>1100000000101110001100000000101110000010000000100",
-			"11100011000101110101001=>1000000000101011001000000000101011000011000000100",
-		},
-		isValidInt: func() func(inputs map[string]int) []int {
-			qa1, qb1, qr1 := 1, 1, 1
-			qa2, qb2, qr2 := 1, 1, 1
-			qa3, qb3, qr3 := 1, 1, 1
-			qa4, qb4, qr4 := 1, 1, 1
-			qa5, qb5, qr5 := 1, 1, 1
-			qa6, qb6, qr6 := 1, 1, 1
-			qa7, qb7, qr7 := 1, 1, 1
-			qa8, qb8, qr8 := 1, 1, 1
-			return func(inputs map[string]int) []int {
-				if inputs["ai"] == 1 {
-					qa1, qa2, qa3, qa4 = inputs["a1"], inputs["a2"], inputs["a3"], inputs["a4"]
-					qa5, qa6, qa7, qa8 = inputs["a5"], inputs["a6"], inputs["a7"], inputs["a8"]
-				}
-				if inputs["bi"] == 1 {
-					qb1, qb2, qb3, qb4 = inputs["b1"], inputs["b2"], inputs["b3"], inputs["b4"]
-					qb5, qb6, qb7, qb8 = inputs["b5"], inputs["b6"], inputs["b7"], inputs["b8"]
-				}
-				sum1 := qa1 + qb1 + inputs["cin"]
-				sum2 := qa2 + qb2 + sum1/2
-				sum3 := qa3 + qb3 + sum2/2
-				sum4 := qa4 + qb4 + sum3/2
-				sum5 := qa5 + qb5 + sum4/2
-				sum6 := qa6 + qb6 + sum5/2
-				sum7 := qa7 + qb7 + sum6/2
-				sum8 := qa8 + qb8 + sum7/2
-				if inputs["ri"] == 1 {
-					qr1, qr2, qr3, qr4 = sum1%2, sum2%2, sum3%2, sum4%2
-					qr5, qr6, qr7, qr8 = sum5%2, sum6%2, sum7%2, sum8%2
-				}
-				return []int{
-					qa1, inputs["ao"] & qa1, qb1, inputs["bo"] & qb1, qr1, inputs["ro"] & qr1,
-					qa2, inputs["ao"] & qa2, qb2, inputs["bo"] & qb2, qr2, inputs["ro"] & qr2,
-					qa3, inputs["ao"] & qa3, qb3, inputs["bo"] & qb3, qr3, inputs["ro"] & qr3,
-					qa4, inputs["ao"] & qa4, qb4, inputs["bo"] & qb4, qr4, inputs["ro"] & qr4,
-					qa5, inputs["ao"] & qa5, qb5, inputs["bo"] & qb5, qr5, inputs["ro"] & qr5,
-					qa6, inputs["ao"] & qa6, qb6, inputs["bo"] & qb6, qr6, inputs["ro"] & qr6,
-					qa7, inputs["ao"] & qa7, qb7, inputs["bo"] & qb7, qr7, inputs["ro"] & qr7,
-					qa8, inputs["ao"] & qa8, qb8, inputs["bo"] & qb8, qr8, inputs["ro"] & qr8,
-					sum8 / 2,
 				}
 			}
 		}(),

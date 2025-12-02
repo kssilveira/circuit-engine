@@ -100,42 +100,24 @@ var (
 			return reg.Register(c.Group(""), c.In("d"), c.In("i"), c.In("o"))
 		},
 		"Register2": func(c *circuit.Circuit) []*wire.Wire {
-			return reg.Register2(c.Group(""), c.In("d0"), c.In("d1"), c.In("ei"), c.In("eo"))
+			return reg.Register2(c.Group(""), c.In("d0"), c.In("d1"), c.In("i"), c.In("o"))
 		},
 		"RegisterN": func(c *circuit.Circuit) []*wire.Wire {
-			return reg.N(c.Group(""), []*wire.Wire{c.In("d0"), c.In("d1")}, c.In("ei"), c.In("eo"))
+			return reg.N(c.Group(""), []*wire.Wire{c.In("d0"), c.In("d1")}, c.In("i"), c.In("o"))
 		},
 		"Alu": func(c *circuit.Circuit) []*wire.Wire {
 			return alu.Alu(
 				c.Group(""),
 				c.In("a"), c.In("ai"), c.In("ao"),
 				c.In("b"), c.In("bi"), c.In("bo"),
-				c.In("ri"), c.In("ro"), c.In("cin"))
+				c.In("ri"), c.In("ro"), c.In("c"))
 		},
 		"Alu2": func(c *circuit.Circuit) []*wire.Wire {
 			return alu.Alu2(
 				c.Group(""),
-				c.In("a1"), c.In("a2"), c.In("ai"), c.In("ao"),
-				c.In("b1"), c.In("b2"), c.In("bi"), c.In("bo"),
-				c.In("ri"), c.In("ro"), c.In("cin"))
-		},
-		"Alu4": func(c *circuit.Circuit) []*wire.Wire {
-			return alu.Alu4(
-				c.Group(""),
-				[4]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4")}, c.In("ai"), c.In("ao"),
-				[4]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4")}, c.In("bi"), c.In("bo"),
-				c.In("ri"), c.In("ro"), c.In("cin"))
-		},
-		"Alu8": func(c *circuit.Circuit) []*wire.Wire {
-			return alu.Alu8(
-				c.Group(""),
-				[8]*wire.Wire{
-					c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"), c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8"),
-				}, c.In("ai"), c.In("ao"),
-				[8]*wire.Wire{
-					c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"), c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8"),
-				}, c.In("bi"), c.In("bo"),
-				c.In("ri"), c.In("ro"), c.In("cin"))
+				c.In("a0"), c.In("a1"), c.In("ai"), c.In("ao"),
+				c.In("b0"), c.In("b1"), c.In("bi"), c.In("bo"),
+				c.In("ri"), c.In("ro"), c.In("c"))
 		},
 		"Bus": func(c *circuit.Circuit) []*wire.Wire {
 			wa, wb := W("wa"), W("wb")
