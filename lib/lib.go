@@ -36,6 +36,11 @@ func W(name string) *wire.Wire {
 	return &wire.Wire{Name: name}
 }
 
+// WS creates a wire slice
+func WS(ws ...*wire.Wire) []*wire.Wire {
+	return ws
+}
+
 var (
 	examples = map[string]func(*circuit.Circuit) []*wire.Wire{
 		"TransistorEmitter": func(c *circuit.Circuit) []*wire.Wire {
@@ -48,30 +53,30 @@ var (
 			return gate.Transistor(c.Group(""), c.In("b"), c.In("c"))
 		},
 		"Not": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{gate.Not(c.Group(""), c.In("a"))}
+			return WS(gate.Not(c.Group(""), c.In("a")))
 		},
 		"And": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{gate.And(c.Group(""), c.In("a"), c.In("b"))}
+			return WS(gate.And(c.Group(""), c.In("a"), c.In("b")))
 		},
 		"Or": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{gate.Or(c.Group(""), c.In("a"), c.In("b"))}
+			return WS(gate.Or(c.Group(""), c.In("a"), c.In("b")))
 		},
 		"OrRes": func(c *circuit.Circuit) []*wire.Wire {
 			bOrRes := &wire.Wire{Name: "bOrRes"}
-			return []*wire.Wire{gate.OrRes(c.Group(""), bOrRes, c.In("a"), bOrRes)}
+			return WS(gate.OrRes(c.Group(""), bOrRes, c.In("a"), bOrRes))
 		},
 		"Nand": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{gate.Nand(c.Group(""), c.In("a"), c.In("b"))}
+			return WS(gate.Nand(c.Group(""), c.In("a"), c.In("b")))
 		},
 		"Nand(Nand)": func(c *circuit.Circuit) []*wire.Wire {
 			g := c.Group("")
-			return []*wire.Wire{gate.Nand(g, c.In("a"), gate.Nand(g, c.In("b"), c.In("c")))}
+			return WS(gate.Nand(g, c.In("a"), gate.Nand(g, c.In("b"), c.In("c"))))
 		},
 		"Xor": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{gate.Xor(c.Group(""), c.In("a"), c.In("b"))}
+			return WS(gate.Xor(c.Group(""), c.In("a"), c.In("b")))
 		},
 		"Nor": func(c *circuit.Circuit) []*wire.Wire {
-			return []*wire.Wire{gate.Nor(c.Group(""), c.In("a"), c.In("b"))}
+			return WS(gate.Nor(c.Group(""), c.In("a"), c.In("b")))
 		},
 		"HalfSum": func(c *circuit.Circuit) []*wire.Wire {
 			return sum.HalfSum(c.Group(""), c.In("a"), c.In("b"))
@@ -83,7 +88,7 @@ var (
 			return sum.Sum2(c.Group(""), c.In("a0"), c.In("a1"), c.In("b0"), c.In("b1"), c.In("c"))
 		},
 		"SumN": func(c *circuit.Circuit) []*wire.Wire {
-			return sum.N(c.Group(""), []*wire.Wire{c.In("a0"), c.In("a1")}, []*wire.Wire{c.In("b0"), c.In("b1")}, c.In("c"))
+			return sum.N(c.Group(""), WS(c.In("a0"), c.In("a1")), WS(c.In("b0"), c.In("b1")), c.In("c"))
 		},
 		"SRLatch": func(c *circuit.Circuit) []*wire.Wire {
 			return latch.SRLatch(c.Group(""), c.In("s"), c.In("r"))
@@ -101,7 +106,7 @@ var (
 			return reg.Register2(c.Group(""), c.In("d0"), c.In("d1"), c.In("i"), c.In("o"))
 		},
 		"RegisterN": func(c *circuit.Circuit) []*wire.Wire {
-			return reg.N(c.Group(""), []*wire.Wire{c.In("d0"), c.In("d1")}, c.In("i"), c.In("o"))
+			return reg.N(c.Group(""), WS(c.In("d0"), c.In("d1")), c.In("i"), c.In("o"))
 		},
 		"Alu": func(c *circuit.Circuit) []*wire.Wire {
 			return alu.Alu(
@@ -120,8 +125,8 @@ var (
 		"AluN": func(c *circuit.Circuit) []*wire.Wire {
 			return alu.N(
 				c.Group(""),
-				[]*wire.Wire{c.In("a0"), c.In("a1")}, c.In("ai"), c.In("ao"),
-				[]*wire.Wire{c.In("b0"), c.In("b1")}, c.In("bi"), c.In("bo"),
+				WS(c.In("a0"), c.In("a1")), c.In("ai"), c.In("ao"),
+				WS(c.In("b0"), c.In("b1")), c.In("bi"), c.In("bo"),
 				c.In("ri"), c.In("ro"), c.In("c"))
 		},
 		"Bus": func(c *circuit.Circuit) []*wire.Wire {
@@ -141,14 +146,14 @@ var (
 			aw0, aw1 := W("aw0"), W("aw1")
 			bw0, bw1 := W("bw0"), W("bw1")
 			return append(bus.N(
-				c.Group(""), []*wire.Wire{c.In("d0"), c.In("d1")},
-				[]*wire.Wire{c.In("ar0"), c.In("ar1")}, []*wire.Wire{c.In("br0"), c.In("br1")}, []*wire.Wire{c.In("r0"), c.In("r1")},
-				[]*wire.Wire{aw0, aw1}, []*wire.Wire{bw0, bw1}),
+				c.Group(""), WS(c.In("d0"), c.In("d1")),
+				WS(c.In("ar0"), c.In("ar1")), WS(c.In("br0"), c.In("br1")), WS(c.In("r0"), c.In("r1")),
+				WS(aw0, aw1), WS(bw0, bw1)),
 				aw0, aw1, bw0, bw1)
 		},
 		"BusIOn": func(c *circuit.Circuit) []*wire.Wire {
 			aw, bw := W("aw"), W("bw")
-			return append(bus.Bion(c.Group(""), []*wire.Wire{c.In("d"), c.In("ar"), c.In("br"), c.In("r")}, []*wire.Wire{aw, bw}), aw, bw)
+			return append(bus.Bion(c.Group(""), WS(c.In("d"), c.In("ar"), c.In("br"), c.In("r")), WS(aw, bw)), aw, bw)
 		},
 		"BUSbNioN": func(c *circuit.Circuit) []*wire.Wire {
 			aw0, aw1 := W("aw0"), W("aw1")
@@ -200,19 +205,19 @@ var (
 		},
 		"RAM": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
-				c.Group(""), []*wire.Wire{c.In("a")}, []*wire.Wire{c.In("d")}, c.In("ei"), c.In("eo"))
+				c.Group(""), WS(c.In("a")), WS(c.In("d")), c.In("ei"), c.In("eo"))
 		},
 		"RAMa2": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
-				c.Group(""), []*wire.Wire{c.In("a0"), c.In("a1")}, []*wire.Wire{c.In("d")}, c.In("ei"), c.In("eo"))
+				c.Group(""), WS(c.In("a0"), c.In("a1")), WS(c.In("d")), c.In("ei"), c.In("eo"))
 		},
 		"RAMb2": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
-				c.Group(""), []*wire.Wire{c.In("a")}, []*wire.Wire{c.In("d0"), c.In("d1")}, c.In("ei"), c.In("eo"))
+				c.Group(""), WS(c.In("a")), WS(c.In("d0"), c.In("d1")), c.In("ei"), c.In("eo"))
 		},
 		"RAMa2b2": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
-				c.Group(""), []*wire.Wire{c.In("a0"), c.In("a1")}, []*wire.Wire{c.In("d0"), c.In("d1")},
+				c.Group(""), WS(c.In("a0"), c.In("a1")), WS(c.In("d0"), c.In("d1")),
 				c.In("ei"), c.In("eo"))
 		},
 		"": func(_ *circuit.Circuit) []*wire.Wire {
