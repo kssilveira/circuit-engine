@@ -27,18 +27,20 @@ func TestOutputsCombinational(t *testing.T) {
 			return []bool{inputs["b"] && inputs["c"]}
 		},
 	}, {
-		name: "TransistorGnd",
-		desc: "base collector => collector_out",
-		want: []string{"00=>0", "01=>1", "10=>0", "11=>0"},
+		name:    "TransistorGnd",
+		desc:    "b c => co",
+		convert: true,
+		want:    []string{"b(0)c(0) => co(0)", "b(0)c(1) => co(1)", "b(1)c(0) => co(0)", "b(1)c(1) => co(0)"},
 		isValidBool: func(inputs map[string]bool) []bool {
-			return []bool{!inputs["base"] && inputs["collector"]}
+			return []bool{!inputs["b"] && inputs["c"]}
 		},
 	}, {
-		name: "Transistor",
-		desc: "base collector => emitter collector_out",
-		want: []string{"00=>00", "01=>01", "10=>00", "11=>11"},
+		name:    "Transistor",
+		desc:    "b c => e co",
+		convert: true,
+		want:    []string{"b(0)c(0) => e(0)co(0)", "b(0)c(1) => e(0)co(1)", "b(1)c(0) => e(0)co(0)", "b(1)c(1) => e(1)co(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
-			return []bool{inputs["base"] && inputs["collector"], inputs["collector"]}
+			return []bool{inputs["b"] && inputs["c"], inputs["c"]}
 		},
 	}, {
 		name: "Not",

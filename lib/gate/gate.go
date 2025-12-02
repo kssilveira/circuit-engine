@@ -20,7 +20,7 @@ func TransistorEmitter(parent *group.Group, base, collector *wire.Wire) []*wire.
 // TransistorGnd adds a transistor-ground.
 func TransistorGnd(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 	group := parent.Group("TransistorGnd")
-	collectorOut := &wire.Wire{Name: "collector_out"}
+	collectorOut := &wire.Wire{Name: "co"}
 	group.Transistor(base, collector, group.Gnd, collectorOut)
 	return []*wire.Wire{collectorOut}
 }
@@ -28,8 +28,8 @@ func TransistorGnd(parent *group.Group, base, collector *wire.Wire) []*wire.Wire
 // Transistor adds a transistor.
 func Transistor(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 	group := parent.Group("Transistor")
-	emitter := &wire.Wire{Name: "emitter"}
-	collectorOut := &wire.Wire{Name: "collector_out"}
+	emitter := &wire.Wire{Name: "e"}
+	collectorOut := &wire.Wire{Name: "co"}
 	group.Transistor(base, collector, emitter, collectorOut)
 	return []*wire.Wire{emitter, collectorOut}
 }

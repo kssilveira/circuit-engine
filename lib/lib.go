@@ -44,10 +44,10 @@ var (
 			return gate.TransistorEmitter(c.Group(""), c.In("b"), c.In("c"))
 		},
 		"TransistorGnd": func(c *circuit.Circuit) []*wire.Wire {
-			return gate.TransistorGnd(c.Group(""), c.In("base"), c.In("collector"))
+			return gate.TransistorGnd(c.Group(""), c.In("b"), c.In("c"))
 		},
 		"Transistor": func(c *circuit.Circuit) []*wire.Wire {
-			return gate.Transistor(c.Group(""), c.In("base"), c.In("collector"))
+			return gate.Transistor(c.Group(""), c.In("b"), c.In("c"))
 		},
 		"Not": func(c *circuit.Circuit) []*wire.Wire {
 			return []*wire.Wire{gate.Not(c.Group(""), c.In("a"))}
