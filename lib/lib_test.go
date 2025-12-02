@@ -470,6 +470,48 @@ func TestOutputsCombinational(t *testing.T) {
 				return res
 			}
 		}(),
+	}, {
+		name: "AluWithRAM",
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa, qb, qr, qma, qm0, qm1 := 1, 1, 1, 1, 1, 1
+			return func(inputs map[string]int) []int {
+				rr, d, sum := 0, 0, 0
+				rm0, rm1 := 0, 0
+				qm, rm := &qm0, &rm0
+				s1 := qma
+				if s1 == 1 {
+					qm, rm = &qm1, &rm1
+				}
+				for i := 0; i < 10; i++ {
+					if inputs["ro"] == 1 {
+						rr = qr
+					}
+					if inputs["mo"] == 1 {
+						*rm = *qm
+					}
+					if inputs["d"] == 1 || rr == 1 || *rm == 1 {
+						d = 1
+					}
+					if inputs["ai"] == 1 {
+						qa = d
+					}
+					if inputs["bi"] == 1 {
+						qb = d
+					}
+					if inputs["mai"] == 1 {
+						qma = d
+					}
+					if inputs["mi"] == 1 {
+						*qm = d
+					}
+					sum = qa + qb + inputs["c"]
+					if inputs["ri"] == 1 {
+						qr = sum % 2
+					}
+				}
+				return []int{d, sum / 2, qa, qb, rr, qma, *rm, rm0, rm1}
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})

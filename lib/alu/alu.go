@@ -92,7 +92,7 @@ func WithBusN(parent *group.Group, d []*wire.Wire, ai, bi, ri, ro, c *wire.Wire)
 }
 
 // WithRAM adds an arithmetic logic unit with RAM.
-func WithRAM(parent *group.Group, d, ai, bi, ri, ro, c, mai, mao, mi, mo *wire.Wire) []*wire.Wire {
+func WithRAM(parent *group.Group, d, ai, bi, ri, ro, c, mai, mi, mo *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU-RAM")
 	a := &wire.Wire{Name: sfmt.Sprintf("%sa", d.Name)}
 	ra := reg.Register(group, a, ai, group.True)
@@ -101,9 +101,17 @@ func WithRAM(parent *group.Group, d, ai, bi, ri, ro, c, mai, mao, mi, mo *wire.W
 	r := sum.Sum(group, ra, rb, c)
 	rr := reg.Register(group, r[0], ri, ro)
 	ma := &wire.Wire{Name: sfmt.Sprintf("%sma", d.Name)}
-	rma := reg.Register(group, ma, mai, mao)
+	rma := reg.Register(group, ma, mai, group.True)
 	m := &wire.Wire{Name: sfmt.Sprintf("%sm", d.Name)}
 	rm := ram.RAM(group, []*wire.Wire{rma}, []*wire.Wire{m}, mi, mo)
-	rd := bus.IOn(group, append([]*wire.Wire{d, ra, rb, rr, rma}, rm...), []*wire.Wire{a, b, m, ma})
+	rd := bus.IOn(group, append([]*wire.Wire{d, rr}, rm...), []*wire.Wire{a, b, m, ma})
 	return slices.Concat(append(rd, r[1], ra, rb, rr, rma), rm)
+}
+
+// WithRAMInputValidation validates inputs with ram.
+func WithRAMInputValidation(ai, bi, ri, ro, mai, mi, mo *wire.Wire) func() bool {
+	return func() bool {
+		return WithBusInputValidation(ai, bi, ri, ro)() &&
+			!(mai.Bit.Get(nil) && mo.Bit.Get(nil))
+	}
 }
