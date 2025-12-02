@@ -18,6 +18,8 @@ type Circuit struct {
 	Config           config.Config
 	Vcc              *wire.Wire
 	Gnd              *wire.Wire
+	True             *wire.Wire
+	False            *wire.Wire
 	Unused           *wire.Wire
 	Inputs           []*wire.Wire
 	Outputs          []*wire.Wire
@@ -31,7 +33,10 @@ func NewCircuit(config config.Config) *Circuit {
 	vcc.Set(true)
 	gnd := bit.Bit{}
 	gnd.Set(true)
-	return &Circuit{Config: config, Vcc: &wire.Wire{Name: "Vcc", Bit: vcc}, Gnd: &wire.Wire{Name: "Gnd", Gnd: gnd}, Unused: &wire.Wire{Name: "Unused"}}
+	return &Circuit{
+		Config: config, Vcc: &wire.Wire{Name: "Vcc", Bit: vcc}, Gnd: &wire.Wire{Name: "Gnd", Gnd: gnd},
+		True: &wire.Wire{Name: "T", Bit: vcc}, False: &wire.Wire{Name: "F", Bit: gnd},
+		Unused: &wire.Wire{Name: "Unused"}}
 }
 
 // In adds an input.
@@ -43,7 +48,7 @@ func (c *Circuit) In(name string) *wire.Wire {
 
 // Group adds a group.
 func (c *Circuit) Group(name string) *group.Group {
-	res := &group.Group{Name: name, Vcc: c.Vcc, Gnd: c.Gnd, Unused: c.Unused}
+	res := &group.Group{Name: name, Vcc: c.Vcc, Gnd: c.Gnd, True: c.True, False: c.False, Unused: c.Unused}
 	c.Components = append(c.Components, res)
 	return res
 }

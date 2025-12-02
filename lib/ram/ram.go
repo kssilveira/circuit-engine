@@ -64,9 +64,9 @@ func ramRegisters(group *group.Group, d, ei, eo []*wire.Wire) []*wire.Wire {
 		var next []*wire.Wire
 		for i := range d {
 			res := &wire.Wire{}
-			group.JointWire(res, prev[i], ri[2*i+1])
+			group.JointWire(res, prev[i], ri[i])
 			next = append(next, res)
-			all = append(all, ri[2*i+1])
+			all = append(all, ri[i])
 		}
 		prev = next
 	}

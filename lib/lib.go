@@ -100,7 +100,7 @@ var (
 			return latch.DLatch(c.Group(""), c.In("d"), c.In("e"))
 		},
 		"Register": func(c *circuit.Circuit) []*wire.Wire {
-			return reg.Register(c.Group(""), c.In("d"), c.In("i"), c.In("o"))
+			return WS(reg.Register(c.Group(""), c.In("d"), c.In("i"), c.In("o")))
 		},
 		"Register2": func(c *circuit.Circuit) []*wire.Wire {
 			return reg.Register2(c.Group(""), c.In("d0"), c.In("d1"), c.In("i"), c.In("o"))
@@ -110,35 +110,30 @@ var (
 		},
 		"Alu": func(c *circuit.Circuit) []*wire.Wire {
 			return alu.Alu(
-				c.Group(""),
-				c.In("a"), c.In("ai"), c.In("ao"),
-				c.In("b"), c.In("bi"), c.In("bo"),
+				c.Group(""), c.In("a"), c.In("ai"), c.In("b"), c.In("bi"),
 				c.In("ri"), c.In("ro"), c.In("c"))
 		},
 		"Alu2": func(c *circuit.Circuit) []*wire.Wire {
 			return alu.Alu2(
-				c.Group(""),
-				c.In("a0"), c.In("a1"), c.In("ai"), c.In("ao"),
-				c.In("b0"), c.In("b1"), c.In("bi"), c.In("bo"),
+				c.Group(""), c.In("a0"), c.In("a1"), c.In("ai"), c.In("b0"), c.In("b1"), c.In("bi"),
 				c.In("ri"), c.In("ro"), c.In("c"))
 		},
 		"AluN": func(c *circuit.Circuit) []*wire.Wire {
 			return alu.N(
 				c.Group(""),
-				WS(c.In("a0"), c.In("a1")), c.In("ai"), c.In("ao"),
-				WS(c.In("b0"), c.In("b1")), c.In("bi"), c.In("bo"),
+				WS(c.In("a0"), c.In("a1")), c.In("ai"),
+				WS(c.In("b0"), c.In("b1")), c.In("bi"),
 				c.In("ri"), c.In("ro"), c.In("c"))
 		},
 		"Bus": func(c *circuit.Circuit) []*wire.Wire {
 			aw, bw := W("aw"), W("bw")
-			return append(bus.Bus(c.Group(""), c.In("d"), c.In("ar"), c.In("br"), c.In("r"), aw, bw), aw, bw)
+			return append(bus.Bus(c.Group(""), c.In("d"), c.In("r"), aw, bw), aw, bw)
 		},
 		"Bus2": func(c *circuit.Circuit) []*wire.Wire {
 			aw0, aw1 := W("aw0"), W("aw1")
 			bw0, bw1 := W("bw0"), W("bw1")
 			return append(bus.Bus2(
-				c.Group(""), c.In("d0"), c.In("d1"),
-				c.In("ar0"), c.In("ar1"), c.In("br0"), c.In("br1"), c.In("r0"), c.In("r1"),
+				c.Group(""), c.In("d0"), c.In("d1"), c.In("r0"), c.In("r1"),
 				aw0, aw1, bw0, bw1),
 				aw0, aw1, bw0, bw1)
 		},
@@ -146,8 +141,7 @@ var (
 			aw0, aw1 := W("aw0"), W("aw1")
 			bw0, bw1 := W("bw0"), W("bw1")
 			return append(bus.N(
-				c.Group(""), WS(c.In("d0"), c.In("d1")),
-				WS(c.In("ar0"), c.In("ar1")), WS(c.In("br0"), c.In("br1")), WS(c.In("r0"), c.In("r1")),
+				c.Group(""), WS(c.In("d0"), c.In("d1")), WS(c.In("r0"), c.In("r1")),
 				WS(aw0, aw1), WS(bw0, bw1)),
 				aw0, aw1, bw0, bw1)
 		},
@@ -166,30 +160,27 @@ var (
 		},
 		"AluWithBus": func(c *circuit.Circuit) []*wire.Wire {
 			d := c.In("d")
-			ai, ao := c.In("ai"), c.In("ao")
-			bi, bo := c.In("bi"), c.In("bo")
+			ai, bi := c.In("ai"), c.In("bi")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("c")
-			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
-			return alu.WithBus(c.Group(""), d, ai, ao, bi, bo, ri, ro, cin)
+			c.AddInputValidation(alu.WithBusInputValidation(ai, bi, ri, ro))
+			return alu.WithBus(c.Group(""), d, ai, bi, ri, ro, cin)
 		},
 		"AluWithBus2": func(c *circuit.Circuit) []*wire.Wire {
 			d0, d1 := c.In("d0"), c.In("d1")
-			ai, ao := c.In("ai"), c.In("ao")
-			bi, bo := c.In("bi"), c.In("bo")
+			ai, bi := c.In("ai"), c.In("bi")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("c")
-			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
-			return alu.WithBus2(c.Group(""), d0, d1, ai, ao, bi, bo, ri, ro, cin)
+			c.AddInputValidation(alu.WithBusInputValidation(ai, bi, ri, ro))
+			return alu.WithBus2(c.Group(""), d0, d1, ai, bi, ri, ro, cin)
 		},
 		"AluWithBusN": func(c *circuit.Circuit) []*wire.Wire {
 			d0, d1 := c.In("d0"), c.In("d1")
-			ai, ao := c.In("ai"), c.In("ao")
-			bi, bo := c.In("bi"), c.In("bo")
+			ai, bi := c.In("ai"), c.In("bi")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("c")
-			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
-			return alu.WithBusN(c.Group(""), WS(d0, d1), ai, ao, bi, bo, ri, ro, cin)
+			c.AddInputValidation(alu.WithBusInputValidation(ai, bi, ri, ro))
+			return alu.WithBusN(c.Group(""), WS(d0, d1), ai, bi, ri, ro, cin)
 		},
 		"RAM": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(

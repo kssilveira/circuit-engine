@@ -18,13 +18,15 @@ type Group struct {
 	Name       string
 	Vcc        *wire.Wire
 	Gnd        *wire.Wire
+	True       *wire.Wire
+	False      *wire.Wire
 	Unused     *wire.Wire
 	Components []component.Component
 }
 
 // Group creates a new group.
 func (g *Group) Group(name string) *Group {
-	res := &Group{Name: name, Vcc: g.Vcc, Gnd: g.Gnd, Unused: g.Unused}
+	res := &Group{Name: name, Vcc: g.Vcc, Gnd: g.Gnd, Unused: g.Unused, True: g.True, False: g.False}
 	g.Components = append(g.Components, res)
 	return res
 }

@@ -156,7 +156,7 @@ func TestOutputsCombinational(t *testing.T) {
 				if inputs["i"] {
 					q = inputs["d"]
 				}
-				return []bool{q, inputs["o"] && q}
+				return []bool{inputs["o"] && q}
 			}
 		}(),
 	}, {
@@ -168,7 +168,7 @@ func TestOutputsCombinational(t *testing.T) {
 					q0, q1 = inputs["d0"], inputs["d1"]
 				}
 				eo := inputs["o"]
-				return []bool{q0, eo && q0, q1, eo && q1}
+				return []bool{eo && q0, eo && q1}
 			}
 		}(),
 	}, {
@@ -180,7 +180,7 @@ func TestOutputsCombinational(t *testing.T) {
 					q0, q1 = inputs["d0"], inputs["d1"]
 				}
 				o := inputs["o"]
-				return []bool{q0, o && q0, q1, o && q1}
+				return []bool{o && q0, o && q1}
 			}
 		}(),
 	}, {
@@ -198,7 +198,7 @@ func TestOutputsCombinational(t *testing.T) {
 				if inputs["ri"] == 1 {
 					qr = sum % 2
 				}
-				return []int{inputs["ao"] & qa, inputs["bo"] & qb, inputs["ro"] & qr, sum / 2}
+				return []int{qa, qb, inputs["ro"] & qr, sum / 2}
 			}
 		}(),
 	}, {
@@ -219,8 +219,8 @@ func TestOutputsCombinational(t *testing.T) {
 					qr0, qr1 = sum0%2, sum1%2
 				}
 				return []int{
-					inputs["ao"] & qa0, inputs["bo"] & qb0, inputs["ro"] & qr0,
-					inputs["ao"] & qa1, inputs["bo"] & qb1, inputs["ro"] & qr1,
+					qa0, qb0, inputs["ro"] & qr0,
+					qa1, qb1, inputs["ro"] & qr1,
 					sum1 / 2,
 				}
 			}
@@ -243,8 +243,8 @@ func TestOutputsCombinational(t *testing.T) {
 					qr0, qr1 = sum0%2, sum1%2
 				}
 				return []int{
-					inputs["ao"] & qa0, inputs["bo"] & qb0, inputs["ro"] & qr0,
-					inputs["ao"] & qa1, inputs["bo"] & qb1, inputs["ro"] & qr1,
+					qa0, qb0, inputs["ro"] & qr0,
+					qa1, qb1, inputs["ro"] & qr1,
 					sum1 / 2,
 				}
 			}
@@ -252,7 +252,7 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "Bus",
 		isValidBool: func(inputs map[string]bool) []bool {
-			bus := inputs["d"] || inputs["ar"] || inputs["br"] || inputs["r"]
+			bus := inputs["d"] || inputs["r"]
 			return []bool{bus, bus, bus}
 		},
 	}, {
@@ -287,18 +287,12 @@ func TestOutputsCombinational(t *testing.T) {
 		isValidInt: func() func(inputs map[string]int) []int {
 			qa, qb, qr := 1, 1, 1
 			return func(inputs map[string]int) []int {
-				ra, rb, rr, d, sum := 0, 0, 0, 0, 0
+				rr, d, sum := 0, 0, 0
 				for i := 0; i < 10; i++ {
-					if inputs["ao"] == 1 {
-						ra = qa
-					}
-					if inputs["bo"] == 1 {
-						rb = qb
-					}
 					if inputs["ro"] == 1 {
 						rr = qr
 					}
-					d = inputs["d"] | ra | rb | rr
+					d = inputs["d"] | rr
 					if inputs["ai"] == 1 {
 						qa = d
 					}
@@ -310,7 +304,7 @@ func TestOutputsCombinational(t *testing.T) {
 						qr = sum % 2
 					}
 				}
-				return []int{d, ra, rb, rr, sum / 2}
+				return []int{d, qa, qb, rr, sum / 2}
 			}
 		}(),
 	}, {
@@ -319,20 +313,14 @@ func TestOutputsCombinational(t *testing.T) {
 			qa0, qb0, qr0 := 1, 1, 1
 			qa1, qb1, qr1 := 1, 1, 1
 			return func(inputs map[string]int) []int {
-				ra0, rb0, rr0, d0, sum0 := 0, 0, 0, 0, 0
-				ra1, rb1, rr1, d1, sum1 := 0, 0, 0, 0, 0
+				rr0, d0, sum0 := 0, 0, 0
+				rr1, d1, sum1 := 0, 0, 0
 				for i := 0; i < 10; i++ {
-					if inputs["ao"] == 1 {
-						ra0, ra1 = qa0, qa1
-					}
-					if inputs["bo"] == 1 {
-						rb0, rb1 = qb0, qb1
-					}
 					if inputs["ro"] == 1 {
 						rr0, rr1 = qr0, qr1
 					}
-					d0 = inputs["d0"] | ra0 | rb0 | rr0
-					d1 = inputs["d1"] | ra1 | rb1 | rr1
+					d0 = inputs["d0"] | rr0
+					d1 = inputs["d1"] | rr1
 					if inputs["ai"] == 1 {
 						qa0, qa1 = d0, d1
 					}
@@ -346,8 +334,8 @@ func TestOutputsCombinational(t *testing.T) {
 					}
 				}
 				return []int{
-					d0, ra0, rb0, rr0,
-					d1, ra1, rb1, rr1,
+					d0, qa0, qb0, rr0,
+					d1, qa1, qb1, rr1,
 					sum1 / 2}
 			}
 		}(),
@@ -357,20 +345,14 @@ func TestOutputsCombinational(t *testing.T) {
 			qa0, qb0, qr0 := 1, 1, 1
 			qa1, qb1, qr1 := 1, 1, 1
 			return func(inputs map[string]int) []int {
-				ra0, rb0, rr0, d0, sum0 := 0, 0, 0, 0, 0
-				ra1, rb1, rr1, d1, sum1 := 0, 0, 0, 0, 0
+				rr0, d0, sum0 := 0, 0, 0
+				rr1, d1, sum1 := 0, 0, 0
 				for i := 0; i < 10; i++ {
-					if inputs["ao"] == 1 {
-						ra0, ra1 = qa0, qa1
-					}
-					if inputs["bo"] == 1 {
-						rb0, rb1 = qb0, qb1
-					}
 					if inputs["ro"] == 1 {
 						rr0, rr1 = qr0, qr1
 					}
-					d0 = inputs["d0"] | ra0 | rb0 | rr0
-					d1 = inputs["d1"] | ra1 | rb1 | rr1
+					d0 = inputs["d0"] | rr0
+					d1 = inputs["d1"] | rr1
 					if inputs["ai"] == 1 {
 						qa0, qa1 = d0, d1
 					}
@@ -384,8 +366,8 @@ func TestOutputsCombinational(t *testing.T) {
 					}
 				}
 				return []int{
-					d0, ra0, rb0, rr0,
-					d1, ra1, rb1, rr1,
+					d0, qa0, qb0, rr0,
+					d1, qa1, qb1, rr1,
 					sum1 / 2}
 			}
 		}(),
@@ -578,21 +560,23 @@ func TestOutputsSequential(t *testing.T) {
 		},
 	}, {
 		name:   "AluWithBus",
-		desc:   "d ai ao bi bo ri ro c => B(d) R(da,ai,ao) R(db,bi,bo) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro) C(r(da,ai,ao),r(db,bi,bo))",
-		inputs: []string{"00000000", "10000000", "01000000", "00100000", "00001000", "01001000"},
+		desc:   "d ai bi ri ro c => B(d) R(da,ai,T) R(db,bi,T) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro) C(R(da,ai,T),R(db,bi,T))",
+		inputs: []string{"000000", "100000", "010000", "000110", "000111", "001010", "000111"},
 		want: []string{
 			// default to a=b=1 sum=0 cout=1
-			"d(0) ai(0) ao(0) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
-			// bus=1 writes to the bus
-			"d(1) ai(0) ao(0) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
+			"d(0) ai(0) bi(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,T)(1) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(1)",
+			// d=1 writes to the bus
+			"d(1) ai(0) bi(0) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,T)(1) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(1)",
 			// ai=1 sets a=0 from the bus
-			"d(0) ai(1) ao(0) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(0)",
-			// ao=1 writes a=0 to the bus
-			"d(0) ai(0) ao(1) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(0)",
-			// bo=1 writes b=1 to the bus
-			"d(0) ai(0) ao(0) bi(0) bo(1) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(1) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(0)",
-			// ai=bo=1 writes b=1 to ai
-			"d(0) ai(1) ao(0) bi(0) bo(1) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(1) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
+			"d(0) ai(1) bi(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,T)(0) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(0)",
+			// ri=ro=1 writes sum=1 to r and bus
+			"d(0) ai(0) bi(0) ri(1) ro(1) c(0) => B(d)(1) R(da,ai,T)(0) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(1) C(R(da,ai,T),R(db,bi,T))(0)",
+			// ri=ro=c=1 writes sum=0 to r and bus
+			"d(0) ai(0) bi(0) ri(1) ro(1) c(1) => B(d)(0) R(da,ai,T)(0) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(1)",
+			// bi=ro=1 writes sum=0 to b and bus
+			"d(0) ai(0) bi(1) ri(0) ro(1) c(0) => B(d)(0) R(da,ai,T)(0) R(db,bi,T)(0) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(0)",
+			// ri=ro=c=1 writes sum=1 to r and bus
+			"d(0) ai(0) bi(0) ri(1) ro(1) c(1) => B(d)(1) R(da,ai,T)(0) R(db,bi,T)(0) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(1) C(R(da,ai,T),R(db,bi,T))(0)",
 		},
 	}, {
 		name:   "RAM",
@@ -617,6 +601,11 @@ func TestOutputsSequential(t *testing.T) {
 		gotDesc := c.Description()
 		if diff := cmp.Diff(in.desc, gotDesc); diff != "" {
 			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.desc, gotDesc, diff)
+		}
+		for _, inputs := range in.inputs {
+			if len(inputs) != len(c.Inputs) {
+				t.Errorf("SimulateInputs(%q) inputs want %d got %d", in.name, len(inputs), len(c.Inputs))
+			}
 		}
 		got := c.SimulateInputs(in.inputs)
 		var converted []string
