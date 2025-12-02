@@ -43,58 +43,71 @@ func TestOutputsCombinational(t *testing.T) {
 			return []bool{inputs["b"] && inputs["c"], inputs["c"]}
 		},
 	}, {
-		name: "Not",
-		desc: "a => NOT(a)",
-		want: []string{"0=>1", "1=>0"},
+		name:    "Not",
+		desc:    "a => NOT(a)",
+		convert: true,
+		want:    []string{"a(0) => NOT(a)(1)", "a(1) => NOT(a)(0)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!inputs["a"]}
 		},
 	}, {
-		name: "And",
-		desc: "a b => AND(a,b)",
-		want: []string{"00=>0", "01=>0", "10=>0", "11=>1"},
+		name:    "And",
+		desc:    "a b => AND(a,b)",
+		convert: true,
+		want:    []string{"a(0)b(0) => AND(a,b)(0)", "a(0)b(1) => AND(a,b)(0)", "a(1)b(0) => AND(a,b)(0)", "a(1)b(1) => AND(a,b)(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"] && inputs["b"]}
 		},
 	}, {
-		name: "Or",
-		desc: "a b => OR(a,b)",
-		want: []string{"00=>0", "01=>1", "10=>1", "11=>1"},
+		name:    "Or",
+		desc:    "a b => OR(a,b)",
+		convert: true,
+		want:    []string{"a(0)b(0) => OR(a,b)(0)", "a(0)b(1) => OR(a,b)(1)", "a(1)b(0) => OR(a,b)(1)", "a(1)b(1) => OR(a,b)(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"] || inputs["b"]}
 		},
 	}, {
-		name: "OrRes",
-		desc: "a => OR(a,bOrRes)",
-		want: []string{"0=>0", "1=>1"},
+		name:    "OrRes",
+		desc:    "a => OR(a,bOrRes)",
+		convert: true,
+		want:    []string{"a(0) => OR(a,bOrRes)(0)", "a(1) => OR(a,bOrRes)(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"]}
 		},
 	}, {
-		name: "Nand",
-		desc: "a b => NAND(a,b)",
-		want: []string{"00=>1", "01=>1", "10=>1", "11=>0"},
+		name:    "Nand",
+		desc:    "a b => NAND(a,b)",
+		convert: true,
+		want:    []string{"a(0)b(0) => NAND(a,b)(1)", "a(0)b(1) => NAND(a,b)(1)", "a(1)b(0) => NAND(a,b)(1)", "a(1)b(1) => NAND(a,b)(0)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!(inputs["a"] && inputs["b"])}
 		},
 	}, {
-		name: "Nand(Nand)",
-		desc: "a b c => NAND(a,NAND(b,c))",
-		want: []string{"000=>1", "001=>1", "010=>1", "011=>1", "100=>0", "101=>0", "110=>0", "111=>1"},
+		name:    "Nand(Nand)",
+		desc:    "a b c => NAND(a,NAND(b,c))",
+		convert: true,
+		want: []string{
+			"a(0)b(0)c(0) => NAND(a,NAND(b,c))(1)", "a(0)b(0)c(1) => NAND(a,NAND(b,c))(1)",
+			"a(0)b(1)c(0) => NAND(a,NAND(b,c))(1)", "a(0)b(1)c(1) => NAND(a,NAND(b,c))(1)",
+			"a(1)b(0)c(0) => NAND(a,NAND(b,c))(0)", "a(1)b(0)c(1) => NAND(a,NAND(b,c))(0)",
+			"a(1)b(1)c(0) => NAND(a,NAND(b,c))(0)", "a(1)b(1)c(1) => NAND(a,NAND(b,c))(1)",
+		},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!(inputs["a"] && !(inputs["b"] && inputs["c"]))}
 		},
 	}, {
-		name: "Xor",
-		desc: "a b => XOR(a,b)",
-		want: []string{"00=>0", "01=>1", "10=>1", "11=>0"},
+		name:    "Xor",
+		desc:    "a b => XOR(a,b)",
+		convert: true,
+		want:    []string{"a(0)b(0) => XOR(a,b)(0)", "a(0)b(1) => XOR(a,b)(1)", "a(1)b(0) => XOR(a,b)(1)", "a(1)b(1) => XOR(a,b)(0)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"] != inputs["b"]}
 		},
 	}, {
-		name: "Nor",
-		desc: "a b => NOR(a,b)",
-		want: []string{"00=>1", "01=>0", "10=>0", "11=>0"},
+		name:    "Nor",
+		desc:    "a b => NOR(a,b)",
+		convert: true,
+		want:    []string{"a(0)b(0) => NOR(a,b)(1)", "a(0)b(1) => NOR(a,b)(0)", "a(1)b(0) => NOR(a,b)(0)", "a(1)b(1) => NOR(a,b)(0)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{!(inputs["a"] || inputs["b"])}
 		},
