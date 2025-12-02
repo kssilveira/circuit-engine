@@ -48,16 +48,16 @@ func N(parent *group.Group, a []*wire.Wire, ai, ao *wire.Wire, b []*wire.Wire, b
 }
 
 // WithBus adds an arithmetic logic unit with a communication bus.
-func WithBus(parent *group.Group, busa, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
+func WithBus(parent *group.Group, d, ai, ao, bi, bo, ri, ro, c *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU-BUS")
-	a := &wire.Wire{Name: sfmt.Sprintf("ALU-%s-a", busa.Name)}
+	a := &wire.Wire{Name: sfmt.Sprintf("%sa", d.Name)}
 	ra := reg.Register(group, a, ai, ao)
-	b := &wire.Wire{Name: sfmt.Sprintf("ALU-%s-b", busa.Name)}
+	b := &wire.Wire{Name: sfmt.Sprintf("%sb", d.Name)}
 	rb := reg.Register(group, b, bi, bo)
-	rs := sum.Sum(group, ra[0], rb[0], cin)
+	rs := sum.Sum(group, ra[0], rb[0], c)
 	rr := reg.Register(group, rs[0], ri, ro)
-	rbus := bus.Bus(group, busa, ra[1], rb[1], rr[1], a, b)
-	return slices.Concat(rbus, ra, rb, rr, []*wire.Wire{rs[1]})
+	rbus := bus.Bus(group, d, ra[1], rb[1], rr[1], a, b)
+	return append(rbus, ra[1], rb[1], rr[1], rs[1])
 }
 
 // WithBusInputValidation validates inputs with bus.

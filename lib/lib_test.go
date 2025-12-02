@@ -591,20 +591,20 @@ func TestOutputsCombinational(t *testing.T) {
 			return []bool{bus0, bus1, bus0, bus1, bus0, bus1}
 		},
 	}, {
-		name: "AluWithBus",
-		desc: "bus ai ao bi bo ri ro cin" +
-			" => B(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +
-			" r(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
-			" R(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
-			" C(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo))",
+		name:    "AluWithBus",
+		desc:    "d ai ao bi bo ri ro c => B(d) R(da,ai,ao) R(db,bi,bo) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro) C(r(da,ai,ao),r(db,bi,bo))",
+		convert: true,
 		want: []string{
-			"10000101=>11010101", "10100000=>11110101", "00101101=>11111101", "10001000=>11011101",
-			"10000010=>11010111",
+			"d(1) ai(0) ao(0) bi(0) bo(0) ri(1) ro(0) c(1) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
+			"d(1) ai(0) ao(1) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(1) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
+			"d(0) ai(0) ao(1) bi(0) bo(1) ri(1) ro(0) c(1) => B(d)(1) R(da,ai,ao)(1) R(db,bi,bo)(1) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
+			"d(1) ai(0) ao(0) bi(0) bo(1) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(1) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
+			"d(1) ai(0) ao(0) bi(0) bo(0) ri(0) ro(1) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(1) C(r(da,ai,ao),r(db,bi,bo))(1)",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
 			qa, qb, qr := 1, 1, 1
 			return func(inputs map[string]int) []int {
-				ra, rb, rr, bus, sum := 0, 0, 0, 0, 0
+				ra, rb, rr, d, sum := 0, 0, 0, 0, 0
 				for i := 0; i < 10; i++ {
 					if inputs["ao"] == 1 {
 						ra = qa
@@ -615,71 +615,71 @@ func TestOutputsCombinational(t *testing.T) {
 					if inputs["ro"] == 1 {
 						rr = qr
 					}
-					bus = inputs["bus"] | ra | rb | rr
+					d = inputs["d"] | ra | rb | rr
 					if inputs["ai"] == 1 {
-						qa = bus
+						qa = d
 					}
 					if inputs["bi"] == 1 {
-						qb = bus
+						qb = d
 					}
-					sum = qa + qb + inputs["cin"]
+					sum = qa + qb + inputs["c"]
 					if inputs["ri"] == 1 {
 						qr = sum % 2
 					}
 				}
-				return []int{bus, qa, ra, qb, rb, qr, rr, sum / 2}
+				return []int{d, ra, rb, rr, sum / 2}
 			}
 		}(),
 	}, {
 		name: "AluWithBus2",
-		desc: "bus1 bus2 ai ao bi bo ri ro cin" +
-			" => B(bus1) r(ALU-bus1-a,ai,ao) R(ALU-bus1-a,ai,ao) r(ALU-bus1-b,bi,bo) R(ALU-bus1-b,bi,bo)" +
-			" r(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" R(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" B(bus2) r(ALU-bus2-a,ai,ao) R(ALU-bus2-a,ai,ao) r(ALU-bus2-b,bi,bo) R(ALU-bus2-b,bi,bo)" +
-			" r(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))",
+		desc: "d0 d1 ai ao bi bo ri ro c" +
+			" => B(d0) R(d0a,ai,ao) R(d0b,bi,bo) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)" +
+			" B(d1) R(d1a,ai,ao) R(d1b,bi,bo) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)" +
+			" C(r(d1a,ai,ao),r(d1b,bi,bo))",
+		convert: true,
 		want: []string{
-			"110110101=>111101011110101", "110000110=>110100011010111",
-			"000101101=>111111011111101", "000000010=>110101111010111",
-			"000100010=>111101111110111", "000101110=>111110011111111",
-			"100000101=>110101001010101",
+			"d0(1) d1(1) ai(0) ao(1) bi(1) bo(0) ri(1) ro(0) c(1) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(0) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(1) d1(1) ai(0) ao(0) bi(0) bo(0) ri(1) ro(1) c(0) => B(d0)(1) R(d0a,ai,ao)(0) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(0) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(1) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(0) d1(0) ai(0) ao(1) bi(0) bo(1) ri(1) ro(0) c(1) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(1) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(1) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(0) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(0) d1(0) ai(0) ao(0) bi(0) bo(0) ri(0) ro(1) c(0) => B(d0)(1) R(d0a,ai,ao)(0) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(1) B(d1)(1) R(d1a,ai,ao)(0) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(1) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(0) d1(0) ai(0) ao(1) bi(0) bo(0) ri(0) ro(1) c(0) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(1) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(1) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(0) d1(0) ai(0) ao(1) bi(0) bo(1) ri(1) ro(1) c(0) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(1) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(1) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(1) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(1) d1(0) ai(0) ao(0) bi(0) bo(0) ri(1) ro(0) c(1) => B(d0)(1) R(d0a,ai,ao)(0) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(0) R(d1a,ai,ao)(0) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(0) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
+			qa0, qb0, qr0 := 1, 1, 1
 			qa1, qb1, qr1 := 1, 1, 1
-			qa2, qb2, qr2 := 1, 1, 1
 			return func(inputs map[string]int) []int {
-				ra1, rb1, rr1, bus1, sum1 := 0, 0, 0, 0, 0
-				ra2, rb2, rr2, bus2, sum2 := 0, 0, 0, 0, 0
+				ra0, rb0, rr0, d0, sum0 := 0, 0, 0, 0, 0
+				ra1, rb1, rr1, d1, sum1 := 0, 0, 0, 0, 0
 				for i := 0; i < 10; i++ {
 					if inputs["ao"] == 1 {
-						ra1, ra2 = qa1, qa2
+						ra0, ra1 = qa0, qa1
 					}
 					if inputs["bo"] == 1 {
-						rb1, rb2 = qb1, qb2
+						rb0, rb1 = qb0, qb1
 					}
 					if inputs["ro"] == 1 {
-						rr1, rr2 = qr1, qr2
+						rr0, rr1 = qr0, qr1
 					}
-					bus1 = inputs["bus1"] | ra1 | rb1 | rr1
-					bus2 = inputs["bus2"] | ra2 | rb2 | rr2
+					d0 = inputs["d0"] | ra0 | rb0 | rr0
+					d1 = inputs["d1"] | ra1 | rb1 | rr1
 					if inputs["ai"] == 1 {
-						qa1, qa2 = bus1, bus2
+						qa0, qa1 = d0, d1
 					}
 					if inputs["bi"] == 1 {
-						qb1, qb2 = bus1, bus2
+						qb0, qb1 = d0, d1
 					}
-					sum1 = qa1 + qb1 + inputs["cin"]
-					sum2 = qa2 + qb2 + sum1/2
+					sum0 = qa0 + qb0 + inputs["c"]
+					sum1 = qa1 + qb1 + sum0/2
 					if inputs["ri"] == 1 {
-						qr1, qr2 = sum1%2, sum2%2
+						qr0, qr1 = sum0%2, sum1%2
 					}
 				}
 				return []int{
-					bus1, qa1, ra1, qb1, rb1, qr1, rr1,
-					bus2, qa2, ra2, qb2, rb2, qr2, rr2,
-					sum2 / 2}
+					d0, ra0, rb0, rr0,
+					d1, ra1, rb1, rr1,
+					sum1 / 2}
 			}
 		}(),
 	}, {
@@ -952,10 +952,11 @@ func TestOutputsCombinational(t *testing.T) {
 
 func TestOutputsSequential(t *testing.T) {
 	inputs := []struct {
-		name   string
-		desc   string
-		inputs []string
-		want   []string
+		name    string
+		desc    string
+		inputs  []string
+		convert bool
+		want    []string
 	}{{
 		name:   "OrRes",
 		desc:   "a => OR(a,bOrRes)",
@@ -967,26 +968,23 @@ func TestOutputsSequential(t *testing.T) {
 		inputs: []string{"000", "001", "010", "011", "000", "100", "101", "000"},
 		want:   []string{"000=>10", "001=>10", "010=>10", "011=>01", "000=>01", "100=>01", "101=>10", "000=>10"},
 	}, {
-		name: "AluWithBus",
-		desc: "bus ai ao bi bo ri ro cin" +
-			" => B(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +
-			" r(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
-			" R(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
-			" C(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo))",
-		inputs: []string{"00000000", "10000000", "01000000", "00100000", "00001000", "01001000"},
+		name:    "AluWithBus",
+		desc:    "d ai ao bi bo ri ro c => B(d) R(da,ai,ao) R(db,bi,bo) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro) C(r(da,ai,ao),r(db,bi,bo))",
+		inputs:  []string{"00000000", "10000000", "01000000", "00100000", "00001000", "01001000"},
+		convert: true,
 		want: []string{
-			// default to a=1 b=1 r=1 sum=0 cout=1
-			"00000000=>01010101",
-			// bus=1 writes to rbus
-			"10000000=>11010101",
+			// default to a=b=1 sum=0 cout=1
+			"d(0) ai(0) ao(0) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
+			// bus=1 writes to the bus
+			"d(1) ai(0) ao(0) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
 			// ai=1 sets a=0 from the bus
-			"01000000=>00010100",
+			"d(0) ai(1) ao(0) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(0)",
 			// ao=1 writes a=0 to the bus
-			"00100000=>00010100",
+			"d(0) ai(0) ao(1) bi(0) bo(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,ao)(0) R(db,bi,bo)(0) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(0)",
 			// bo=1 writes b=1 to the bus
-			"00001000=>10011100",
+			"d(0) ai(0) ao(0) bi(0) bo(1) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(1) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(0)",
 			// ai=bo=1 writes b=1 to ai
-			"01001000=>11011101",
+			"d(0) ai(1) ao(0) bi(0) bo(1) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,ao)(0) R(db,bi,bo)(1) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro)(0) C(r(da,ai,ao),r(db,bi,bo))(1)",
 		},
 	}, {
 		name: "RAM",
@@ -1017,8 +1015,24 @@ func TestOutputsSequential(t *testing.T) {
 			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.desc, gotDesc, diff)
 		}
 		got := c.SimulateInputs(in.inputs)
-		if diff := cmp.Diff(in.want, got); diff != "" {
-			t.Errorf("SimulateInputs(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, got, diff)
+		var converted []string
+		if in.convert {
+			for _, out := range got {
+				var one []string
+				for i, input := range c.Inputs {
+					one = append(one, sfmt.Sprintf("%s(%s)", input.Name, string(out[i])))
+				}
+				one = append(one, "=>")
+				for i, output := range c.Outputs {
+					one = append(one, sfmt.Sprintf("%s(%s)", output.Name, string(out[i+len(c.Inputs)+len("=>")])))
+				}
+				converted = append(converted, strings.Join(one, " "))
+			}
+		} else {
+			converted = got
+		}
+		if diff := cmp.Diff(in.want, converted); diff != "" {
+			t.Errorf("SimulateInputs(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, converted, diff)
 		}
 	}
 }
