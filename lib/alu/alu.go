@@ -77,21 +77,3 @@ func WithBus2(parent *group.Group, bus1, bus2, ai, ao, bi, bo, ri, ro, cin *wire
 	alu2 := WithBus(group, bus2, ai, ao, bi, bo, ri, ro, alu1[last])
 	return slices.Concat(alu1[:last], alu2)
 }
-
-// WithBus4 adds a 4-bit arithmetic logic unit with a communication bus.
-func WithBus4(parent *group.Group, bus [4]*wire.Wire, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU-BUS4")
-	alu1 := WithBus2(group, bus[0], bus[1], ai, ao, bi, bo, ri, ro, cin)
-	last := len(alu1) - 1
-	alu2 := WithBus2(group, bus[2], bus[3], ai, ao, bi, bo, ri, ro, alu1[last])
-	return slices.Concat(alu1[:last], alu2)
-}
-
-// WithBus8 adds an 8-bit arithmetic logic unit with a communication bus.
-func WithBus8(parent *group.Group, bus [8]*wire.Wire, ai, ao, bi, bo, ri, ro, cin *wire.Wire) []*wire.Wire {
-	group := parent.Group("ALU-BUS8")
-	alu1 := WithBus4(group, wire.W4(bus[:4]), ai, ao, bi, bo, ri, ro, cin)
-	last := len(alu1) - 1
-	alu2 := WithBus4(group, wire.W4(bus[4:]), ai, ao, bi, bo, ri, ro, alu1[last])
-	return slices.Concat(alu1[:last], alu2)
-}

@@ -62,8 +62,8 @@ var (
 			return WS(gate.Or(c.Group(""), c.In("a"), c.In("b")))
 		},
 		"OrRes": func(c *circuit.Circuit) []*wire.Wire {
-			bOrRes := &wire.Wire{Name: "bOrRes"}
-			return WS(gate.OrRes(c.Group(""), bOrRes, c.In("a"), bOrRes))
+			res := &wire.Wire{Name: "res"}
+			return WS(gate.OrRes(c.Group(""), res, c.In("a"), res))
 		},
 		"Nand": func(c *circuit.Circuit) []*wire.Wire {
 			return WS(gate.Nand(c.Group(""), c.In("a"), c.In("b")))
@@ -155,7 +155,7 @@ var (
 			aw, bw := W("aw"), W("bw")
 			return append(bus.Bion(c.Group(""), WS(c.In("d"), c.In("ar"), c.In("br"), c.In("r")), WS(aw, bw)), aw, bw)
 		},
-		"BUSbNioN": func(c *circuit.Circuit) []*wire.Wire {
+		"BusBnIOn": func(c *circuit.Circuit) []*wire.Wire {
 			aw0, aw1 := W("aw0"), W("aw1")
 			bw0, bw1 := W("bw0"), W("bw1")
 			return append(bus.BnIOn(
@@ -181,27 +181,6 @@ var (
 			cin := c.In("c")
 			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
 			return alu.WithBus2(c.Group(""), d0, d1, ai, ao, bi, bo, ri, ro, cin)
-		},
-		"AluWithBus4": func(c *circuit.Circuit) []*wire.Wire {
-			bus := [4]*wire.Wire{c.In("bus1"), c.In("bus2"), c.In("bus3"), c.In("bus4")}
-			ai, ao := c.In("ai"), c.In("ao")
-			bi, bo := c.In("bi"), c.In("bo")
-			ri, ro := c.In("ri"), c.In("ro")
-			cin := c.In("cin")
-			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
-			return alu.WithBus4(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
-		},
-		"AluWithBus8": func(c *circuit.Circuit) []*wire.Wire {
-			bus := [8]*wire.Wire{
-				c.In("bus1"), c.In("bus2"), c.In("bus3"), c.In("bus4"),
-				c.In("bus5"), c.In("bus6"), c.In("bus7"), c.In("bus8"),
-			}
-			ai, ao := c.In("ai"), c.In("ao")
-			bi, bo := c.In("bi"), c.In("bo")
-			ri, ro := c.In("ri"), c.In("ro")
-			cin := c.In("cin")
-			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
-			return alu.WithBus8(c.Group(""), bus, ai, ao, bi, bo, ri, ro, cin)
 		},
 		"RAM": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(

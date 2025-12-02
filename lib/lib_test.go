@@ -68,9 +68,9 @@ func TestOutputsCombinational(t *testing.T) {
 		},
 	}, {
 		name:    "OrRes",
-		desc:    "a => OR(a,bOrRes)",
+		desc:    "a => OR(a,res)",
 		convert: true,
-		want:    []string{"a(0) => OR(a,bOrRes)(0)", "a(1) => OR(a,bOrRes)(1)"},
+		want:    []string{"a(0) => OR(a,res)(0)", "a(1) => OR(a,res)(1)"},
 		isValidBool: func(inputs map[string]bool) []bool {
 			return []bool{inputs["a"]}
 		},
@@ -570,7 +570,7 @@ func TestOutputsCombinational(t *testing.T) {
 			return []bool{bus, bus, bus}
 		},
 	}, {
-		name:    "BUSbNioN",
+		name:    "BusBnIOn",
 		desc:    "d0 d1 ar0 ar1 br0 br1 r0 r1 => B(d0) B(d1) aw0 aw1 bw0 bw1",
 		convert: true,
 		want: []string{
@@ -958,15 +958,20 @@ func TestOutputsSequential(t *testing.T) {
 		convert bool
 		want    []string
 	}{{
-		name:   "OrRes",
-		desc:   "a => OR(a,bOrRes)",
-		inputs: []string{"0", "1", "0"},
-		want:   []string{"0=>0", "1=>1", "0=>1"},
+		name:    "OrRes",
+		desc:    "a => OR(a,res)",
+		convert: true,
+		inputs:  []string{"0", "1", "0"},
+		want:    []string{"a(0) => OR(a,res)(0)", "a(1) => OR(a,res)(1)", "a(0) => OR(a,res)(1)"},
 	}, {
-		name:   "SRLatchWithEnable",
-		desc:   "s r e => q nq",
-		inputs: []string{"000", "001", "010", "011", "000", "100", "101", "000"},
-		want:   []string{"000=>10", "001=>10", "010=>10", "011=>01", "000=>01", "100=>01", "101=>10", "000=>10"},
+		name:    "SRLatchWithEnable",
+		desc:    "s r e => q nq",
+		convert: true,
+		inputs:  []string{"000", "001", "010", "011", "000", "100", "101", "000"},
+		want: []string{
+			"s(0) r(0) e(0) => q(1) nq(0)", "s(0) r(0) e(1) => q(1) nq(0)", "s(0) r(1) e(0) => q(1) nq(0)", "s(0) r(1) e(1) => q(0) nq(1)",
+			"s(0) r(0) e(0) => q(0) nq(1)", "s(1) r(0) e(0) => q(0) nq(1)", "s(1) r(0) e(1) => q(1) nq(0)", "s(0) r(0) e(0) => q(1) nq(0)",
+		},
 	}, {
 		name:    "AluWithBus",
 		desc:    "d ai ao bi bo ri ro c => B(d) R(da,ai,ao) R(db,bi,bo) R(S(r(da,ai,ao),r(db,bi,bo),c),ri,ro) C(r(da,ai,ao),r(db,bi,bo))",
