@@ -1,4 +1,5 @@
 a ai ao b bi bo ri ro c => R(a,ai,ao) R(b,bi,bo) R(S(a,b)) C(a,b)
+
 a(1) ai(1) ao(0) b(1) bi(1) bo(0) ri(1) ro(0) c(1) => R(a,ai,ao)(0) R(b,bi,bo)(0) R(S(a,b))(0) C(a,b)(1)
 a(1) ai(1) ao(0) b(0) bi(0) bo(0) ri(1) ro(1) c(0) => R(a,ai,ao)(0) R(b,bi,bo)(0) R(S(a,b))(0) C(a,b)(1)
 a(0) ai(0) ao(0) b(1) bi(0) bo(1) ri(1) ro(0) c(1) => R(a,ai,ao)(0) R(b,bi,bo)(1) R(S(a,b))(0) C(a,b)(1)

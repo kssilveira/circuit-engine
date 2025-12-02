@@ -1,4 +1,5 @@
 a b => XOR(a,b)
+
 a(0) b(0) => XOR(a,b)(0)
 a(0) b(1) => XOR(a,b)(1)
 a(1) b(0) => XOR(a,b)(1)

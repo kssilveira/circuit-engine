@@ -494,7 +494,7 @@ func TestOutputsCombinational(t *testing.T) {
 		c.Outs(Example(c, in.name))
 		gotDesc := c.Description()
 		got := c.Simulate()
-		converted := []string{gotDesc}
+		converted := []string{gotDesc, ""}
 		for _, out := range got {
 			var one []string
 			for i, input := range c.Inputs {

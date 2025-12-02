@@ -1,4 +1,5 @@
 a b c => NAND(a,NAND(b,c))
+
 a(0) b(0) c(0) => NAND(a,NAND(b,c))(1)
 a(0) b(0) c(1) => NAND(a,NAND(b,c))(1)
 a(0) b(1) c(0) => NAND(a,NAND(b,c))(1)

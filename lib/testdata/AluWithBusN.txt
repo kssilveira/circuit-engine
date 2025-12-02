@@ -1,4 +1,5 @@
 d0 d1 ai ao bi bo ri ro c => B(d0) R(d0a,ai,ao) R(d0b,bi,bo) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro) B(d1) R(d1a,ai,ao) R(d1b,bi,bo) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro) C(r(d1a,ai,ao),r(d1b,bi,bo))
+
 d0(1) d1(1) ai(0) ao(1) bi(1) bo(0) ri(1) ro(0) c(1) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(0) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)
 d0(1) d1(1) ai(0) ao(0) bi(0) bo(0) ri(1) ro(1) c(0) => B(d0)(1) R(d0a,ai,ao)(0) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(0) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(1) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)
 d0(0) d1(0) ai(0) ao(1) bi(0) bo(1) ri(1) ro(0) c(1) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(1) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(1) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(0) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)
