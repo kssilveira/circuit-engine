@@ -176,9 +176,9 @@ func TestOutputsCombinational(t *testing.T) {
 			"a0(1) a1(1) b0(1) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
 		},
 		isValidInt: func(inputs map[string]int) []int {
-			sum1 := inputs["a0"] + inputs["b0"] + inputs["c"]
-			sum2 := sum1/2 + inputs["a1"] + inputs["b1"]
-			return []int{sum1 % 2, sum2 % 2, sum2 / 2}
+			sum0 := inputs["a0"] + inputs["b0"] + inputs["c"]
+			sum1 := sum0/2 + inputs["a1"] + inputs["b1"]
+			return []int{sum0 % 2, sum1 % 2, sum1 / 2}
 		},
 	}, {
 		name:    "SumN",
@@ -219,9 +219,9 @@ func TestOutputsCombinational(t *testing.T) {
 			"a0(1) a1(1) b0(1) b1(1) c(1) => S(a0,b0,c)(1) S(a1,b1,C(a0,b0))(1) C(a1,b1)(1)",
 		},
 		isValidInt: func(inputs map[string]int) []int {
-			sum1 := inputs["a0"] + inputs["b0"] + inputs["c"]
-			sum2 := sum1/2 + inputs["a1"] + inputs["b1"]
-			return []int{sum1 % 2, sum2 % 2, sum2 / 2}
+			sum0 := inputs["a0"] + inputs["b0"] + inputs["c"]
+			sum1 := sum0/2 + inputs["a1"] + inputs["b1"]
+			return []int{sum0 % 2, sum1 % 2, sum1 / 2}
 		},
 	}, {
 		name:    "SRLatch",
@@ -326,13 +326,13 @@ func TestOutputsCombinational(t *testing.T) {
 			"d0(1) d1(1) i(1) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(1) R(d1,i,o)(1)",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
-			q1, q2 := true, true
+			q0, q1 := true, true
 			return func(inputs map[string]bool) []bool {
 				if inputs["i"] {
-					q1, q2 = inputs["d0"], inputs["d1"]
+					q0, q1 = inputs["d0"], inputs["d1"]
 				}
 				eo := inputs["o"]
-				return []bool{q1, eo && q1, q2, eo && q2}
+				return []bool{q0, eo && q0, q1, eo && q1}
 			}
 		}(),
 	}, {
@@ -358,13 +358,13 @@ func TestOutputsCombinational(t *testing.T) {
 			"d0(1) d1(1) i(1) o(1) => r(d0,i,o)(1) R(d0,i,o)(1) r(d1,i,o)(1) R(d1,i,o)(1)",
 		},
 		isValidBool: func() func(inputs map[string]bool) []bool {
-			q1, q2 := true, true
+			q0, q1 := true, true
 			return func(inputs map[string]bool) []bool {
 				if inputs["i"] {
-					q1, q2 = inputs["d0"], inputs["d1"]
+					q0, q1 = inputs["d0"], inputs["d1"]
 				}
 				o := inputs["o"]
-				return []bool{q1, o && q1, q2, o && q2}
+				return []bool{q0, o && q0, q1, o && q1}
 			}
 		}(),
 	}, {
@@ -416,24 +416,24 @@ func TestOutputsCombinational(t *testing.T) {
 			"a0(0) a1(1) ai(0) ao(0) b0(0) b1(1) bi(0) bo(1) ri(0) ro(0) c(0) => R(a0,ai,ao)(0) R(b0,bi,bo)(1) R(S(a0,b0))(0) R(a1,ai,ao)(0) R(b1,bi,bo)(0) R(S(a1,b1))(0) C(a1,b1)(1)",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
+			qa0, qb0, qr0 := 1, 1, 1
 			qa1, qb1, qr1 := 1, 1, 1
-			qa2, qb2, qr2 := 1, 1, 1
 			return func(inputs map[string]int) []int {
 				if inputs["ai"] == 1 {
-					qa1, qa2 = inputs["a0"], inputs["a1"]
+					qa0, qa1 = inputs["a0"], inputs["a1"]
 				}
 				if inputs["bi"] == 1 {
-					qb1, qb2 = inputs["b0"], inputs["b1"]
+					qb0, qb1 = inputs["b0"], inputs["b1"]
 				}
-				sum1 := qa1 + qb1 + inputs["c"]
-				sum2 := qa2 + qb2 + sum1/2
+				sum0 := qa0 + qb0 + inputs["c"]
+				sum1 := qa1 + qb1 + sum0/2
 				if inputs["ri"] == 1 {
-					qr1, qr2 = sum1%2, sum2%2
+					qr0, qr1 = sum0%2, sum1%2
 				}
 				return []int{
+					inputs["ao"] & qa0, inputs["bo"] & qb0, inputs["ro"] & qr0,
 					inputs["ao"] & qa1, inputs["bo"] & qb1, inputs["ro"] & qr1,
-					inputs["ao"] & qa2, inputs["bo"] & qb2, inputs["ro"] & qr2,
-					sum2 / 2,
+					sum1 / 2,
 				}
 			}
 		}(),
@@ -454,24 +454,24 @@ func TestOutputsCombinational(t *testing.T) {
 			"a0(0) a1(1) ai(0) ao(0) b0(0) b1(1) bi(0) bo(1) ri(0) ro(0) c(0) => R(a0,ai,ao)(0) R(b0,bi,bo)(1) R(S(a0,b0))(0) R(a1,ai,ao)(0) R(b1,bi,bo)(0) R(S(a1,b1))(0) C(a1,b1)(1)",
 		},
 		isValidInt: func() func(inputs map[string]int) []int {
+			qa0, qb0, qr0 := 1, 1, 1
 			qa1, qb1, qr1 := 1, 1, 1
-			qa2, qb2, qr2 := 1, 1, 1
 			return func(inputs map[string]int) []int {
 				if inputs["ai"] == 1 {
-					qa1, qa2 = inputs["a0"], inputs["a1"]
+					qa0, qa1 = inputs["a0"], inputs["a1"]
 				}
 				if inputs["bi"] == 1 {
-					qb1, qb2 = inputs["b0"], inputs["b1"]
+					qb0, qb1 = inputs["b0"], inputs["b1"]
 				}
-				sum1 := qa1 + qb1 + inputs["c"]
-				sum2 := qa2 + qb2 + sum1/2
+				sum0 := qa0 + qb0 + inputs["c"]
+				sum1 := qa1 + qb1 + sum0/2
 				if inputs["ri"] == 1 {
-					qr1, qr2 = sum1%2, sum2%2
+					qr0, qr1 = sum0%2, sum1%2
 				}
 				return []int{
+					inputs["ao"] & qa0, inputs["bo"] & qb0, inputs["ro"] & qr0,
 					inputs["ao"] & qa1, inputs["bo"] & qb1, inputs["ro"] & qr1,
-					inputs["ao"] & qa2, inputs["bo"] & qb2, inputs["ro"] & qr2,
-					sum2 / 2,
+					sum1 / 2,
 				}
 			}
 		}(),
