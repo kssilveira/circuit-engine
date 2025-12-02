@@ -77,3 +77,17 @@ func WithBus2(parent *group.Group, bus1, bus2, ai, ao, bi, bo, ri, ro, cin *wire
 	alu2 := WithBus(group, bus2, ai, ao, bi, bo, ri, ro, alu1[last])
 	return slices.Concat(alu1[:last], alu2)
 }
+
+// WithBusN adds an N-bit arithmetic logic unit with a communication bus.
+func WithBusN(parent *group.Group, d []*wire.Wire, ai, ao, bi, bo, ri, ro, c *wire.Wire) []*wire.Wire {
+	group := parent.Group(sfmt.Sprintf("ALU-BUS%d", len(d)))
+	prev := c
+	var res []*wire.Wire
+	for _, di := range d {
+		alu := WithBus(group, di, ai, ao, bi, bo, ri, ro, prev)
+		last := len(alu) - 1
+		prev = alu[last]
+		res = append(res, alu[:last]...)
+	}
+	return append(res, prev)
+}

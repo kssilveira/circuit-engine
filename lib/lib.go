@@ -182,6 +182,15 @@ var (
 			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
 			return alu.WithBus2(c.Group(""), d0, d1, ai, ao, bi, bo, ri, ro, cin)
 		},
+		"AluWithBusN": func(c *circuit.Circuit) []*wire.Wire {
+			d0, d1 := c.In("d0"), c.In("d1")
+			ai, ao := c.In("ai"), c.In("ao")
+			bi, bo := c.In("bi"), c.In("bo")
+			ri, ro := c.In("ri"), c.In("ro")
+			cin := c.In("c")
+			c.AddInputValidation(alu.WithBusInputValidation(ai, ao, bi, bo, ri, ro))
+			return alu.WithBusN(c.Group(""), WS(d0, d1), ai, ao, bi, bo, ri, ro, cin)
+		},
 		"RAM": func(c *circuit.Circuit) []*wire.Wire {
 			return ram.RAM(
 				c.Group(""), WS(c.In("a")), WS(c.In("d")), c.In("ei"), c.In("eo"))

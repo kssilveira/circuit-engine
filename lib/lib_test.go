@@ -683,6 +683,58 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 		}(),
 	}, {
+		name: "AluWithBusN",
+		desc: "d0 d1 ai ao bi bo ri ro c" +
+			" => B(d0) R(d0a,ai,ao) R(d0b,bi,bo) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)" +
+			" B(d1) R(d1a,ai,ao) R(d1b,bi,bo) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)" +
+			" C(r(d1a,ai,ao),r(d1b,bi,bo))",
+		convert: true,
+		want: []string{
+			"d0(1) d1(1) ai(0) ao(1) bi(1) bo(0) ri(1) ro(0) c(1) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(0) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(1) d1(1) ai(0) ao(0) bi(0) bo(0) ri(1) ro(1) c(0) => B(d0)(1) R(d0a,ai,ao)(0) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(0) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(1) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(0) d1(0) ai(0) ao(1) bi(0) bo(1) ri(1) ro(0) c(1) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(1) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(1) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(0) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(0) d1(0) ai(0) ao(0) bi(0) bo(0) ri(0) ro(1) c(0) => B(d0)(1) R(d0a,ai,ao)(0) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(1) B(d1)(1) R(d1a,ai,ao)(0) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(1) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(0) d1(0) ai(0) ao(1) bi(0) bo(0) ri(0) ro(1) c(0) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(1) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(1) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(0) d1(0) ai(0) ao(1) bi(0) bo(1) ri(1) ro(1) c(0) => B(d0)(1) R(d0a,ai,ao)(1) R(d0b,bi,bo)(1) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(1) R(d1a,ai,ao)(1) R(d1b,bi,bo)(1) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(1) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+			"d0(1) d1(0) ai(0) ao(0) bi(0) bo(0) ri(1) ro(0) c(1) => B(d0)(1) R(d0a,ai,ao)(0) R(d0b,bi,bo)(0) R(S(r(d0a,ai,ao),r(d0b,bi,bo),c),ri,ro)(0) B(d1)(0) R(d1a,ai,ao)(0) R(d1b,bi,bo)(0) R(S(r(d1a,ai,ao),r(d1b,bi,bo),C(r(d0a,ai,ao),r(d0b,bi,bo))),ri,ro)(0) C(r(d1a,ai,ao),r(d1b,bi,bo))(1)",
+		},
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa0, qb0, qr0 := 1, 1, 1
+			qa1, qb1, qr1 := 1, 1, 1
+			return func(inputs map[string]int) []int {
+				ra0, rb0, rr0, d0, sum0 := 0, 0, 0, 0, 0
+				ra1, rb1, rr1, d1, sum1 := 0, 0, 0, 0, 0
+				for i := 0; i < 10; i++ {
+					if inputs["ao"] == 1 {
+						ra0, ra1 = qa0, qa1
+					}
+					if inputs["bo"] == 1 {
+						rb0, rb1 = qb0, qb1
+					}
+					if inputs["ro"] == 1 {
+						rr0, rr1 = qr0, qr1
+					}
+					d0 = inputs["d0"] | ra0 | rb0 | rr0
+					d1 = inputs["d1"] | ra1 | rb1 | rr1
+					if inputs["ai"] == 1 {
+						qa0, qa1 = d0, d1
+					}
+					if inputs["bi"] == 1 {
+						qb0, qb1 = d0, d1
+					}
+					sum0 = qa0 + qb0 + inputs["c"]
+					sum1 = qa1 + qb1 + sum0/2
+					if inputs["ri"] == 1 {
+						qr0, qr1 = sum0%2, sum1%2
+					}
+				}
+				return []int{
+					d0, ra0, rb0, rr0,
+					d1, ra1, rb1, rr1,
+					sum1 / 2}
+			}
+		}(),
+	}, {
 		name: "RAM",
 		desc: "a d ei eo" +
 			" => RAM RAM-s0 RAM-ei0 RAM-eo0 r(d,RAM-ei0,RAM-eo0) R(d,RAM-ei0,RAM-eo0)" +
