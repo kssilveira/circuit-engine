@@ -476,54 +476,56 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 		}(),
 	}, {
-		name: "Bus",
-		desc: "bus a b r => BUS(bus) wa wb",
+		name:    "Bus",
+		desc:    "d ar br r => B(d) aw bw",
+		convert: true,
 		want: []string{
-			"0000=>000", "0001=>111", "0010=>111", "0011=>111",
-			"0100=>111", "0101=>111", "0110=>111", "0111=>111",
-			"1000=>111", "1001=>111", "1010=>111", "1011=>111",
-			"1100=>111", "1101=>111", "1110=>111", "1111=>111",
+			"d(0) ar(0) br(0) r(0) => B(d)(0) aw(0) bw(0)",
+			"d(0) ar(0) br(0) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(0) br(1) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(0) br(1) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(1) br(0) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(1) br(0) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(1) br(1) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(0) ar(1) br(1) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(0) br(0) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(0) br(0) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(0) br(1) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(0) br(1) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(1) br(0) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(1) br(0) r(1) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(1) br(1) r(0) => B(d)(1) aw(1) bw(1)",
+			"d(1) ar(1) br(1) r(1) => B(d)(1) aw(1) bw(1)",
+		},
+		isValidBool: func(inputs map[string]bool) []bool {
+			bus := inputs["d"] || inputs["ar"] || inputs["br"] || inputs["r"]
+			return []bool{bus, bus, bus}
 		},
 	}, {
-		name: "Bus2",
-		desc: "bus1 bus2 a1 a2 b1 b2 r1 r2 => BUS(bus1) BUS(bus2) wa1 wa2 wb1 wb2",
+		name:    "Bus2",
+		desc:    "d0 d1 ar0 ar1 br0 br1 r0 r1 => B(d0) B(d1) aw0 aw1 bw0 bw1",
+		convert: true,
 		want: []string{
-			"11011010=>111111", "11100001=>111111", "10000101=>111111", "10100000=>101010",
-			"00101101=>111111", "11101000=>111111", "10001000=>101010", "01011101=>111111",
-			"10010110=>111111", "10000010=>101010",
+			"d0(1) d1(1) ar0(0) ar1(1) br0(1) br1(0) r0(1) r1(0) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(1) ar0(1) ar1(0) br0(0) br1(0) r0(0) r1(1) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(0) ar1(0) br0(0) br1(1) r0(0) r1(1) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(1) ar1(0) br0(0) br1(0) r0(0) r1(0) => B(d0)(1) B(d1)(0) aw0(1) aw1(0) bw0(1) bw1(0)",
+			"d0(0) d1(0) ar0(1) ar1(0) br0(1) br1(1) r0(0) r1(1) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(1) ar0(1) ar1(0) br0(1) br1(0) r0(0) r1(0) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(0) ar1(0) br0(1) br1(0) r0(0) r1(0) => B(d0)(1) B(d1)(0) aw0(1) aw1(0) bw0(1) bw1(0)",
+			"d0(0) d1(1) ar0(0) ar1(1) br0(1) br1(1) r0(0) r1(1) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(0) ar1(1) br0(0) br1(1) r0(1) r1(0) => B(d0)(1) B(d1)(1) aw0(1) aw1(1) bw0(1) bw1(1)",
+			"d0(1) d1(0) ar0(0) ar1(0) br0(0) br1(0) r0(1) r1(0) => B(d0)(1) B(d1)(0) aw0(1) aw1(0) bw0(1) bw1(0)",
 		},
-	}, {
-		name: "Bus4",
-		desc: "bus1 bus2 bus3 bus4 a1 a2 a3 a4 b1 b2 b3 b4 r1 r2 r3 r4" +
-			" => BUS(bus1) BUS(bus2) BUS(bus3) BUS(bus4) wa1 wa2 wa3 wa4 wb1 wb2 wb3 wb4",
-		want: []string{
-			"1101101011100001=>111111111111", "1000010110100000=>111111111111",
-			"0010110111101000=>111111111111", "1000100001011101=>110111011101",
-			"1001011010000010=>111111111111", "1001101111111011=>111111111111",
-			"0100100010100010=>111011101110", "0111110000101010=>111111111111",
-			"1011100011010011=>111111111111", "1001100001110010=>111111111111",
-		},
-	}, {
-		name: "Bus8",
-		desc: "bus1 bus2 bus3 bus4 bus5 bus6 bus7 bus8 a1 a2 a3 a4 a5 a6 a7 a8 b1 b2 b3 b4 b5 b6 b7 b8 r1 r2 r3 r4 r5 r6 r7 r8" +
-			" => BUS(bus1) BUS(bus2) BUS(bus3) BUS(bus4) BUS(bus5) BUS(bus6) BUS(bus7) BUS(bus8)" +
-			" wa1 wa2 wa3 wa4 wa5 wa6 wa7 wa8 wb1 wb2 wb3 wb4 wb5 wb6 wb7 wb8",
-		want: []string{
-			"11011010111000011000010110100000=>111111111111111111111111",
-			"00101101111010001000100001011101=>111111011111110111111101",
-			"10010110100000101001101111111011=>111111111111111111111111",
-			"01001000101000100111110000101010=>111111101111111011111110",
-			"10111000110100111001100001110010=>111110111111101111111011",
-			"01100001100010000100000100101101=>111011011110110111101101",
-			"01001001101010111100011000101110=>111011111110111111101111",
-			"10100110010110010110010101101000=>111111111111111111111111",
-			"00101011100110001100001100111000=>111110111111101111111011",
-			"11001100000110001010100010000111=>111111111111111111111111",
+		isValidBool: func(inputs map[string]bool) []bool {
+			bus0 := inputs["d0"] || inputs["ar0"] || inputs["br0"] || inputs["r0"]
+			bus1 := inputs["d1"] || inputs["ar1"] || inputs["br1"] || inputs["r1"]
+			return []bool{bus0, bus1, bus0, bus1, bus0, bus1}
 		},
 	}, {
 		name: "AluWithBus",
 		desc: "bus ai ao bi bo ri ro cin" +
-			" => BUS(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +
+			" => B(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +
 			" r(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
 			" R(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
 			" C(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo))",
@@ -563,10 +565,10 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "AluWithBus2",
 		desc: "bus1 bus2 ai ao bi bo ri ro cin" +
-			" => BUS(bus1) r(ALU-bus1-a,ai,ao) R(ALU-bus1-a,ai,ao) r(ALU-bus1-b,bi,bo) R(ALU-bus1-b,bi,bo)" +
+			" => B(bus1) r(ALU-bus1-a,ai,ao) R(ALU-bus1-a,ai,ao) r(ALU-bus1-b,bi,bo) R(ALU-bus1-b,bi,bo)" +
 			" r(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
 			" R(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" BUS(bus2) r(ALU-bus2-a,ai,ao) R(ALU-bus2-a,ai,ao) r(ALU-bus2-b,bi,bo) R(ALU-bus2-b,bi,bo)" +
+			" B(bus2) r(ALU-bus2-a,ai,ao) R(ALU-bus2-a,ai,ao) r(ALU-bus2-b,bi,bo) R(ALU-bus2-b,bi,bo)" +
 			" r(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
 			" R(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
 			" C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))",
@@ -610,177 +612,6 @@ func TestOutputsCombinational(t *testing.T) {
 					bus1, qa1, ra1, qb1, rb1, qr1, rr1,
 					bus2, qa2, ra2, qb2, rb2, qr2, rr2,
 					sum2 / 2}
-			}
-		}(),
-	}, {
-		name: "AluWithBus4",
-		desc: "bus1 bus2 bus3 bus4 ai ao bi bo ri ro cin" +
-			" => BUS(bus1) r(ALU-bus1-a,ai,ao) R(ALU-bus1-a,ai,ao) r(ALU-bus1-b,bi,bo) R(ALU-bus1-b,bi,bo)" +
-			" r(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" R(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" BUS(bus2) r(ALU-bus2-a,ai,ao) R(ALU-bus2-a,ai,ao) r(ALU-bus2-b,bi,bo) R(ALU-bus2-b,bi,bo)" +
-			" r(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" BUS(bus3) r(ALU-bus3-a,ai,ao) R(ALU-bus3-a,ai,ao) r(ALU-bus3-b,bi,bo) R(ALU-bus3-b,bi,bo)" +
-			" r(S(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo),C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo),C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))),ri,ro)" +
-			" BUS(bus4) r(ALU-bus4-a,ai,ao) R(ALU-bus4-a,ai,ao) r(ALU-bus4-b,bi,bo) R(ALU-bus4-b,bi,bo)" +
-			" r(S(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo),C(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo),C(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo))),ri,ro)" +
-			" C(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo))",
-		want: []string{
-			"01101000000=>00010101101010110101000010101", "10001000100=>11010000001000000100000010001",
-			"01011010000=>00000001101000000000011010001", "01000101000=>00000001111100000000011111001",
-		},
-		isValidInt: func() func(inputs map[string]int) []int {
-			qa1, qb1, qr1 := 1, 1, 1
-			qa2, qb2, qr2 := 1, 1, 1
-			qa3, qb3, qr3 := 1, 1, 1
-			qa4, qb4, qr4 := 1, 1, 1
-			return func(inputs map[string]int) []int {
-				ra1, rb1, rr1, bus1, sum1 := 0, 0, 0, 0, 0
-				ra2, rb2, rr2, bus2, sum2 := 0, 0, 0, 0, 0
-				ra3, rb3, rr3, bus3, sum3 := 0, 0, 0, 0, 0
-				ra4, rb4, rr4, bus4, sum4 := 0, 0, 0, 0, 0
-				for i := 0; i < 10; i++ {
-					if inputs["ao"] == 1 {
-						ra1, ra2, ra3, ra4 = qa1, qa2, qa3, qa4
-					}
-					if inputs["bo"] == 1 {
-						rb1, rb2, rb3, rb4 = qb1, qb2, qb3, qb4
-					}
-					if inputs["ro"] == 1 {
-						rr1, rr2, rr3, rr4 = qr1, qr2, qr3, qr4
-					}
-					bus1 = inputs["bus1"] | ra1 | rb1 | rr1
-					bus2 = inputs["bus2"] | ra2 | rb2 | rr2
-					bus3 = inputs["bus3"] | ra3 | rb3 | rr3
-					bus4 = inputs["bus4"] | ra4 | rb4 | rr4
-					if inputs["ai"] == 1 {
-						qa1, qa2, qa3, qa4 = bus1, bus2, bus3, bus4
-					}
-					if inputs["bi"] == 1 {
-						qb1, qb2, qb3, qb4 = bus1, bus2, bus3, bus4
-					}
-					sum1 = qa1 + qb1 + inputs["cin"]
-					sum2 = qa2 + qb2 + sum1/2
-					sum3 = qa3 + qb3 + sum2/2
-					sum4 = qa4 + qb4 + sum3/2
-					if inputs["ri"] == 1 {
-						qr1, qr2, qr3, qr4 = sum1%2, sum2%2, sum3%2, sum4%2
-					}
-				}
-				return []int{
-					bus1, qa1, ra1, qb1, rb1, qr1, rr1,
-					bus2, qa2, ra2, qb2, rb2, qr2, rr2,
-					bus3, qa3, ra3, qb3, rb3, qr3, rr3,
-					bus4, qa4, ra4, qb4, rb4, qr4, rr4,
-					sum4 / 2}
-			}
-		}(),
-	}, {
-		name: "AluWithBus8",
-		desc: "bus1 bus2 bus3 bus4 bus5 bus6 bus7 bus8 ai ao bi bo ri ro cin" +
-			" => BUS(bus1) r(ALU-bus1-a,ai,ao) R(ALU-bus1-a,ai,ao) r(ALU-bus1-b,bi,bo) R(ALU-bus1-b,bi,bo)" +
-			" r(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" R(S(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo),cin),ri,ro)" +
-			" BUS(bus2) r(ALU-bus2-a,ai,ao) R(ALU-bus2-a,ai,ao) r(ALU-bus2-b,bi,bo) R(ALU-bus2-b,bi,bo)" +
-			" r(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo),C(r(ALU-bus1-a,ai,ao),r(ALU-bus1-b,bi,bo))),ri,ro)" +
-			" BUS(bus3) r(ALU-bus3-a,ai,ao) R(ALU-bus3-a,ai,ao) r(ALU-bus3-b,bi,bo) R(ALU-bus3-b,bi,bo)" +
-			" r(S(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo),C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo),C(r(ALU-bus2-a,ai,ao),r(ALU-bus2-b,bi,bo))),ri,ro)" +
-			" BUS(bus4) r(ALU-bus4-a,ai,ao) R(ALU-bus4-a,ai,ao) r(ALU-bus4-b,bi,bo) R(ALU-bus4-b,bi,bo)" +
-			" r(S(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo),C(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo),C(r(ALU-bus3-a,ai,ao),r(ALU-bus3-b,bi,bo))),ri,ro)" +
-			" BUS(bus5) r(ALU-bus5-a,ai,ao) R(ALU-bus5-a,ai,ao) r(ALU-bus5-b,bi,bo) R(ALU-bus5-b,bi,bo)" +
-			" r(S(r(ALU-bus5-a,ai,ao),r(ALU-bus5-b,bi,bo),C(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus5-a,ai,ao),r(ALU-bus5-b,bi,bo),C(r(ALU-bus4-a,ai,ao),r(ALU-bus4-b,bi,bo))),ri,ro)" +
-			" BUS(bus6) r(ALU-bus6-a,ai,ao) R(ALU-bus6-a,ai,ao) r(ALU-bus6-b,bi,bo) R(ALU-bus6-b,bi,bo)" +
-			" r(S(r(ALU-bus6-a,ai,ao),r(ALU-bus6-b,bi,bo),C(r(ALU-bus5-a,ai,ao),r(ALU-bus5-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus6-a,ai,ao),r(ALU-bus6-b,bi,bo),C(r(ALU-bus5-a,ai,ao),r(ALU-bus5-b,bi,bo))),ri,ro)" +
-			" BUS(bus7) r(ALU-bus7-a,ai,ao) R(ALU-bus7-a,ai,ao) r(ALU-bus7-b,bi,bo) R(ALU-bus7-b,bi,bo)" +
-			" r(S(r(ALU-bus7-a,ai,ao),r(ALU-bus7-b,bi,bo),C(r(ALU-bus6-a,ai,ao),r(ALU-bus6-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus7-a,ai,ao),r(ALU-bus7-b,bi,bo),C(r(ALU-bus6-a,ai,ao),r(ALU-bus6-b,bi,bo))),ri,ro)" +
-			" BUS(bus8) r(ALU-bus8-a,ai,ao) R(ALU-bus8-a,ai,ao) r(ALU-bus8-b,bi,bo) R(ALU-bus8-b,bi,bo)" +
-			" r(S(r(ALU-bus8-a,ai,ao),r(ALU-bus8-b,bi,bo),C(r(ALU-bus7-a,ai,ao),r(ALU-bus7-b,bi,bo))),ri,ro)" +
-			" R(S(r(ALU-bus8-a,ai,ao),r(ALU-bus8-b,bi,bo),C(r(ALU-bus7-a,ai,ao),r(ALU-bus7-b,bi,bo))),ri,ro)" +
-			" C(r(ALU-bus8-a,ai,ao),r(ALU-bus8-b,bi,bo))",
-		want: []string{
-			"000100010000101=>010101001010100101010110101001010100101010010101011010101",
-			"110110010110100=>111100011110101111010111101011110101111010111101011110101",
-			"111011010010001=>110100011010101101010010001011010101101010010001011010101",
-		},
-		isValidInt: func() func(inputs map[string]int) []int {
-			qa1, qb1, qr1 := 1, 1, 1
-			qa2, qb2, qr2 := 1, 1, 1
-			qa3, qb3, qr3 := 1, 1, 1
-			qa4, qb4, qr4 := 1, 1, 1
-			qa5, qb5, qr5 := 1, 1, 1
-			qa6, qb6, qr6 := 1, 1, 1
-			qa7, qb7, qr7 := 1, 1, 1
-			qa8, qb8, qr8 := 1, 1, 1
-			return func(inputs map[string]int) []int {
-				ra1, rb1, rr1, bus1, sum1 := 0, 0, 0, 0, 0
-				ra2, rb2, rr2, bus2, sum2 := 0, 0, 0, 0, 0
-				ra3, rb3, rr3, bus3, sum3 := 0, 0, 0, 0, 0
-				ra4, rb4, rr4, bus4, sum4 := 0, 0, 0, 0, 0
-				ra5, rb5, rr5, bus5, sum5 := 0, 0, 0, 0, 0
-				ra6, rb6, rr6, bus6, sum6 := 0, 0, 0, 0, 0
-				ra7, rb7, rr7, bus7, sum7 := 0, 0, 0, 0, 0
-				ra8, rb8, rr8, bus8, sum8 := 0, 0, 0, 0, 0
-				for i := 0; i < 10; i++ {
-					if inputs["ao"] == 1 {
-						ra1, ra2, ra3, ra4 = qa1, qa2, qa3, qa4
-						ra5, ra6, ra7, ra8 = qa5, qa6, qa7, qa8
-					}
-					if inputs["bo"] == 1 {
-						rb1, rb2, rb3, rb4 = qb1, qb2, qb3, qb4
-						rb5, rb6, rb7, rb8 = qb5, qb6, qb7, qb8
-					}
-					if inputs["ro"] == 1 {
-						rr1, rr2, rr3, rr4 = qr1, qr2, qr3, qr4
-						rr5, rr6, rr7, rr8 = qr5, qr6, qr7, qr8
-					}
-					bus1 = inputs["bus1"] | ra1 | rb1 | rr1
-					bus2 = inputs["bus2"] | ra2 | rb2 | rr2
-					bus3 = inputs["bus3"] | ra3 | rb3 | rr3
-					bus4 = inputs["bus4"] | ra4 | rb4 | rr4
-					bus5 = inputs["bus5"] | ra5 | rb5 | rr5
-					bus6 = inputs["bus6"] | ra6 | rb6 | rr6
-					bus7 = inputs["bus7"] | ra7 | rb7 | rr7
-					bus8 = inputs["bus8"] | ra8 | rb8 | rr8
-					if inputs["ai"] == 1 {
-						qa1, qa2, qa3, qa4 = bus1, bus2, bus3, bus4
-						qa5, qa6, qa7, qa8 = bus5, bus6, bus7, bus8
-					}
-					if inputs["bi"] == 1 {
-						qb1, qb2, qb3, qb4 = bus1, bus2, bus3, bus4
-						qb5, qb6, qb7, qb8 = bus5, bus6, bus7, bus8
-					}
-					sum1 = qa1 + qb1 + inputs["cin"]
-					sum2 = qa2 + qb2 + sum1/2
-					sum3 = qa3 + qb3 + sum2/2
-					sum4 = qa4 + qb4 + sum3/2
-					sum5 = qa5 + qb5 + sum4/2
-					sum6 = qa6 + qb6 + sum5/2
-					sum7 = qa7 + qb7 + sum6/2
-					sum8 = qa8 + qb8 + sum7/2
-					if inputs["ri"] == 1 {
-						qr1, qr2, qr3, qr4 = sum1%2, sum2%2, sum3%2, sum4%2
-						qr5, qr6, qr7, qr8 = sum5%2, sum2%2, sum7%2, sum8%2
-					}
-				}
-				return []int{
-					bus1, qa1, ra1, qb1, rb1, qr1, rr1,
-					bus2, qa2, ra2, qb2, rb2, qr2, rr2,
-					bus3, qa3, ra3, qb3, rb3, qr3, rr3,
-					bus4, qa4, ra4, qb4, rb4, qr4, rr4,
-					bus5, qa5, ra5, qb5, rb5, qr5, rr5,
-					bus6, qa6, ra6, qb6, rb6, qr6, rr6,
-					bus7, qa7, ra7, qb7, rb7, qr7, rr7,
-					bus8, qa8, ra8, qb8, rb8, qr8, rr8,
-					sum8 / 2}
 			}
 		}(),
 	}, {
@@ -1070,7 +901,7 @@ func TestOutputsSequential(t *testing.T) {
 	}, {
 		name: "AluWithBus",
 		desc: "bus ai ao bi bo ri ro cin" +
-			" => BUS(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +
+			" => B(bus) r(ALU-bus-a,ai,ao) R(ALU-bus-a,ai,ao) r(ALU-bus-b,bi,bo) R(ALU-bus-b,bi,bo)" +
 			" r(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
 			" R(S(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo),cin),ri,ro)" +
 			" C(r(ALU-bus-a,ai,ao),r(ALU-bus-b,bi,bo))",

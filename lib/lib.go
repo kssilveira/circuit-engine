@@ -2,8 +2,6 @@
 package lib
 
 import (
-	"slices"
-
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/lib/alu"
 	"github.com/kssilveira/circuit-engine/lib/bus"
@@ -127,48 +125,17 @@ var (
 				c.In("ri"), c.In("ro"), c.In("c"))
 		},
 		"Bus": func(c *circuit.Circuit) []*wire.Wire {
-			wa, wb := W("wa"), W("wb")
-			return append(bus.Bus(c.Group(""), c.In("bus"), c.In("a"), c.In("b"), c.In("r"), wa, wb), wa, wb)
+			aw, bw := W("aw"), W("bw")
+			return append(bus.Bus(c.Group(""), c.In("d"), c.In("ar"), c.In("br"), c.In("r"), aw, bw), aw, bw)
 		},
 		"Bus2": func(c *circuit.Circuit) []*wire.Wire {
-			wa1, wa2 := W("wa1"), W("wa2")
-			wb1, wb2 := W("wb1"), W("wb2")
+			aw0, aw1 := W("aw0"), W("aw1")
+			bw0, bw1 := W("bw0"), W("bw1")
 			return append(bus.Bus2(
-				c.Group(""), c.In("bus1"), c.In("bus2"),
-				c.In("a1"), c.In("a2"), c.In("b1"), c.In("b2"), c.In("r1"), c.In("r2"),
-				wa1, wa2, wb1, wb2),
-				wa1, wa2, wb1, wb2)
-		},
-		"Bus4": func(c *circuit.Circuit) []*wire.Wire {
-			wa1, wa2, wa3, wa4 := W("wa1"), W("wa2"), W("wa3"), W("wa4")
-			wb1, wb2, wb3, wb4 := W("wb1"), W("wb2"), W("wb3"), W("wb4")
-			wa := [4]*wire.Wire{wa1, wa2, wa3, wa4}
-			wb := [4]*wire.Wire{wb1, wb2, wb3, wb4}
-			return slices.Concat(bus.Bus4(
-				c.Group(""), [4]*wire.Wire{c.In("bus1"), c.In("bus2"), c.In("bus3"), c.In("bus4")},
-				[4]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4")},
-				[4]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4")},
-				[4]*wire.Wire{c.In("r1"), c.In("r2"), c.In("r3"), c.In("r4")},
-				wa, wb), wa[:], wb[:])
-		},
-		"Bus8": func(c *circuit.Circuit) []*wire.Wire {
-			wa1, wa2, wa3, wa4 := W("wa1"), W("wa2"), W("wa3"), W("wa4")
-			wa5, wa6, wa7, wa8 := W("wa5"), W("wa6"), W("wa7"), W("wa8")
-			wb1, wb2, wb3, wb4 := W("wb1"), W("wb2"), W("wb3"), W("wb4")
-			wb5, wb6, wb7, wb8 := W("wb5"), W("wb6"), W("wb7"), W("wb8")
-			wa := [8]*wire.Wire{wa1, wa2, wa3, wa4, wa5, wa6, wa7, wa8}
-			wb := [8]*wire.Wire{wb1, wb2, wb3, wb4, wb5, wb6, wb7, wb8}
-			return slices.Concat(bus.Bus8(
-				c.Group(""),
-				[8]*wire.Wire{c.In("bus1"), c.In("bus2"), c.In("bus3"), c.In("bus4"),
-					c.In("bus5"), c.In("bus6"), c.In("bus7"), c.In("bus8")},
-				[8]*wire.Wire{c.In("a1"), c.In("a2"), c.In("a3"), c.In("a4"),
-					c.In("a5"), c.In("a6"), c.In("a7"), c.In("a8")},
-				[8]*wire.Wire{c.In("b1"), c.In("b2"), c.In("b3"), c.In("b4"),
-					c.In("b5"), c.In("b6"), c.In("b7"), c.In("b8")},
-				[8]*wire.Wire{c.In("r1"), c.In("r2"), c.In("r3"), c.In("r4"),
-					c.In("r5"), c.In("r6"), c.In("r7"), c.In("r8")},
-				wa, wb), wa[:], wb[:])
+				c.Group(""), c.In("d0"), c.In("d1"),
+				c.In("ar0"), c.In("ar1"), c.In("br0"), c.In("br1"), c.In("r0"), c.In("r1"),
+				aw0, aw1, bw0, bw1),
+				aw0, aw1, bw0, bw1)
 		},
 		"AluWithBus": func(c *circuit.Circuit) []*wire.Wire {
 			bus := c.In("bus")
