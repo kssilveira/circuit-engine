@@ -99,7 +99,9 @@ func WithRAM(parent *group.Group, d, ai, bi, ri, ro, c, mai, mi, mo *wire.Wire) 
 	b := &wire.Wire{Name: sfmt.Sprintf("%sb", d.Name)}
 	rb := reg.Register(group, b, bi, group.True)
 	r := sum.Sum(group, ra, rb, c)
+	r[1].Name = sfmt.Sprintf("C(%s,%s)", a.Name, b.Name)
 	rr := reg.Register(group, r[0], ri, ro)
+	rr.Name = sfmt.Sprintf("R(S(%s,%s))", a.Name, b.Name)
 	ma := &wire.Wire{Name: sfmt.Sprintf("%sma", d.Name)}
 	rma := reg.Register(group, ma, mai, group.True)
 	m := &wire.Wire{Name: sfmt.Sprintf("%sm", d.Name)}
@@ -109,7 +111,7 @@ func WithRAM(parent *group.Group, d, ai, bi, ri, ro, c, mai, mi, mo *wire.Wire) 
 }
 
 // WithRAMInputValidation validates inputs with ram.
-func WithRAMInputValidation(ai, bi, ri, ro, mai, mi, mo *wire.Wire) func() bool {
+func WithRAMInputValidation(ai, bi, ri, ro, mai, _, mo *wire.Wire) func() bool {
 	return func() bool {
 		return WithBusInputValidation(ai, bi, ri, ro)() &&
 			!(mai.Bit.Get(nil) && mo.Bit.Get(nil))
