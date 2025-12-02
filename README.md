@@ -106,4 +106,4 @@ See [lib/lib.go](lib/lib.go).
 
 ### Unit Tests For Example Circuits
 
-See [lib/lib_test.go](lib/lib_test.go).
+See [lib/lib_test.go](lib/lib_test.go) and [lib/testdata](lib/testdata).
