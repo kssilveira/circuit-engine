@@ -3,6 +3,7 @@ package ram
 
 import (
 	"github.com/kssilveira/circuit-engine/group"
+	"github.com/kssilveira/circuit-engine/lib/decode"
 	"github.com/kssilveira/circuit-engine/lib/gate"
 	"github.com/kssilveira/circuit-engine/lib/reg"
 	"github.com/kssilveira/circuit-engine/sfmt"
@@ -12,26 +13,9 @@ import (
 // RAM adds a random access memory.
 func RAM(parent *group.Group, a, d []*wire.Wire, ei, eo *wire.Wire) [][]*wire.Wire {
 	group := parent.Group("RAM")
-	s := ramAddress(group, a)
+	s := decode.Decode(group, a)
 	rei, reo := ramEnable(group, s, ei, eo)
 	return ramRegisters(group, d, rei, reo)
-}
-
-func ramAddress(group *group.Group, a []*wire.Wire) []*wire.Wire {
-	var s []*wire.Wire
-	for address := 0; address < 1<<len(a); address++ {
-		si := group.True()
-		for i, ai := range a {
-			if address>>i&1 == 1 {
-				si = gate.And(group, si, ai)
-			} else {
-				si = gate.And(group, si, gate.Not(group, ai))
-			}
-		}
-		si.Name = sfmt.Sprintf("%s-s%d", group.Name, address)
-		s = append(s, si)
-	}
-	return s
 }
 
 func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.Wire, []*wire.Wire) {
