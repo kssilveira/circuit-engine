@@ -1,7 +1,7 @@
-d ai bi ri ro c mai mi mo => B(d) C(da,db) R(da,ai,T) R(db,bi,T) R(S(da,db)) R(dma,mai,T) R(dm,i0,o0) R(dm,i1,o1)
+d ai bi ri ro c mai mi mo => B(d) C(da,db) R(da) R(db) R(S(da,db)) R(dma) R(dm00) R(dm10)
 
-d(1) ai(1) bi(0) ri(0) ro(0) c(0) mai(1) mi(1) mo(0) => B(d)(1) C(da,db)(1) R(da,ai,T)(1) R(db,bi,T)(1) R(S(da,db))(0) R(dma,mai,T)(1) R(dm,i0,o0)(0) R(dm,i1,o1)(0)
-d(0) ai(0) bi(0) ri(0) ro(0) c(0) mai(0) mi(1) mo(0) => B(d)(0) C(da,db)(1) R(da,ai,T)(1) R(db,bi,T)(1) R(S(da,db))(0) R(dma,mai,T)(1) R(dm,i0,o0)(0) R(dm,i1,o1)(0)
-d(0) ai(0) bi(0) ri(1) ro(0) c(0) mai(0) mi(1) mo(0) => B(d)(0) C(da,db)(1) R(da,ai,T)(1) R(db,bi,T)(1) R(S(da,db))(0) R(dma,mai,T)(1) R(dm,i0,o0)(0) R(dm,i1,o1)(0)
-d(0) ai(0) bi(0) ri(1) ro(0) c(1) mai(1) mi(1) mo(0) => B(d)(0) C(da,db)(1) R(da,ai,T)(1) R(db,bi,T)(1) R(S(da,db))(0) R(dma,mai,T)(0) R(dm,i0,o0)(0) R(dm,i1,o1)(0)
-d(1) ai(1) bi(0) ri(0) ro(1) c(0) mai(1) mi(1) mo(0) => B(d)(1) C(da,db)(1) R(da,ai,T)(1) R(db,bi,T)(1) R(S(da,db))(1) R(dma,mai,T)(1) R(dm,i0,o0)(0) R(dm,i1,o1)(0)
+d(1) ai(1) bi(0) ri(0) ro(0) c(0) mai(1) mi(1) mo(0) => B(d)(1) C(da,db)(1) R(da)(1) R(db)(1) R(S(da,db))(0) R(dma)(1) R(dm00)(0) R(dm10)(0)
+d(0) ai(0) bi(0) ri(0) ro(0) c(0) mai(0) mi(1) mo(0) => B(d)(0) C(da,db)(1) R(da)(1) R(db)(1) R(S(da,db))(0) R(dma)(1) R(dm00)(0) R(dm10)(0)
+d(0) ai(0) bi(0) ri(1) ro(0) c(0) mai(0) mi(1) mo(0) => B(d)(0) C(da,db)(1) R(da)(1) R(db)(1) R(S(da,db))(0) R(dma)(1) R(dm00)(0) R(dm10)(0)
+d(0) ai(0) bi(0) ri(1) ro(0) c(1) mai(1) mi(1) mo(0) => B(d)(0) C(da,db)(1) R(da)(1) R(db)(1) R(S(da,db))(0) R(dma)(0) R(dm00)(0) R(dm10)(0)
+d(1) ai(1) bi(0) ri(0) ro(1) c(0) mai(1) mi(1) mo(0) => B(d)(1) C(da,db)(1) R(da)(1) R(db)(1) R(S(da,db))(1) R(dma)(1) R(dm00)(0) R(dm10)(0)

@@ -76,19 +76,20 @@ func Counter(parent *group.Group, e *wire.Wire) []*wire.Wire {
 func Counter2(parent *group.Group, e *wire.Wire) []*wire.Wire {
 	group := parent.Group(sfmt.Sprintf("COUNTER2(%s)", e.Name))
 	c0 := &wire.Wire{Name: "c0"}
-	c1 := MSJKLatchRes(parent, c0, group.True(), group.True(), e)[0]
-	c1.Name = "c1"
+	MSJKLatchRes(parent, c0, group.True(), group.True(), e)
+	c1 := &wire.Wire{Name: "c1"}
+	MSJKLatchRes(parent, c1, group.True(), group.True(), c0)
 	return []*wire.Wire{c0, c1}
 }
 
 // CounterN adds an N-bit counter.
 func CounterN(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 	group := parent.Group(sfmt.Sprintf("COUNTER%d(%s)", n, e.Name))
-	prev := &wire.Wire{Name: "c0"}
-	res := []*wire.Wire{prev}
-	for i := 1; i < n; i++ {
-		ci := MSJKLatchRes(parent, prev, group.True(), group.True(), e)[0]
-		ci.Name = sfmt.Sprintf("c%d", i)
+	prev := e
+	var res []*wire.Wire
+	for i := 0; i < n; i++ {
+		ci := &wire.Wire{Name: sfmt.Sprintf("%s%d", e.Name, i)}
+		MSJKLatchRes(parent, ci, group.True(), group.True(), prev)
 		res = append(res, ci)
 		prev = ci
 	}

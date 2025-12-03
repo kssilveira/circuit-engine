@@ -11,7 +11,7 @@ import (
 
 // Register adds a register.
 func Register(parent *group.Group, d, ei, eo *wire.Wire) *wire.Wire {
-	group := parent.Group(sfmt.Sprintf("R(%s,%s,%s)", d.Name, ei.Name, eo.Name))
+	group := parent.Group(sfmt.Sprintf("R(%s)", d.Name))
 	q := &wire.Wire{}
 	latch.DLatchRes(group, q, gate.Or(group, gate.And(group, q, gate.Not(group, ei)), gate.And(group, d, ei)), ei)
 	q.Name = "r" + group.Name[1:]

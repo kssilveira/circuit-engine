@@ -34,9 +34,19 @@ func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.W
 
 func ramRegisters(group *group.Group, d, ei, eo []*wire.Wire) [][]*wire.Wire {
 	var all [][]*wire.Wire
+	var names []string
+	for _, di := range d {
+		names = append(names, di.Name)
+	}
 	for i, eii := range ei {
+		for j, di := range d {
+			di.Name = sfmt.Sprintf("%s%d%d", names[j], i, j)
+		}
 		ri := reg.N(group, d, eii, eo[i])
 		all = append(all, ri)
+	}
+	for i, di := range d {
+		di.Name = names[i]
 	}
 	return all
 }

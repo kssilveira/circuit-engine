@@ -736,6 +736,9 @@ func TestOutputsSequential(t *testing.T) {
 	}, {
 		name:   "RAM",
 		inputs: []string{"0000", "0001", "0010", "0001", "1001"},
+	}, {
+		name:   "AluWithCPU",
+		inputs: []string{"0"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
