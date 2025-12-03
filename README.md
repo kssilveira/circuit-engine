@@ -231,7 +231,7 @@ e(0) => Ra(1) Ra(1) Rb(1) Rb(1) Rce0(0) Rce1(0) Bd(0) Bd(0) e0(0) e1(0) RSab(0) 
 e(0) => Ra(1) Ra(1) Rb(1) Rb(1) Rce0(1) Rce1(0) Bd(1) Bd(0) e0(0) e1(0) RSab(0) RSab(0) Ri(0) Ri(0) Rm(1) Rm(0) Rr00(0) Rr01(0) Rr10(0) Rr11(0) Rr20(0) Rr21(0) Rr30(0) Rr31(0)
 
 
-// program counter = 00 = 0 = memory address register
+// program counter = 10 = 1 = memory address register
 
 // ...
 ```
