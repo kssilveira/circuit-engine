@@ -1,4 +1,4 @@
-e => R(a,ai,T) R(b,bi,T) R(c,ci,co) B(d) R(S(a,b)) R(i,ii,io) R(m,mi,T) R(r,i0,o0) R(r,i1,o1)
+e => R(a,ai,T) R(b,bi,T) R(c0,ci,co) B(d) c0 R(S(a,b)) R(i,ii,io) R(m,mi,T) R(r,i0,o0) R(r,i1,o1)
 
-e(0) => R(a,ai,T)(1) R(b,bi,T)(1) R(c,ci,co)(0) B(d)(0) R(S(a,b))(0) R(i,ii,io)(0) R(m,mi,T)(1) R(r,i0,o0)(0) R(r,i1,o1)(0)
-e(1) => R(a,ai,T)(1) R(b,bi,T)(1) R(c,ci,co)(0) B(d)(0) R(S(a,b))(0) R(i,ii,io)(0) R(m,mi,T)(1) R(r,i0,o0)(0) R(r,i1,o1)(0)
+e(0) => R(a,ai,T)(1) R(b,bi,T)(1) R(c0,ci,co)(0) B(d)(0) c0(0) R(S(a,b))(0) R(i,ii,io)(0) R(m,mi,T)(1) R(r,i0,o0)(0) R(r,i1,o1)(0)
+e(1) => R(a,ai,T)(1) R(b,bi,T)(1) R(c0,ci,co)(0) B(d)(0) c0(0) R(S(a,b))(0) R(i,ii,io)(0) R(m,mi,T)(1) R(r,i0,o0)(0) R(r,i1,o1)(0)

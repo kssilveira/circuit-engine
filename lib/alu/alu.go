@@ -6,6 +6,7 @@ import (
 
 	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/lib/bus"
+	"github.com/kssilveira/circuit-engine/lib/latch"
 	"github.com/kssilveira/circuit-engine/lib/ram"
 	"github.com/kssilveira/circuit-engine/lib/reg"
 	"github.com/kssilveira/circuit-engine/lib/sum"
@@ -126,7 +127,7 @@ func WithRAMInputValidation(ai, bi, ri, ro, mai, _, mo *wire.Wire) func() bool {
 }
 
 // WithCPU adds an arithmetic logic unit with CPU.
-func WithCPU(parent *group.Group, _ *wire.Wire, n int) []*wire.Wire {
+func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 	group := parent.Group("ALU-RAM")
 	var a, b, c, d, i, m, r []*wire.Wire
 	for bit := 0; bit < n; bit++ {
@@ -148,24 +149,26 @@ func WithCPU(parent *group.Group, _ *wire.Wire, n int) []*wire.Wire {
 	mi := &wire.Wire{Name: "mi"}
 	ri := &wire.Wire{Name: "ri"}
 	ro := &wire.Wire{Name: "ro"}
-	si := &wire.Wire{Name: "si"}
-	so := &wire.Wire{Name: "so"}
+	ti := &wire.Wire{Name: "ti"}
+	to := &wire.Wire{Name: "to"}
 
 	ar := reg.N(group, a, ai, group.True())
 	br := reg.N(group, b, bi, group.True())
-	s := sum.N(group, ar, br, group.False())
-	last := len(s) - 1
-	s[last].Name = sfmt.Sprintf("C(%s,%s)", a[last-1].Name, b[last-1].Name)
-	sr := reg.N(group, s[:last], si, so)
+	t := sum.N(group, ar, br, group.False())
+	last := len(t) - 1
+	t[last].Name = sfmt.Sprintf("C(%s,%s)", a[last-1].Name, b[last-1].Name)
+	tr := reg.N(group, t[:last], ti, to)
 	for i, ai := range a {
-		sr[i].Name = sfmt.Sprintf("R(S(%s,%s))", ai.Name, b[i].Name)
+		tr[i].Name = sfmt.Sprintf("R(S(%s,%s))", ai.Name, b[i].Name)
 	}
 
-	cr := reg.N(group, c, ci, co)
+	s := latch.CounterN(group, e, n)
+
+	cr := reg.N(group, latch.CounterN(group, e, n), ci, co)
 	ir := reg.N(group, i, ii, io)
 	mr := reg.N(group, m, mi, group.True())
 	rr := ram.RAM(group, mr, r, ri, ro)
 	dr := bus.BnIOn(group, append([][]*wire.Wire{d, cr, ir}, rr...), [][]*wire.Wire{a, b, c, i, m, r})
 
-	return slices.Concat(ar, br, cr, dr, sr, ir, mr, slices.Concat(rr...))
+	return slices.Concat(ar, br, cr, dr, s, tr, ir, mr, slices.Concat(rr...))
 }
