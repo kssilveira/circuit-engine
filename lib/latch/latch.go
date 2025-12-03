@@ -64,3 +64,10 @@ func MSJKLatchRes(parent *group.Group, mq, j, k, e *wire.Wire) []*wire.Wire {
 	sqs := SRLatchResWithEnable(group, sq, gate.And(group, j, gate.Not(group, mq)), gate.And(group, k, mq), e)
 	return SRLatchResWithEnable(group, mq, sq, sqs[1], gate.Not(group, e))
 }
+
+// Counter adds a binary counter.
+func Counter(parent *group.Group, e *wire.Wire) []*wire.Wire {
+	group := parent.Group(sfmt.Sprintf("COUNTER(%s)", e.Name))
+	c := &wire.Wire{Name: "c"}
+	return MSJKLatchRes(parent, c, group.True(), group.True(), e)[:1]
+}

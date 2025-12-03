@@ -151,8 +151,7 @@ func TestOutputsCombinational(t *testing.T) {
 	}, {
 		name: "MSJKLatch",
 		isValidBool: func() func(inputs map[string]bool) []bool {
-			mq := true
-			sq := true
+			mq, sq := true, true
 			return func(inputs map[string]bool) []bool {
 				if inputs["e"] {
 					if inputs["j"] && inputs["k"] {
@@ -168,6 +167,19 @@ func TestOutputsCombinational(t *testing.T) {
 					mq = sq
 				}
 				return []bool{mq, !mq}
+			}
+		}(),
+	}, {
+		name: "Counter",
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			c, s := true, true
+			return func(inputs map[string]bool) []bool {
+				if inputs["e"] {
+					s = !c
+				} else {
+					c = s
+				}
+				return []bool{c}
 			}
 		}(),
 	}, {
