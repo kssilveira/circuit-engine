@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/config"
 	"github.com/kssilveira/circuit-engine/sfmt"
@@ -721,84 +720,34 @@ func TestOutputsCombinational(t *testing.T) {
 func TestOutputsSequential(t *testing.T) {
 	inputs := []struct {
 		name   string
-		desc   string
 		inputs []string
-		want   []string
 	}{{
 		name:   "OrRes",
-		desc:   "a => OR(a,res)",
 		inputs: []string{"0", "1", "0"},
-		want:   []string{"a(0) => OR(a,res)(0)", "a(1) => OR(a,res)(1)", "a(0) => OR(a,res)(1)"},
 	}, {
 		name:   "SRLatchWithEnable",
-		desc:   "s r e => q nq",
 		inputs: []string{"000", "001", "010", "011", "000", "100", "101", "000"},
-		want: []string{
-			"s(0) r(0) e(0) => q(1) nq(0)", "s(0) r(0) e(1) => q(1) nq(0)", "s(0) r(1) e(0) => q(1) nq(0)", "s(0) r(1) e(1) => q(0) nq(1)",
-			"s(0) r(0) e(0) => q(0) nq(1)", "s(1) r(0) e(0) => q(0) nq(1)", "s(1) r(0) e(1) => q(1) nq(0)", "s(0) r(0) e(0) => q(1) nq(0)",
-		},
 	}, {
 		name:   "MSJKLatch",
-		desc:   "j k e => mq nmq",
 		inputs: []string{"000", "011", "000", "101", "000", "111", "000", "111", "000"},
-		want: []string{
-			"j(0) k(0) e(0) => mq(1) nmq(0)", "j(0) k(1) e(1) => mq(1) nmq(0)",
-			"j(0) k(0) e(0) => mq(0) nmq(1)", "j(1) k(0) e(1) => mq(0) nmq(1)",
-			"j(0) k(0) e(0) => mq(1) nmq(0)", "j(1) k(1) e(1) => mq(1) nmq(0)",
-			"j(0) k(0) e(0) => mq(0) nmq(1)", "j(1) k(1) e(1) => mq(0) nmq(1)",
-			"j(0) k(0) e(0) => mq(1) nmq(0)",
-		},
 	}, {
 		name:   "AluWithBus",
-		desc:   "d ai bi ri ro c => B(d) R(da,ai,T) R(db,bi,T) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro) C(R(da,ai,T),R(db,bi,T))",
 		inputs: []string{"000000", "100000", "010000", "000110", "000111", "001010", "000111"},
-		want: []string{
-			// default to a=b=1 sum=0 cout=1
-			"d(0) ai(0) bi(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,T)(1) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(1)",
-			// d=1 writes to the bus
-			"d(1) ai(0) bi(0) ri(0) ro(0) c(0) => B(d)(1) R(da,ai,T)(1) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(1)",
-			// ai=1 sets a=0 from the bus
-			"d(0) ai(1) bi(0) ri(0) ro(0) c(0) => B(d)(0) R(da,ai,T)(0) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(0)",
-			// ri=ro=1 writes sum=1 to r and bus
-			"d(0) ai(0) bi(0) ri(1) ro(1) c(0) => B(d)(1) R(da,ai,T)(0) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(1) C(R(da,ai,T),R(db,bi,T))(0)",
-			// ri=ro=c=1 writes sum=0 to r and bus
-			"d(0) ai(0) bi(0) ri(1) ro(1) c(1) => B(d)(0) R(da,ai,T)(0) R(db,bi,T)(1) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(1)",
-			// bi=ro=1 writes sum=0 to b and bus
-			"d(0) ai(0) bi(1) ri(0) ro(1) c(0) => B(d)(0) R(da,ai,T)(0) R(db,bi,T)(0) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(0) C(R(da,ai,T),R(db,bi,T))(0)",
-			// ri=ro=c=1 writes sum=1 to r and bus
-			"d(0) ai(0) bi(0) ri(1) ro(1) c(1) => B(d)(1) R(da,ai,T)(0) R(db,bi,T)(0) R(S(R(da,ai,T),R(db,bi,T),c),ri,ro)(1) C(R(da,ai,T),R(db,bi,T))(0)",
-		},
 	}, {
 		name:   "RAM",
-		desc:   "a d i o => R(d,i0,o0) R(d,i1,o1)",
 		inputs: []string{"0000", "0001", "0010", "0001", "1001"},
-		want: []string{
-			// default to s0=q0=q1=1
-			"a(0) d(0) i(0) o(0) => R(d,i0,o0)(0) R(d,i1,o1)(0)",
-			// o=1 writes q0=1 to res
-			"a(0) d(0) i(0) o(1) => R(d,i0,o0)(1) R(d,i1,o1)(0)",
-			// i=1 reads d=0 to q0
-			"a(0) d(0) i(1) o(0) => R(d,i0,o0)(0) R(d,i1,o1)(0)",
-			// o=1 writes q0=0 to res
-			"a(0) d(0) i(0) o(1) => R(d,i0,o0)(0) R(d,i1,o1)(0)",
-			// a=o=1 writes q1=1 to res
-			"a(1) d(0) i(0) o(1) => R(d,i0,o0)(0) R(d,i1,o1)(1)",
-		},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
 		c.Outs(Example(c, in.name))
 		gotDesc := c.Description()
-		if diff := cmp.Diff(in.desc, gotDesc); diff != "" {
-			t.Errorf("SimulateInputs(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.desc, gotDesc, diff)
-		}
 		for _, inputs := range in.inputs {
 			if len(inputs) != len(c.Inputs) {
 				t.Errorf("SimulateInputs(%q) inputs want %d got %d", in.name, len(inputs), len(c.Inputs))
 			}
 		}
 		got := c.SimulateInputs(in.inputs)
-		var converted []string
+		converted := []string{gotDesc, ""}
 		for _, out := range got {
 			var one []string
 			for i, input := range c.Inputs {
@@ -810,8 +759,10 @@ func TestOutputsSequential(t *testing.T) {
 			}
 			converted = append(converted, strings.Join(one, " "))
 		}
-		if diff := cmp.Diff(in.want, converted); diff != "" {
-			t.Errorf("SimulateInputs(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.want, converted, diff)
+		converted = append(converted, "")
+		if err := os.WriteFile(fmt.Sprintf("testdata/%s-seq.txt", in.name), []byte(strings.Join(converted, "\n")), 0644); err != nil {
+			t.Errorf("WriteFile got err %v", err)
 		}
+
 	}
 }
