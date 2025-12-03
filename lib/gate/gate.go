@@ -21,7 +21,7 @@ func TransistorEmitter(parent *group.Group, base, collector *wire.Wire) []*wire.
 func TransistorGnd(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 	group := parent.Group("TransistorGnd")
 	collectorOut := &wire.Wire{Name: "co"}
-	group.Transistor(base, collector, group.Gnd, collectorOut)
+	group.Transistor(base, collector, group.Gnd(), collectorOut)
 	return []*wire.Wire{collectorOut}
 }
 
@@ -38,7 +38,7 @@ func Transistor(parent *group.Group, base, collector *wire.Wire) []*wire.Wire {
 func Not(parent *group.Group, a *wire.Wire) *wire.Wire {
 	group := parent.Group(sfmt.Sprintf("NOT(%s)", a.Name))
 	res := &wire.Wire{Name: group.Name}
-	group.Transistor(a, group.Vcc, group.Gnd, res)
+	group.Transistor(a, group.Vcc(), group.Gnd(), res)
 	return res
 }
 
@@ -48,7 +48,7 @@ func And(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	res := &wire.Wire{Name: group.Name}
 	wire := &wire.Wire{Name: sfmt.Sprintf("%s-wire", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: wire},
+		{Base: a, Collector: group.Vcc(), Emitter: wire},
 		{Base: b, Collector: wire, Emitter: res},
 	})
 	return res
@@ -67,8 +67,8 @@ func OrRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 	wire1 := &wire.Wire{Name: sfmt.Sprintf("%s-wire1", res.Name)}
 	wire2 := &wire.Wire{Name: sfmt.Sprintf("%s-wire2", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: wire1},
-		{Base: b, Collector: group.Vcc, Emitter: wire2},
+		{Base: a, Collector: group.Vcc(), Emitter: wire1},
+		{Base: b, Collector: group.Vcc(), Emitter: wire2},
 	})
 	group.JointWire(res, wire1, wire2)
 	return res
@@ -80,8 +80,8 @@ func Nand(parent *group.Group, a, b *wire.Wire) *wire.Wire {
 	res := &wire.Wire{Name: group.Name}
 	wire := &wire.Wire{Name: sfmt.Sprintf("%s-wire", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: wire, CollectorOut: res},
-		{Base: b, Collector: wire, Emitter: group.Gnd},
+		{Base: a, Collector: group.Vcc(), Emitter: wire, CollectorOut: res},
+		{Base: b, Collector: wire, Emitter: group.Gnd()},
 	})
 	return res
 }
@@ -107,8 +107,8 @@ func NorRes(parent *group.Group, res, a, b *wire.Wire) *wire.Wire {
 	wire1 := &wire.Wire{Name: sfmt.Sprintf("%s-wire1", res.Name)}
 	wire2 := &wire.Wire{Name: sfmt.Sprintf("%s-wire2", res.Name)}
 	group.AddTransistors([]*transistor.Transistor{
-		{Base: a, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire1},
-		{Base: b, Collector: group.Vcc, Emitter: group.Gnd, CollectorOut: wire2},
+		{Base: a, Collector: group.Vcc(), Emitter: group.Gnd(), CollectorOut: wire1},
+		{Base: b, Collector: group.Vcc(), Emitter: group.Gnd(), CollectorOut: wire2},
 	})
 	group.JointWireIsAnd(res, wire1, wire2)
 	return res

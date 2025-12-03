@@ -101,6 +101,9 @@ var (
 		"DLatch": func(c *circuit.Circuit) []*wire.Wire {
 			return latch.DLatch(c.Group(""), c.In("d"), c.In("e"))
 		},
+		"MSJKLatch": func(c *circuit.Circuit) []*wire.Wire {
+			return latch.MSJKLatch(c.Group(""), c.In("j"), c.In("k"), c.In("e"))
+		},
 		"Register": func(c *circuit.Circuit) []*wire.Wire {
 			return WS(reg.Register(c.Group(""), c.In("d"), c.In("i"), c.In("o")))
 		},

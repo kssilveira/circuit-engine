@@ -7,7 +7,7 @@ import (
 
 // Component contains the component interface.
 type Component interface {
-	Update()
+	Update(updateReaders bool)
 	String(depth int, cfg config.Config) string
 	Graph(depth int, cfg config.Config) string
 }

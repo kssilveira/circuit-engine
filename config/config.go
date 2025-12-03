@@ -10,4 +10,5 @@ type Config struct {
 	DrawShapePoint  bool
 	DrawEdges       bool
 	IsUnitTest      bool
+	SimulateInputs  []string
 }

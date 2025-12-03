@@ -19,12 +19,12 @@ type JointWire struct {
 }
 
 // Update updates this joint wire.
-func (w *JointWire) Update() {
+func (w *JointWire) Update(updateReaders bool) {
 	if w.IsAnd {
-		w.Res.Bit.Set(w.A.Bit.Get(w) && w.B.Bit.Get(w))
+		w.Res.Bit.Set(w.A.Bit.Get(w) && w.B.Bit.Get(w), w, updateReaders)
 		return
 	}
-	w.Res.Bit.Set(w.A.Bit.Get(w) || w.B.Bit.Get(w))
+	w.Res.Bit.Set(w.A.Bit.Get(w) || w.B.Bit.Get(w), w, updateReaders)
 }
 
 func (w JointWire) String(depth int, _ config.Config) string {

@@ -16,26 +16,52 @@ import (
 // Group contains a group of components.
 type Group struct {
 	Name       string
-	Vcc        *wire.Wire
-	Gnd        *wire.Wire
-	True       *wire.Wire
-	False      *wire.Wire
-	Unused     *wire.Wire
 	Components []component.Component
 }
 
 // Group creates a new group.
 func (g *Group) Group(name string) *Group {
-	res := &Group{Name: name, Vcc: g.Vcc, Gnd: g.Gnd, Unused: g.Unused, True: g.True, False: g.False}
+	res := &Group{Name: name}
 	g.Components = append(g.Components, res)
 	return res
 }
 
 // Update updates all components.
-func (g *Group) Update() {
+func (g *Group) Update(updateReaders bool) {
 	for _, component := range g.Components {
-		component.Update()
+		component.Update(updateReaders)
 	}
+}
+
+// Vcc creates a Vcc.
+func (g *Group) Vcc() *wire.Wire {
+	res := &wire.Wire{Name: "Vcc"}
+	res.Bit.SilentSet(true)
+	return res
+}
+
+// Gnd creates a Gnd.
+func (g *Group) Gnd() *wire.Wire {
+	res := &wire.Wire{Name: "Gnd"}
+	res.Gnd.SilentSet(true)
+	return res
+}
+
+// True creates a True.
+func (g *Group) True() *wire.Wire {
+	res := &wire.Wire{Name: "T"}
+	res.Bit.SilentSet(true)
+	return res
+}
+
+// False creates a False.
+func (g *Group) False() *wire.Wire {
+	return &wire.Wire{Name: "F"}
+}
+
+// Unused creates an Unused.
+func (g *Group) Unused() *wire.Wire {
+	return &wire.Wire{Name: "Unused"}
 }
 
 // JointWire adds a joint wire.
@@ -60,7 +86,7 @@ func (g *Group) Transistor(base, collector, emitter, collectorOut *wire.Wire) {
 // AddTransistor adds a transistor.
 func (g *Group) AddTransistor(transistor *transistor.Transistor) {
 	if transistor.CollectorOut == nil {
-		transistor.CollectorOut = g.Unused
+		transistor.CollectorOut = g.Unused()
 	}
 	g.Components = append(g.Components, transistor)
 }

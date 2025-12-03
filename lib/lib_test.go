@@ -149,6 +149,28 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 		}(),
 	}, {
+		name: "MSJKLatch",
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			mq := true
+			sq := true
+			return func(inputs map[string]bool) []bool {
+				if inputs["e"] {
+					if inputs["j"] && inputs["k"] {
+						sq = !sq
+					}
+					if inputs["j"] {
+						sq = true
+					}
+					if inputs["k"] {
+						sq = false
+					}
+				} else {
+					mq = sq
+				}
+				return []bool{mq, !mq}
+			}
+		}(),
+	}, {
 		name: "Register",
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true
@@ -618,6 +640,10 @@ func TestOutputsCombinational(t *testing.T) {
 				for i, input := range c.Inputs {
 					inputs[input.Name] = out[i] == '1'
 				}
+				outputs := map[string]bool{}
+				for i, output := range c.Outputs {
+					outputs[output.Name] = out[len(c.Inputs)+len("=>")+i] == '1'
+				}
 				wants := in.isValidBool(inputs)
 				for i, want := range wants {
 					oi := len(c.Inputs) + len("=>") + i
@@ -627,7 +653,7 @@ func TestOutputsCombinational(t *testing.T) {
 					}
 					got := out[oi] == '1'
 					if want != got {
-						t.Errorf("Simulate(%q) out %s output %s want %t got %#v", in.name, out, c.Outputs[i].Name, want, got)
+						t.Errorf("Simulate(%q) out %s output %s want %t got %#v\n\ninputs\n\n%#v\n\noutputs\n\n%#v\n\n", in.name, out, c.Outputs[i].Name, want, got, inputs, outputs)
 					}
 				}
 			}
@@ -653,6 +679,17 @@ func TestOutputsSequential(t *testing.T) {
 		want: []string{
 			"s(0) r(0) e(0) => q(1) nq(0)", "s(0) r(0) e(1) => q(1) nq(0)", "s(0) r(1) e(0) => q(1) nq(0)", "s(0) r(1) e(1) => q(0) nq(1)",
 			"s(0) r(0) e(0) => q(0) nq(1)", "s(1) r(0) e(0) => q(0) nq(1)", "s(1) r(0) e(1) => q(1) nq(0)", "s(0) r(0) e(0) => q(1) nq(0)",
+		},
+	}, {
+		name:   "MSJKLatch",
+		desc:   "j k e => mq nmq",
+		inputs: []string{"000", "011", "000", "101", "000", "111", "000", "111", "000"},
+		want: []string{
+			"j(0) k(0) e(0) => mq(1) nmq(0)", "j(0) k(1) e(1) => mq(1) nmq(0)",
+			"j(0) k(0) e(0) => mq(0) nmq(1)", "j(1) k(0) e(1) => mq(0) nmq(1)",
+			"j(0) k(0) e(0) => mq(1) nmq(0)", "j(1) k(1) e(1) => mq(1) nmq(0)",
+			"j(0) k(0) e(0) => mq(0) nmq(1)", "j(1) k(1) e(1) => mq(0) nmq(1)",
+			"j(0) k(0) e(0) => mq(1) nmq(0)",
 		},
 	}, {
 		name:   "AluWithBus",
@@ -696,7 +733,7 @@ func TestOutputsSequential(t *testing.T) {
 		c.Outs(Example(c, in.name))
 		gotDesc := c.Description()
 		if diff := cmp.Diff(in.desc, gotDesc); diff != "" {
-			t.Errorf("Simulate(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.desc, gotDesc, diff)
+			t.Errorf("SimulateInputs(%q) want %#v,\ngot %#v,\ndiff -want +got:\n%s", in.name, in.desc, gotDesc, diff)
 		}
 		for _, inputs := range in.inputs {
 			if len(inputs) != len(c.Inputs) {

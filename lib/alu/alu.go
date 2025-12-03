@@ -16,8 +16,8 @@ import (
 // Alu adds an artithmetic and logic unit.
 func Alu(parent *group.Group, a, ai, b, bi, ri, ro, cin *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU")
-	ra := reg.Register(group, a, ai, group.True)
-	rb := reg.Register(group, b, bi, group.True)
+	ra := reg.Register(group, a, ai, group.True())
+	rb := reg.Register(group, b, bi, group.True())
 	rs := sum.Sum(group, ra, rb, cin)
 	rs[1].Name = sfmt.Sprintf("C(%s,%s)", a.Name, b.Name)
 	rr := reg.Register(group, rs[0], ri, ro)
@@ -52,9 +52,9 @@ func N(parent *group.Group, a []*wire.Wire, ai *wire.Wire, b []*wire.Wire, bi, r
 func WithBus(parent *group.Group, d, ai, bi, ri, ro, c *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU-BUS")
 	a := &wire.Wire{Name: sfmt.Sprintf("%sa", d.Name)}
-	ra := reg.Register(group, a, ai, group.True)
+	ra := reg.Register(group, a, ai, group.True())
 	b := &wire.Wire{Name: sfmt.Sprintf("%sb", d.Name)}
-	rb := reg.Register(group, b, bi, group.True)
+	rb := reg.Register(group, b, bi, group.True())
 	rs := sum.Sum(group, ra, rb, c)
 	rr := reg.Register(group, rs[0], ri, ro)
 	rbus := bus.Bus(group, d, rr, a, b)
@@ -101,8 +101,8 @@ func WithRAM(parent *group.Group, d []*wire.Wire, ai, bi, ri, ro, c, mai, mi, mo
 		ma = append(ma, &wire.Wire{Name: sfmt.Sprintf("%sma", di.Name)})
 		m = append(m, &wire.Wire{Name: sfmt.Sprintf("%sm", di.Name)})
 	}
-	ra := reg.N(group, a, ai, group.True)
-	rb := reg.N(group, b, bi, group.True)
+	ra := reg.N(group, a, ai, group.True())
+	rb := reg.N(group, b, bi, group.True())
 	r := sum.N(group, ra, rb, c)
 	last := len(r) - 1
 	r[last].Name = sfmt.Sprintf("C(%s,%s)", a[last-1].Name, b[last-1].Name)
@@ -110,7 +110,7 @@ func WithRAM(parent *group.Group, d []*wire.Wire, ai, bi, ri, ro, c, mai, mi, mo
 	for i, ai := range a {
 		rr[i].Name = sfmt.Sprintf("R(S(%s,%s))", ai.Name, b[i].Name)
 	}
-	rma := reg.N(group, ma, mai, group.True)
+	rma := reg.N(group, ma, mai, group.True())
 	rm := ram.RAM(group, rma, m, mi, mo)
 	rd := bus.BnIOn(group, append([][]*wire.Wire{d, rr}, rm...), [][]*wire.Wire{a, b, m, ma})
 

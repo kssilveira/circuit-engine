@@ -23,7 +23,7 @@ func (w Wire) String() string {
 		return ""
 	}
 	list := []string{
-		BoolToString(w.Bit.Get(nil)),
+		BoolToString(w.Bit.SilentGet()),
 	}
 	if w.Gnd.Get(nil) {
 		list = append(list, "Gnd")

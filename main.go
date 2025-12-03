@@ -40,6 +40,7 @@ func flagsToConfig() config.Config {
 	drawEdges := flag.Bool("draw_edges", true, "draw edges")
 	drawShapePoint := flag.Bool("draw_shape_point", false, "draw shape point")
 	isUnitTest := flag.Bool("is_unit_test", false, "is unit test")
+	simulateInputs := flag.String("simulate_inputs", "", "simulate inputs")
 	flag.Parse()
 	return config.Config{
 		MaxPrintDepth:   *maxPrintDepth,
@@ -49,6 +50,7 @@ func flagsToConfig() config.Config {
 		DrawEdges:       *drawEdges,
 		DrawShapePoint:  *drawShapePoint,
 		IsUnitTest:      *isUnitTest,
+		SimulateInputs:  strings.Split(*simulateInputs, ","),
 	}
 }
 

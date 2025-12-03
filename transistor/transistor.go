@@ -19,19 +19,19 @@ type Transistor struct {
 }
 
 // Update updates the transistor.
-func (t *Transistor) Update() {
-	t.Emitter.Bit.Set(t.Base.Bit.Get(t) && t.Collector.Bit.Get(t))
+func (t *Transistor) Update(updateReaders bool) {
+	t.Emitter.Bit.Set(t.Base.Bit.Get(t) && t.Collector.Bit.Get(t), t, updateReaders)
 	if t.Collector.Bit.Get(t) {
 		if t.Base.Bit.Get(t) && t.Emitter.Gnd.Get(t) {
-			t.Collector.Gnd.Set(true)
-			t.CollectorOut.Bit.Set(false)
+			t.Collector.Gnd.Set(true, t, updateReaders)
+			t.CollectorOut.Bit.Set(false, t, updateReaders)
 		} else {
-			t.Collector.Gnd.Set(false)
-			t.CollectorOut.Bit.Set(true)
+			t.Collector.Gnd.Set(false, t, updateReaders)
+			t.CollectorOut.Bit.Set(true, t, updateReaders)
 		}
 	} else {
-		t.Collector.Gnd.Set(false)
-		t.CollectorOut.Bit.Set(false)
+		t.Collector.Gnd.Set(false, t, updateReaders)
+		t.CollectorOut.Bit.Set(false, t, updateReaders)
 	}
 }
 

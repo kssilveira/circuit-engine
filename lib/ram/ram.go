@@ -20,8 +20,7 @@ func RAM(parent *group.Group, a, d []*wire.Wire, ei, eo *wire.Wire) [][]*wire.Wi
 func ramAddress(group *group.Group, a []*wire.Wire) []*wire.Wire {
 	var s []*wire.Wire
 	for address := 0; address < 1<<len(a); address++ {
-		si := &wire.Wire{}
-		si.Bit.Set(true)
+		si := group.True()
 		for i, ai := range a {
 			if address>>i&1 == 1 {
 				si = gate.And(group, si, ai)

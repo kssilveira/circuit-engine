@@ -5,7 +5,6 @@ import (
 	"math/rand/v2"
 	"strings"
 
-	"github.com/kssilveira/circuit-engine/bit"
 	"github.com/kssilveira/circuit-engine/component"
 	"github.com/kssilveira/circuit-engine/config"
 	"github.com/kssilveira/circuit-engine/group"
@@ -16,11 +15,6 @@ import (
 // Circuit contains a single circuit.
 type Circuit struct {
 	Config           config.Config
-	Vcc              *wire.Wire
-	Gnd              *wire.Wire
-	True             *wire.Wire
-	False            *wire.Wire
-	Unused           *wire.Wire
 	Inputs           []*wire.Wire
 	Outputs          []*wire.Wire
 	Components       []component.Component
@@ -29,14 +23,7 @@ type Circuit struct {
 
 // NewCircuit creates a new circuit.
 func NewCircuit(config config.Config) *Circuit {
-	vcc := bit.Bit{}
-	vcc.Set(true)
-	gnd := bit.Bit{}
-	gnd.Set(true)
-	return &Circuit{
-		Config: config, Vcc: &wire.Wire{Name: "Vcc", Bit: vcc}, Gnd: &wire.Wire{Name: "Gnd", Gnd: gnd},
-		True: &wire.Wire{Name: "T", Bit: vcc}, False: &wire.Wire{Name: "F", Bit: gnd},
-		Unused: &wire.Wire{Name: "Unused"}}
+	return &Circuit{Config: config}
 }
 
 // In adds an input.
@@ -48,7 +35,7 @@ func (c *Circuit) In(name string) *wire.Wire {
 
 // Group adds a group.
 func (c *Circuit) Group(name string) *group.Group {
-	res := &group.Group{Name: name, Vcc: c.Vcc, Gnd: c.Gnd, True: c.True, False: c.False, Unused: c.Unused}
+	res := &group.Group{Name: name}
 	c.Components = append(c.Components, res)
 	return res
 }
@@ -66,7 +53,10 @@ func (c *Circuit) Outs(outputs []*wire.Wire) {
 // Update updates the components.
 func (c *Circuit) Update() {
 	for _, component := range c.Components {
-		component.Update()
+		component.Update(false /* updateReaders */)
+	}
+	for _, component := range c.Components {
+		component.Update(true /* updateReaders */)
 	}
 }
 
@@ -140,6 +130,9 @@ func (c Circuit) Graph() string {
 
 // Simulate simulates the circuit.
 func (c *Circuit) Simulate() []string {
+	if len(c.Config.SimulateInputs) > 0 {
+		return c.SimulateInputs(c.Config.SimulateInputs)
+	}
 	if !c.Config.DrawSingleGraph && len(c.Inputs) <= 7 {
 		return c.simulate(0)
 	}
