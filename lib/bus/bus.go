@@ -39,7 +39,7 @@ func N(parent *group.Group, d, r, aw, bw []*wire.Wire) []*wire.Wire {
 
 // IOn adds a communication bus with multiple inputs and outputs.
 func IOn(parent *group.Group, r, w []*wire.Wire) []*wire.Wire {
-	group := parent.Group(sfmt.Sprintf("B(%s)", r[0].Name))
+	group := parent.Group(sfmt.Sprintf("B%s", r[0].Name))
 	prev := &wire.Wire{Name: sfmt.Sprintf("%s-wire", group.Name)}
 	for _, ri := range r {
 		next := &wire.Wire{Name: sfmt.Sprintf("%s-wire", group.Name)}

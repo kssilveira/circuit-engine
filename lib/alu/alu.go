@@ -134,6 +134,9 @@ func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 
 	s := latch.CounterN(group, e, n)
 	sel := decode.Decode(group, s)
+	for i := range sel {
+		sel[i] = gate.And(group, sel[i], gate.Not(group, e))
+	}
 
 	co := gate.Or(group, sel[0], group.False())
 	co.Name = "co"
@@ -176,7 +179,7 @@ func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 	t[last].Name = sfmt.Sprintf("C(%s,%s)", a[last-1].Name, b[last-1].Name)
 	tr := reg.N(group, t[:last], ti, to)
 	for i, ai := range a {
-		tr[i].Name = sfmt.Sprintf("R(S(%s,%s))", ai.Name, b[i].Name)
+		tr[i].Name = sfmt.Sprintf("RS%s%s", ai.Name, b[i].Name)
 	}
 
 	cr := reg.N(group, latch.CounterN(group, ce, n), ci, co)

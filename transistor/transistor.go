@@ -16,10 +16,15 @@ type Transistor struct {
 	Collector    *wire.Wire
 	Emitter      *wire.Wire
 	CollectorOut *wire.Wire
+	updating     int
 }
 
 // Update updates the transistor.
 func (t *Transistor) Update(updateReaders bool) {
+	if t.updating >= 10 {
+		return
+	}
+	t.updating++
 	t.Emitter.Bit.Set(t.Base.Bit.Get(t) && t.Collector.Bit.Get(t), t, updateReaders)
 	if t.Collector.Bit.Get(t) {
 		if t.Base.Bit.Get(t) && t.Emitter.Gnd.Get(t) {
@@ -33,6 +38,7 @@ func (t *Transistor) Update(updateReaders bool) {
 		t.Collector.Gnd.Set(false, t, updateReaders)
 		t.CollectorOut.Bit.Set(false, t, updateReaders)
 	}
+	t.updating--
 }
 
 func (t Transistor) String(depth int, _ config.Config) string {

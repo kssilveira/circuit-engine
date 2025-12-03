@@ -58,6 +58,7 @@ func (c *Circuit) Update() {
 	for _, component := range c.Components {
 		component.Update(true /* updateReaders */)
 	}
+	// fmt.Println(c.StringForUnitTest())
 }
 
 // AddInputValidation adds input validation.

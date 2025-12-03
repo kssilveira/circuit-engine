@@ -1,3 +1,7 @@
-e => R(a) R(a) R(b) R(b) R(ce0) R(ce1) B(d) B(d) e0 e1 R(S(a,b)) R(S(a,b)) R(i) R(i) R(m) R(m) R(r00) R(r01) R(r10) R(r11) R(r20) R(r21) R(r30) R(r31)
+e => Ra Ra Rb Rb Rce0 Rce1 Bd Bd e0 e1 RSab RSab Ri Ri Rm Rm Rr00 Rr01 Rr10 Rr11 Rr20 Rr21 Rr30 Rr31
 
-e(0) => R(a)(1) R(a)(1) R(b)(1) R(b)(1) R(ce0)(0) R(ce1)(0) B(d)(1) B(d)(1) e0(1) e1(1) R(S(a,b))(0) R(S(a,b))(0) R(i)(0) R(i)(0) R(m)(1) R(m)(1) R(r00)(0) R(r01)(0) R(r10)(0) R(r11)(0) R(r20)(0) R(r21)(0) R(r30)(1) R(r31)(1)
+e(0) => Ra(1) Ra(1) Rb(1) Rb(1) Rce0(0) Rce1(0) Bd(1) Bd(1) e0(1) e1(1) RSab(0) RSab(0) Ri(0) Ri(0) Rm(1) Rm(1) Rr00(0) Rr01(0) Rr10(0) Rr11(0) Rr20(0) Rr21(0) Rr30(1) Rr31(1)
+e(1) => Ra(1) Ra(1) Rb(1) Rb(1) Rce0(0) Rce1(0) Bd(0) Bd(0) e0(1) e1(1) RSab(0) RSab(0) Ri(0) Ri(0) Rm(1) Rm(1) Rr00(0) Rr01(0) Rr10(0) Rr11(0) Rr20(0) Rr21(0) Rr30(0) Rr31(0)
+e(0) => Ra(1) Ra(1) Rb(1) Rb(1) Rce0(1) Rce1(1) Bd(1) Bd(1) e0(0) e1(0) RSab(0) RSab(0) Ri(0) Ri(0) Rm(1) Rm(1) Rr00(0) Rr01(0) Rr10(0) Rr11(0) Rr20(0) Rr21(0) Rr30(0) Rr31(0)
+e(1) => Ra(1) Ra(1) Rb(1) Rb(1) Rce0(0) Rce1(0) Bd(0) Bd(0) e0(0) e1(0) RSab(0) RSab(0) Ri(0) Ri(0) Rm(1) Rm(1) Rr00(0) Rr01(0) Rr10(0) Rr11(0) Rr20(0) Rr21(0) Rr30(0) Rr31(0)
+e(0) => Ra(1) Ra(1) Rb(1) Rb(1) Rce0(0) Rce1(0) Bd(1) Bd(1) e0(1) e1(0) RSab(0) RSab(0) Ri(0) Ri(0) Rm(1) Rm(1) Rr00(0) Rr01(0) Rr10(0) Rr11(0) Rr20(0) Rr21(0) Rr30(1) Rr31(1)

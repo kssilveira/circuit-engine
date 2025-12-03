@@ -731,6 +731,9 @@ func TestOutputsSequential(t *testing.T) {
 		name:   "MSJKLatch",
 		inputs: []string{"000", "011", "000", "101", "000", "111", "000", "111", "000"},
 	}, {
+		name:   "CounterN",
+		inputs: []string{"0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0", "1", "0"},
+	}, {
 		name:   "AluWithBus",
 		inputs: []string{"000000", "100000", "010000", "000110", "000111", "001010", "000111"},
 	}, {
@@ -738,7 +741,7 @@ func TestOutputsSequential(t *testing.T) {
 		inputs: []string{"0000", "0001", "0010", "0001", "1001"},
 	}, {
 		name:   "AluWithCPU",
-		inputs: []string{"0"},
+		inputs: []string{"0", "1", "0", "1", "0"},
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
