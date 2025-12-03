@@ -149,6 +149,8 @@ func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 	ii.Name = "ii"
 	ce := gate.Or(group, sel[1], group.False())
 	ce.Name = "ce"
+	ci := gate.Or(group, sel[2], group.False())
+	ci.Name = "ci"
 
 	io := gate.Or(group, sel[2], group.False())
 	io.Name = "io"
@@ -156,16 +158,14 @@ func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 	ai.Name = "ai"
 
 	bi := &wire.Wire{Name: "bi"}
-	ci := &wire.Wire{Name: "ci"}
 	ri := &wire.Wire{Name: "ri"}
 	ti := &wire.Wire{Name: "ti"}
 	to := &wire.Wire{Name: "to"}
 
-	var a, b, c, d, i, m, r []*wire.Wire
+	var a, b, d, i, m, r []*wire.Wire
 	for bit := 0; bit < n; bit++ {
 		a = append(a, &wire.Wire{Name: "a"})
 		b = append(b, &wire.Wire{Name: "b"})
-		c = append(c, &wire.Wire{Name: "c"})
 		d = append(d, &wire.Wire{Name: "d"})
 		i = append(i, &wire.Wire{Name: "i"})
 		m = append(m, &wire.Wire{Name: "m"})
@@ -186,7 +186,7 @@ func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 	ir := reg.N(group, i, ii, io)
 	mr := reg.N(group, m, mi, group.True())
 	rr := ram.RAM(group, mr, r, ri, ro)
-	dr := bus.BnIOn(group, append([][]*wire.Wire{d, cr, ir}, rr...), [][]*wire.Wire{a, b, c, i, m, r})
+	dr := bus.BnIOn(group, append([][]*wire.Wire{d, cr, ir}, rr...), [][]*wire.Wire{a, b, i, m, r})
 
 	return slices.Concat(ar, br, cr, dr, s, tr, ir, mr, slices.Concat(rr...))
 }
