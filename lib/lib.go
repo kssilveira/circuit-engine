@@ -231,6 +231,9 @@ var (
 			c.AddInputValidation(alu.WithRAMInputValidation(ai, bi, ri, ro, mai, mi, mo))
 			return alu.WithRAM(c.Group(""), d, ai, bi, ri, ro, cin, mai, mi, mo)
 		},
+		"AluWithCPU": func(c *circuit.Circuit) []*wire.Wire {
+			return alu.WithCPU(c.Group(""), c.In("e"), 1)
+		},
 		"": func(_ *circuit.Circuit) []*wire.Wire {
 			return nil
 		},

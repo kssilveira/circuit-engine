@@ -637,6 +637,13 @@ func TestOutputsCombinational(t *testing.T) {
 				return slices.Concat(append(d, sum[1]/2), qa, qb, rr, qma, slices.Concat(rm...))
 			}
 		}(),
+	}, {
+		name: "AluWithCPU",
+		isValidInt: func() func(inputs map[string]int) []int {
+			return func(_ map[string]int) []int {
+				return nil
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})

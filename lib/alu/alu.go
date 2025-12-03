@@ -124,3 +124,48 @@ func WithRAMInputValidation(ai, bi, ri, ro, mai, _, mo *wire.Wire) func() bool {
 			!(mai.Bit.Get(nil) && mo.Bit.Get(nil))
 	}
 }
+
+// WithCPU adds an arithmetic logic unit with CPU.
+func WithCPU(parent *group.Group, _ *wire.Wire, n int) []*wire.Wire {
+	group := parent.Group("ALU-RAM")
+	var a, b, c, d, i, m, r []*wire.Wire
+	for bit := 0; bit < n; bit++ {
+		a = append(a, &wire.Wire{Name: "a"})
+		b = append(b, &wire.Wire{Name: "b"})
+		c = append(c, &wire.Wire{Name: "c"})
+		d = append(d, &wire.Wire{Name: "d"})
+		i = append(i, &wire.Wire{Name: "i"})
+		m = append(m, &wire.Wire{Name: "m"})
+		r = append(r, &wire.Wire{Name: "r"})
+	}
+
+	ai := &wire.Wire{Name: "ai"}
+	bi := &wire.Wire{Name: "bi"}
+	ci := &wire.Wire{Name: "ci"}
+	co := &wire.Wire{Name: "co"}
+	ii := &wire.Wire{Name: "ii"}
+	io := &wire.Wire{Name: "io"}
+	mi := &wire.Wire{Name: "mi"}
+	ri := &wire.Wire{Name: "ri"}
+	ro := &wire.Wire{Name: "ro"}
+	si := &wire.Wire{Name: "si"}
+	so := &wire.Wire{Name: "so"}
+
+	ar := reg.N(group, a, ai, group.True())
+	br := reg.N(group, b, bi, group.True())
+	s := sum.N(group, ar, br, group.False())
+	last := len(s) - 1
+	s[last].Name = sfmt.Sprintf("C(%s,%s)", a[last-1].Name, b[last-1].Name)
+	sr := reg.N(group, s[:last], si, so)
+	for i, ai := range a {
+		sr[i].Name = sfmt.Sprintf("R(S(%s,%s))", ai.Name, b[i].Name)
+	}
+
+	cr := reg.N(group, c, ci, co)
+	ir := reg.N(group, i, ii, io)
+	mr := reg.N(group, m, mi, group.True())
+	rr := ram.RAM(group, mr, r, ri, ro)
+	dr := bus.BnIOn(group, append([][]*wire.Wire{d, cr, ir}, rr...), [][]*wire.Wire{a, b, c, i, m, r})
+
+	return slices.Concat(ar, br, cr, dr, sr, ir, mr, slices.Concat(rr...))
+}

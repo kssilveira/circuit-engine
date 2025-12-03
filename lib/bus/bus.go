@@ -49,7 +49,7 @@ func IOn(parent *group.Group, r, w []*wire.Wire) []*wire.Wire {
 	res := prev
 	res.Name = group.Name
 	for _, wi := range w {
-		group.JointWire(wi, res, res)
+		group.JointWire(wi, res, group.False())
 	}
 	return []*wire.Wire{res}
 }
