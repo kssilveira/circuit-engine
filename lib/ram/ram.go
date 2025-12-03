@@ -10,7 +10,7 @@ import (
 )
 
 // RAM adds a random access memory.
-func RAM(parent *group.Group, a, d []*wire.Wire, ei, eo *wire.Wire) []*wire.Wire {
+func RAM(parent *group.Group, a, d []*wire.Wire, ei, eo *wire.Wire) [][]*wire.Wire {
 	group := parent.Group("RAM")
 	s := ramAddress(group, a)
 	rei, reo := ramEnable(group, s, ei, eo)
@@ -49,13 +49,11 @@ func ramEnable(group *group.Group, s []*wire.Wire, ei, eo *wire.Wire) ([]*wire.W
 	return rei, reo
 }
 
-func ramRegisters(group *group.Group, d, ei, eo []*wire.Wire) []*wire.Wire {
-	var all []*wire.Wire
+func ramRegisters(group *group.Group, d, ei, eo []*wire.Wire) [][]*wire.Wire {
+	var all [][]*wire.Wire
 	for i, eii := range ei {
 		ri := reg.N(group, d, eii, eo[i])
-		for i := range d {
-			all = append(all, ri[i])
-		}
+		all = append(all, ri)
 	}
 	return all
 }

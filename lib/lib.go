@@ -2,6 +2,8 @@
 package lib
 
 import (
+	"slices"
+
 	"github.com/kssilveira/circuit-engine/circuit"
 	"github.com/kssilveira/circuit-engine/lib/alu"
 	"github.com/kssilveira/circuit-engine/lib/bus"
@@ -183,21 +185,21 @@ var (
 			return alu.WithBusN(c.Group(""), WS(d0, d1), ai, bi, ri, ro, cin)
 		},
 		"RAM": func(c *circuit.Circuit) []*wire.Wire {
-			return ram.RAM(
-				c.Group(""), WS(c.In("a")), WS(c.In("d")), c.In("i"), c.In("o"))
+			return slices.Concat(ram.RAM(
+				c.Group(""), WS(c.In("a")), WS(c.In("d")), c.In("i"), c.In("o"))...)
 		},
 		"RAMa2": func(c *circuit.Circuit) []*wire.Wire {
-			return ram.RAM(
-				c.Group(""), WS(c.In("a0"), c.In("a1")), WS(c.In("d")), c.In("i"), c.In("o"))
+			return slices.Concat(ram.RAM(
+				c.Group(""), WS(c.In("a0"), c.In("a1")), WS(c.In("d")), c.In("i"), c.In("o"))...)
 		},
 		"RAMb2": func(c *circuit.Circuit) []*wire.Wire {
-			return ram.RAM(
-				c.Group(""), WS(c.In("a")), WS(c.In("d0"), c.In("d1")), c.In("i"), c.In("o"))
+			return slices.Concat(ram.RAM(
+				c.Group(""), WS(c.In("a")), WS(c.In("d0"), c.In("d1")), c.In("i"), c.In("o"))...)
 		},
 		"RAMa2b2": func(c *circuit.Circuit) []*wire.Wire {
-			return ram.RAM(
+			return slices.Concat(ram.RAM(
 				c.Group(""), WS(c.In("a0"), c.In("a1")), WS(c.In("d0"), c.In("d1")),
-				c.In("i"), c.In("o"))
+				c.In("i"), c.In("o"))...)
 		},
 		"AluWithRAM": func(c *circuit.Circuit) []*wire.Wire {
 			d := c.In("d")
@@ -206,7 +208,7 @@ var (
 			cin := c.In("c")
 			mai, mi, mo := c.In("mai"), c.In("mi"), c.In("mo")
 			c.AddInputValidation(alu.WithRAMInputValidation(ai, bi, ri, ro, mai, mi, mo))
-			return alu.WithRAM(c.Group(""), d, ai, bi, ri, ro, cin, mai, mi, mo)
+			return alu.WithRAM(c.Group(""), WS(d), ai, bi, ri, ro, cin, mai, mi, mo)
 		},
 		"": func(_ *circuit.Circuit) []*wire.Wire {
 			return nil

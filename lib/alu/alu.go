@@ -92,22 +92,29 @@ func WithBusN(parent *group.Group, d []*wire.Wire, ai, bi, ri, ro, c *wire.Wire)
 }
 
 // WithRAM adds an arithmetic logic unit with RAM.
-func WithRAM(parent *group.Group, d, ai, bi, ri, ro, c, mai, mi, mo *wire.Wire) []*wire.Wire {
+func WithRAM(parent *group.Group, d []*wire.Wire, ai, bi, ri, ro, c, mai, mi, mo *wire.Wire) []*wire.Wire {
 	group := parent.Group("ALU-RAM")
-	a := &wire.Wire{Name: sfmt.Sprintf("%sa", d.Name)}
-	ra := reg.Register(group, a, ai, group.True)
-	b := &wire.Wire{Name: sfmt.Sprintf("%sb", d.Name)}
-	rb := reg.Register(group, b, bi, group.True)
-	r := sum.Sum(group, ra, rb, c)
-	r[1].Name = sfmt.Sprintf("C(%s,%s)", a.Name, b.Name)
-	rr := reg.Register(group, r[0], ri, ro)
-	rr.Name = sfmt.Sprintf("R(S(%s,%s))", a.Name, b.Name)
-	ma := &wire.Wire{Name: sfmt.Sprintf("%sma", d.Name)}
-	rma := reg.Register(group, ma, mai, group.True)
-	m := &wire.Wire{Name: sfmt.Sprintf("%sm", d.Name)}
-	rm := ram.RAM(group, []*wire.Wire{rma}, []*wire.Wire{m}, mi, mo)
-	rd := bus.IOn(group, append([]*wire.Wire{d, rr}, rm...), []*wire.Wire{a, b, m, ma})
-	return slices.Concat(append(rd, r[1], ra, rb, rr, rma), rm)
+	var a, b, ma, m []*wire.Wire
+	for _, di := range d {
+		a = append(a, &wire.Wire{Name: sfmt.Sprintf("%sa", di.Name)})
+		b = append(b, &wire.Wire{Name: sfmt.Sprintf("%sb", di.Name)})
+		ma = append(ma, &wire.Wire{Name: sfmt.Sprintf("%sma", di.Name)})
+		m = append(m, &wire.Wire{Name: sfmt.Sprintf("%sm", di.Name)})
+	}
+	ra := reg.N(group, a, ai, group.True)
+	rb := reg.N(group, b, bi, group.True)
+	r := sum.N(group, ra, rb, c)
+	last := len(r) - 1
+	r[last].Name = sfmt.Sprintf("C(%s,%s)", a[last-1].Name, b[last-1].Name)
+	rr := reg.N(group, r[:last], ri, ro)
+	for i, ai := range a {
+		rr[i].Name = sfmt.Sprintf("R(S(%s,%s))", ai.Name, b[i].Name)
+	}
+	rma := reg.N(group, ma, mai, group.True)
+	rm := ram.RAM(group, rma, m, mi, mo)
+	rd := bus.BnIOn(group, append([][]*wire.Wire{d, rr}, rm...), [][]*wire.Wire{a, b, m, ma})
+
+	return slices.Concat(append(rd, r[last]), ra, rb, rr, rma, slices.Concat(rm...))
 }
 
 // WithRAMInputValidation validates inputs with ram.
