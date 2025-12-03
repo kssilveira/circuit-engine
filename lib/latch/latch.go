@@ -71,3 +71,12 @@ func Counter(parent *group.Group, e *wire.Wire) []*wire.Wire {
 	c := &wire.Wire{Name: "c"}
 	return MSJKLatchRes(parent, c, group.True(), group.True(), e)[:1]
 }
+
+// Counter2 adds a 2-bit counter.
+func Counter2(parent *group.Group, e *wire.Wire) []*wire.Wire {
+	group := parent.Group(sfmt.Sprintf("COUNTER2(%s)", e.Name))
+	c0 := &wire.Wire{Name: "c0"}
+	c1 := MSJKLatchRes(parent, c0, group.True(), group.True(), e)[0]
+	c1.Name = "c1"
+	return []*wire.Wire{c0, c1}
+}

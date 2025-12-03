@@ -107,6 +107,9 @@ var (
 		"Counter": func(c *circuit.Circuit) []*wire.Wire {
 			return latch.Counter(c.Group(""), c.In("e"))
 		},
+		"Counter2": func(c *circuit.Circuit) []*wire.Wire {
+			return latch.Counter2(c.Group(""), c.In("e"))
+		},
 		"Register": func(c *circuit.Circuit) []*wire.Wire {
 			return WS(reg.Register(c.Group(""), c.In("d"), c.In("i"), c.In("o")))
 		},
