@@ -6,6 +6,8 @@ import (
 
 	"github.com/kssilveira/circuit-engine/group"
 	"github.com/kssilveira/circuit-engine/lib/bus"
+	"github.com/kssilveira/circuit-engine/lib/decode"
+	"github.com/kssilveira/circuit-engine/lib/gate"
 	"github.com/kssilveira/circuit-engine/lib/latch"
 	"github.com/kssilveira/circuit-engine/lib/ram"
 	"github.com/kssilveira/circuit-engine/lib/reg"
@@ -128,7 +130,34 @@ func WithRAMInputValidation(ai, bi, ri, ro, mai, _, mo *wire.Wire) func() bool {
 
 // WithCPU adds an arithmetic logic unit with CPU.
 func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
-	group := parent.Group("ALU-RAM")
+	group := parent.Group("CPU")
+
+	s := latch.CounterN(group, e, n)
+	sel := decode.Decode(group, s)
+
+	co := gate.Or(group, sel[0], group.False())
+	co.Name = "co"
+	mi := gate.Or(group, sel[0], sel[2])
+	mi.Name = "mi"
+
+	ro := gate.Or(group, sel[1], sel[3])
+	ro.Name = "ro"
+	ii := gate.Or(group, sel[1], group.False())
+	ii.Name = "ii"
+	ce := gate.Or(group, sel[1], group.False())
+	ce.Name = "ce"
+
+	io := gate.Or(group, sel[2], group.False())
+	io.Name = "io"
+	ai := gate.Or(group, sel[3], group.False())
+	ai.Name = "ai"
+
+	bi := &wire.Wire{Name: "bi"}
+	ci := &wire.Wire{Name: "ci"}
+	ri := &wire.Wire{Name: "ri"}
+	ti := &wire.Wire{Name: "ti"}
+	to := &wire.Wire{Name: "to"}
+
 	var a, b, c, d, i, m, r []*wire.Wire
 	for bit := 0; bit < n; bit++ {
 		a = append(a, &wire.Wire{Name: "a"})
@@ -140,18 +169,6 @@ func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 		r = append(r, &wire.Wire{Name: "r"})
 	}
 
-	ai := &wire.Wire{Name: "ai"}
-	bi := &wire.Wire{Name: "bi"}
-	ci := &wire.Wire{Name: "ci"}
-	co := &wire.Wire{Name: "co"}
-	ii := &wire.Wire{Name: "ii"}
-	io := &wire.Wire{Name: "io"}
-	mi := &wire.Wire{Name: "mi"}
-	ri := &wire.Wire{Name: "ri"}
-	ro := &wire.Wire{Name: "ro"}
-	ti := &wire.Wire{Name: "ti"}
-	to := &wire.Wire{Name: "to"}
-
 	ar := reg.N(group, a, ai, group.True())
 	br := reg.N(group, b, bi, group.True())
 	t := sum.N(group, ar, br, group.False())
@@ -162,9 +179,7 @@ func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 		tr[i].Name = sfmt.Sprintf("R(S(%s,%s))", ai.Name, b[i].Name)
 	}
 
-	s := latch.CounterN(group, e, n)
-
-	cr := reg.N(group, latch.CounterN(group, e, n), ci, co)
+	cr := reg.N(group, latch.CounterN(group, ce, n), ci, co)
 	ir := reg.N(group, i, ii, io)
 	mr := reg.N(group, m, mi, group.True())
 	rr := ram.RAM(group, mr, r, ri, ro)
