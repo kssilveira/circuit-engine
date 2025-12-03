@@ -202,13 +202,22 @@ var (
 				c.In("i"), c.In("o"))...)
 		},
 		"AluWithRAM": func(c *circuit.Circuit) []*wire.Wire {
-			d := c.In("d")
+			d := WS(c.In("d"))
 			ai, bi := c.In("ai"), c.In("bi")
 			ri, ro := c.In("ri"), c.In("ro")
 			cin := c.In("c")
 			mai, mi, mo := c.In("mai"), c.In("mi"), c.In("mo")
 			c.AddInputValidation(alu.WithRAMInputValidation(ai, bi, ri, ro, mai, mi, mo))
-			return alu.WithRAM(c.Group(""), WS(d), ai, bi, ri, ro, cin, mai, mi, mo)
+			return alu.WithRAM(c.Group(""), d, ai, bi, ri, ro, cin, mai, mi, mo)
+		},
+		"AluWithRAM2": func(c *circuit.Circuit) []*wire.Wire {
+			d := WS(c.In("d0"), c.In("d1"))
+			ai, bi := c.In("ai"), c.In("bi")
+			ri, ro := c.In("ri"), c.In("ro")
+			cin := c.In("c")
+			mai, mi, mo := c.In("mai"), c.In("mi"), c.In("mo")
+			c.AddInputValidation(alu.WithRAMInputValidation(ai, bi, ri, ro, mai, mi, mo))
+			return alu.WithRAM(c.Group(""), d, ai, bi, ri, ro, cin, mai, mi, mo)
 		},
 		"": func(_ *circuit.Circuit) []*wire.Wire {
 			return nil

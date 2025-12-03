@@ -512,6 +512,59 @@ func TestOutputsCombinational(t *testing.T) {
 				return []int{d, sum / 2, qa, qb, rr, qma, rm0, rm1}
 			}
 		}(),
+	}, {
+		name: "AluWithRAM2",
+		isValidInt: func() func(inputs map[string]int) []int {
+			qa, qb, qr, qma := []int{1, 1}, []int{1, 1}, []int{1, 1}, []int{1, 1}
+			qm := [][]int{{1, 1}, {1, 1}, {1, 1}, {1, 1}}
+			return func(inputs map[string]int) []int {
+				rr, d, sum := []int{0, 0}, []int{0, 0}, []int{0, 0}
+				rm := [][]int{{0, 0}, {0, 0}, {0, 0}, {0, 0}}
+				qmr, rmr := &qm[0], &rm[0]
+				s := []bool{
+					qma[0] == 0 && qma[1] == 0, qma[0] == 1 && qma[1] == 0,
+					qma[0] == 0 && qma[1] == 1, qma[0] == 1 && qma[1] == 1,
+				}
+				for i, si := range s {
+					if si {
+						qmr, rmr = &qm[i], &rm[i]
+						break
+					}
+				}
+				for i := 0; i < 10; i++ {
+					if inputs["ro"] == 1 {
+						rr = qr
+					}
+					if inputs["mo"] == 1 {
+						*rmr = *qmr
+					}
+					ind := []int{inputs["d0"], inputs["d1"]}
+					for i := range d {
+						if ind[i] == 1 || rr[i] == 1 || (*rmr)[i] == 1 {
+							d[i] = 1
+						}
+					}
+					if inputs["ai"] == 1 {
+						qa = d
+					}
+					if inputs["bi"] == 1 {
+						qb = d
+					}
+					if inputs["mai"] == 1 {
+						qma = d
+					}
+					if inputs["mi"] == 1 {
+						*qmr = d
+					}
+					sum[0] = qa[0] + qb[0] + inputs["c"]
+					sum[1] = qa[1] + qb[1] + sum[0]/2
+					if inputs["ri"] == 1 {
+						qr = []int{sum[0] % 2, sum[1] % 2}
+					}
+				}
+				return slices.Concat(append(d, sum[1]/2), qa, qb, rr, qma, slices.Concat(rm...))
+			}
+		}(),
 	}}
 	for _, in := range inputs {
 		c := circuit.NewCircuit(config.Config{IsUnitTest: true})
