@@ -202,6 +202,25 @@ func TestOutputsCombinational(t *testing.T) {
 			}
 		}(),
 	}, {
+		name: "CounterN",
+		isValidBool: func() func(inputs map[string]bool) []bool {
+			c0, s0 := true, true
+			c1, s1 := true, true
+			return func(inputs map[string]bool) []bool {
+				if inputs["e"] {
+					s0 = !c0
+				} else {
+					c0 = s0
+				}
+				if c0 {
+					s1 = !s1
+				} else {
+					c1 = s1
+				}
+				return []bool{c0, c1}
+			}
+		}(),
+	}, {
 		name: "Register",
 		isValidBool: func() func(inputs map[string]bool) []bool {
 			q := true

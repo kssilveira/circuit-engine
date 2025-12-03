@@ -80,3 +80,17 @@ func Counter2(parent *group.Group, e *wire.Wire) []*wire.Wire {
 	c1.Name = "c1"
 	return []*wire.Wire{c0, c1}
 }
+
+// CounterN adds an N-bit counter.
+func CounterN(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
+	group := parent.Group(sfmt.Sprintf("COUNTER%d(%s)", n, e.Name))
+	prev := &wire.Wire{Name: "c0"}
+	res := []*wire.Wire{prev}
+	for i := 1; i < n; i++ {
+		ci := MSJKLatchRes(parent, prev, group.True(), group.True(), e)[0]
+		ci.Name = sfmt.Sprintf("c%d", i)
+		res = append(res, ci)
+		prev = ci
+	}
+	return res
+}
