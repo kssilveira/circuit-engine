@@ -149,11 +149,12 @@ func WithCPU(parent *group.Group, e *wire.Wire, n int) []*wire.Wire {
 	ii.Name = "ii"
 	ce := gate.Or(group, sel[1], group.False())
 	ce.Name = "ce"
+
 	ci := gate.Or(group, sel[2], group.False())
 	ci.Name = "ci"
-
 	io := gate.Or(group, sel[2], group.False())
 	io.Name = "io"
+
 	ai := gate.Or(group, sel[3], group.False())
 	ai.Name = "ai"
 
